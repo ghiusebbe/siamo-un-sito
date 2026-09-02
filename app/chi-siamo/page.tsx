@@ -12,19 +12,19 @@ export default function AboutPage() {
       <div className="about-grid">
         <p>SIAMO racconta la scena musicale e culturale italiana con un focus su ciò che è emergente.</p>
         <Image
-          src="/media/community.webp"
-          alt="La comunità SIAMO durante un evento"
-          width={1200}
-          height={1000}
+          src="/media/instagram/festival-recap.jpg"
+          alt="Artista sul palco durante SIAMO il terzo festival"
+          width={1080}
+          height={1350}
           sizes="(max-width: 620px) 100vw, 50vw"
           priority
         />
         <p>Dalla carta agli eventi, SIAMO è una comunità che sostiene ciò che sta per nascere, crescere, esplodere.</p>
         <Image
-          src="/media/service-content-2.jpg"
-          alt="Produzione di contenuti SIAMO"
-          width={1000}
-          height={1200}
+          src="/media/instagram/hypersimposio-selton.jpg"
+          alt="Tavola rotonda HyperSimposio con i Selton"
+          width={720}
+          height={1280}
           sizes="(max-width: 620px) 100vw, 50vw"
         />
       </div>

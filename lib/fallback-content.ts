@@ -115,7 +115,7 @@ export const fallbackServices: Service[] = [
     intro:
       "Costruiamo collaborazioni tra brand, artisti, etichette e comunità culturali, trasformando obiettivi comuni in format credibili.",
     cover: "/media/community.webp",
-    gallery: ["/media/stock-partnership.webp"],
+    gallery: ["/media/instagram/tipule-collab.jpg"],
     deliverables: [
       { title: "Creative partnership", description: "Concept e attivazioni coerenti con entrambe le identità." },
       { title: "Media partnership", description: "Copertura editoriale e distribuzione attraverso i canali SIAMO." },
@@ -131,7 +131,7 @@ export const fallbackServices: Service[] = [
     intro:
       "Ideiamo e produciamo eventi culturali e musicali, curando direzione artistica, comunicazione, allestimento e contenuti.",
     cover: "/media/home-poster.webp",
-    gallery: ["/media/stock-events.webp"],
+    gallery: ["/media/instagram/festival-recap.jpg"],
     deliverables: [
       { title: "Format & direzione artistica", description: "Concept, programma, artisti e tono dell’esperienza." },
       { title: "Produzione", description: "Coordinamento operativo, fornitori e flussi della giornata." },
@@ -147,7 +147,7 @@ export const fallbackServices: Service[] = [
     intro:
       "Un’estetica pulita non basta: serve attitudine. Disegniamo l’identità visiva per brand, festival, release discografiche, etichette ed eventi, costruendo immaginari forti e coerenti con la cultura di riferimento.",
     cover: "/media/service-identity.jpg",
-    gallery: ["/media/service-identity-2.jpg", "/media/service-identity-3.jpg"],
+    gallery: ["/media/instagram/magazine-third-issue.jpg", "/media/service-identity-2.jpg", "/media/service-identity-3.jpg"],
     deliverables: [
       { title: "Brand Strategy & Visual System", description: "Loghi, palette, typography e linee guida visive complete." },
       { title: "Art Direction & Cover Art", description: "Direzione artistica per release, copertine, poster e materiali promozionali." },
@@ -167,7 +167,7 @@ export const fallbackServices: Service[] = [
     intro:
       "Produciamo contenuti visivi ed editoriali che parlano la lingua di oggi. Dalla fotografia ai format video e documentari, raccontiamo scene, retroscena artistici e progetti culturali.",
     cover: "/media/service-content.jpeg",
-    gallery: ["/media/service-content-2.jpg"],
+    gallery: ["/media/instagram/hypersimposio-selton.jpg", "/media/service-content-2.jpg"],
     deliverables: [
       { title: "Photo & Video Production", description: "Shooting, recap, aftermovie per eventi e videoclip." },
       { title: "Editorial & Copywriting", description: "Interviste, approfondimenti, recensioni e storytelling." },

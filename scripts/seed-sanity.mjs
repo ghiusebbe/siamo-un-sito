@@ -21,6 +21,10 @@ const imageFiles = {
   identity2: "service-identity-2.jpg", identity3: "service-identity-3.jpg",
   content: "service-content.jpeg", content2: "service-content-2.jpg",
   serigrafia: "service-serigrafia.jpg",
+  instagramMagazine: "instagram/magazine-third-issue.jpg",
+  instagramTipule: "instagram/tipule-collab.jpg",
+  instagramHypersimposio: "instagram/hypersimposio-selton.jpg",
+  instagramFestival: "instagram/festival-recap.jpg",
 };
 
 const assets = {};
@@ -49,7 +53,7 @@ const services = [
     _id: "service-partnership", title: "Partnership", slug: "partnership", order: 1,
     tagline: "Progetti condivisi, senza perdere identità.",
     intro: "Costruiamo collaborazioni tra brand, artisti, etichette e comunità culturali, trasformando obiettivi comuni in format credibili.",
-    coverImage: assets.community,
+    coverImage: assets.community, gallery: [assets.instagramTipule],
     deliverables: [
       { title: "Creative partnership", description: "Concept e attivazioni coerenti con entrambe le identità." },
       { title: "Media partnership", description: "Copertura editoriale e distribuzione attraverso i canali SIAMO." },
@@ -60,7 +64,7 @@ const services = [
     _id: "service-eventi", title: "Eventi", slug: "eventi", order: 2,
     tagline: "Dall’idea all’ultima cassa spenta.",
     intro: "Ideiamo e produciamo eventi culturali e musicali, curando direzione artistica, comunicazione, allestimento e contenuti.",
-    coverImage: assets.homePoster,
+    coverImage: assets.homePoster, gallery: [assets.instagramFestival],
     deliverables: [
       { title: "Format & direzione artistica", description: "Concept, programma, artisti e tono dell’esperienza." },
       { title: "Produzione", description: "Coordinamento operativo, fornitori e flussi della giornata." },
@@ -71,7 +75,7 @@ const services = [
     _id: "service-identity", title: "Identity", slug: "identity", order: 3,
     tagline: "Visual identity con un’anima.",
     intro: "Un’estetica pulita non basta: serve attitudine. Disegniamo l’identità visiva per brand, festival, release discografiche, etichette ed eventi.",
-    coverImage: assets.identity, gallery: [assets.identity2, assets.identity3],
+    coverImage: assets.identity, gallery: [assets.instagramMagazine, assets.identity2, assets.identity3],
     deliverables: [
       { title: "Brand Strategy & Visual System", description: "Loghi, palette, typography e linee guida complete." },
       { title: "Art Direction & Cover Art", description: "Direzione artistica per release, copertine, poster e materiali promozionali." },
@@ -86,7 +90,7 @@ const services = [
     _id: "service-content", title: "Content", slug: "content", order: 4,
     tagline: "Storie da raccontare, linguaggi da dominare.",
     intro: "Produciamo contenuti visivi ed editoriali che parlano la lingua di oggi, dalla fotografia ai format video e documentari.",
-    coverImage: assets.content, gallery: [assets.content2],
+    coverImage: assets.content, gallery: [assets.instagramHypersimposio, assets.content2],
     deliverables: [
       { title: "Photo & Video Production", description: "Shooting, recap, aftermovie e videoclip." },
       { title: "Editorial & Copywriting", description: "Interviste, approfondimenti, recensioni e storytelling." },

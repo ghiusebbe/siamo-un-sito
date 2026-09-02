@@ -11,6 +11,7 @@ import {
   getTimeline,
 } from "@/lib/content";
 import { formatDate } from "@/lib/format";
+import { instagramAssets } from "@/lib/instagram-assets";
 
 export default async function HomePage() {
   const [articles, events, magazines, services, settings, timeline] = await Promise.all([
@@ -118,11 +119,52 @@ export default async function HomePage() {
         </div>
       </section>
 
+      <section className="dark-section instagram-section">
+        <div className="shell split-heading">
+          <div className="heading-lockup">
+            <span className="section-count">02</span>
+            <DynamicTitle lines={["Dal feed."]} />
+          </div>
+          <a
+            className="text-link compact-link"
+            href={settings.instagramUrl}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Segui {settings.instagramHandle} ↗
+          </a>
+        </div>
+        <div className="shell instagram-grid">
+          {instagramAssets.map((asset) => (
+            <a
+              className={`instagram-card instagram-card-${asset.layout}`}
+              href={asset.href}
+              key={asset.id}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <Image
+                src={asset.src}
+                alt={asset.alt}
+                width={asset.width}
+                height={asset.height}
+                sizes="(max-width: 620px) 82vw, (max-width: 900px) 50vw, 42vw"
+              />
+              <span className="instagram-card-copy">
+                <small>{asset.category}</small>
+                <strong>{asset.title}</strong>
+              </span>
+              <span className="instagram-card-arrow" aria-hidden="true">↗</span>
+            </a>
+          ))}
+        </div>
+      </section>
+
       <section className="dark-section magazine-section">
         <div className="shell">
           <div className="section-heading">
             <div>
-              <span className="section-count">02</span>
+              <span className="section-count">03</span>
               <span className="eyebrow">I nostri cartacei in digitale</span>
             </div>
             <DynamicTitle lines={["Tre volumi.", "Una scena intera."]} />
@@ -153,7 +195,7 @@ export default async function HomePage() {
       <section className="dark-section studio-section">
         <div className="shell split-heading">
           <div className="heading-lockup">
-            <span className="section-count">03</span>
+            <span className="section-count">04</span>
             <DynamicTitle lines={["SIAMO Studio"]} />
           </div>
           <Link className="text-link compact-link" href="/servizi">Tutti i servizi ↗</Link>
@@ -191,8 +233,8 @@ export default async function HomePage() {
             <p>La raccontiamo su carta, la portiamo dal vivo e costruiamo progetti insieme a chi la rende possibile.</p>
             <Link className="text-link" href="/chi-siamo">Conosci SIAMO ↗</Link>
           </div>
-          <Image className="story-image story-image-one" src="/media/community.webp" alt="Comunità SIAMO durante un evento" width={1400} height={1000} sizes="(max-width: 620px) 100vw, 58vw" />
-          <Image className="story-image story-image-two" src="/media/service-serigrafia.jpg" alt="Laboratorio di serigrafia SIAMO" width={1000} height={1200} sizes="(max-width: 620px) 100vw, 42vw" />
+          <Image className="story-image story-image-one" src="/media/instagram/festival-recap.jpg" alt="Artista sul palco durante SIAMO il terzo festival" width={1080} height={1350} sizes="(max-width: 620px) 100vw, 58vw" />
+          <Image className="story-image story-image-two" src="/media/instagram/magazine-third-issue.jpg" alt="Terzo magazine SIAMO" width={720} height={900} sizes="(max-width: 620px) 100vw, 42vw" />
           <div className="latest-strip">
             <span className="eyebrow">Dall’archivio</span>
             {timeline.slice(0, 4).map((item) => <span key={item.id}>{item.year} — {item.title}</span>)}
