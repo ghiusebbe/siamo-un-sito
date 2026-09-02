@@ -127,3 +127,13 @@ test("keeps advertising imports scoped to article detail pages", async () => {
   await findImporters(appRoot);
   assert.deepEqual(importers.sort(), ["app/articoli/[slug]/page.tsx"]);
 });
+
+test("serves bundled media directly instead of through the image optimizer", async () => {
+  const [component, config] = await Promise.all([
+    readFile(path.join(root, "components/site-image.tsx"), "utf8"),
+    readFile(path.join(root, "next.config.ts"), "utf8"),
+  ]);
+
+  assert.match(component, /unoptimized=\{props\.unoptimized \?\? true\}/);
+  assert.match(config, /unoptimized:\s*true/);
+});

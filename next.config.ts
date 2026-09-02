@@ -2,7 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    unoptimized: process.env.NODE_ENV === "development",
+    // Media is committed in public/media and should be served directly by Sites.
+    unoptimized: true,
     formats: ["image/avif", "image/webp"],
     qualities: [75],
     minimumCacheTTL: 86400,
