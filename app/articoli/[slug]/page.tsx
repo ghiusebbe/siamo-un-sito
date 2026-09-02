@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "@/components/site-image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ArticleAdSlot } from "@/components/article-ad-slot";
 import { RichTextContent } from "@/components/rich-text";
 import { getArticle, getArticles } from "@/lib/content";
 import { formatDate } from "@/lib/format";
@@ -38,7 +39,13 @@ export default async function ArticlePage({ params }: Props) {
         sizes="(max-width: 1220px) 100vw, 1180px"
         priority
       />
-      <div className="editorial-body"><RichTextContent value={article.body} /></div>
+      <div className="editorial-body">
+        <RichTextContent
+          inlineContent={<ArticleAdSlot placement="inline" />}
+          value={article.body}
+        />
+      </div>
+      <ArticleAdSlot placement="footer" />
       {next ? <Link className="next-content" href={`/articoli/${next.slug}`}><span>Continua a leggere</span><strong>{next.title} ↗</strong></Link> : null}
     </article>
   );

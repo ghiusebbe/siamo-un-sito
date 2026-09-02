@@ -83,3 +83,47 @@ test("renders sidebar skeletons deterministically", async () => {
   assert.equal(first, second);
   assert.match(first, /--skeleton-width:70%/);
 });
+
+test("inserts inline article content only after the third block of long copy", async () => {
+  const { RichTextContent } = await vite.ssrLoadModule("/components/rich-text.tsx");
+  const marker = React.createElement("aside", { "data-test-ad": true }, "Ad");
+  const longCopy = ["One", "Two", "Three", "Four", "Five"];
+  const shortCopy = ["One", "Two", "Three", "Four"];
+
+  const longHtml = renderToStaticMarkup(
+    React.createElement(RichTextContent, {
+      inlineContent: marker,
+      value: longCopy,
+    }),
+  );
+  const shortHtml = renderToStaticMarkup(
+    React.createElement(RichTextContent, {
+      inlineContent: marker,
+      value: shortCopy,
+    }),
+  );
+
+  assert.match(longHtml, /<p>Three<\/p><aside data-test-ad="true">Ad<\/aside><p>Four<\/p>/);
+  assert.doesNotMatch(shortHtml, /data-test-ad/);
+});
+
+test("keeps advertising imports scoped to article detail pages", async () => {
+  const appRoot = path.join(root, "app");
+  const importers = [];
+
+  async function findImporters(directory) {
+    const entries = await readdir(directory, { withFileTypes: true });
+    await Promise.all(entries.map(async (entry) => {
+      const entryPath = path.join(directory, entry.name);
+      if (entry.isDirectory()) return findImporters(entryPath);
+      if (!entry.name.endsWith(".tsx")) return;
+      const source = await readFile(entryPath, "utf8");
+      if (source.includes("@/components/article-ad-slot")) {
+        importers.push(path.relative(root, entryPath));
+      }
+    }));
+  }
+
+  await findImporters(appRoot);
+  assert.deepEqual(importers.sort(), ["app/articoli/[slug]/page.tsx"]);
+});

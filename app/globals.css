@@ -169,6 +169,11 @@ button, input { font: inherit; }
 .prose h2 { font-size: 42px; line-height: 1; margin: 1.6em 0 .6em; }
 .prose h3 { font-size: 30px; margin-top: 1.6em; }
 .prose blockquote { border-left: 3px solid var(--acid); margin: 2em 0; padding: 0 0 0 24px; font-size: 28px; }
+.article-ad { width: min(970px, 100%); margin: 0 auto 70px; text-align: center; }
+.article-ad--inline { width: min(728px, calc(100vw - 28px)); margin: 54px 50%; transform: translateX(-50%); }
+.article-ad__label { display: block; margin-bottom: 9px; color: #6f6f6b; font-size: 10px; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; }
+.article-ad__frame { min-height: 90px; display: grid; place-items: center; overflow: hidden; border: 1px solid rgba(255,255,255,.1); border-radius: 14px; background: rgba(255,255,255,.025); }
+.article-ad[data-state="loading"] .article-ad__label { opacity: .55; }
 .next-content { display: flex; align-items: end; justify-content: space-between; border-top: 1px solid var(--line); padding-top: 24px; }
 .next-content span { color: var(--muted); }
 .next-content strong { font-size: clamp(23px, 4vw, 44px); letter-spacing: -.04em; }
@@ -317,6 +322,9 @@ button, input { font: inherit; }
   .editorial-meta { flex-direction: column; gap: 5px; }
   .editorial-cover { border-radius: 18px; }
   .prose { font-size: 18px; }
+  .article-ad { margin-bottom: 52px; }
+  .article-ad--inline { margin-block: 44px; }
+  .article-ad__frame { min-height: 100px; border-radius: 12px; }
   .next-content { align-items: start; flex-direction: column; gap: 14px; }
   .event-card { grid-template-columns: 1fr 28px; gap: 16px; }
   .event-card img { grid-column: 1 / -1; width: 100%; aspect-ratio: 1.45; }
