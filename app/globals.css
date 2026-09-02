@@ -293,7 +293,11 @@ button, input { font: inherit; }
   .home-intro-copy { font-size: 17px; padding-inline: 18px; }
   .bento-grid { display: flex; flex-direction: column; }
   .bento-card { min-height: 220px; border-radius: 22px; }
-  .bento-stack { display: grid; grid-template-columns: 1fr 1fr; }
+  .bento-stack {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr;
+  }
   .bento-stack .bento-card { min-height: 145px; padding: 20px; }
   .dark-section { border-top-width: 8px; }
   .magazine-section, .story-section, .latest-section { padding-block: 76px; }
