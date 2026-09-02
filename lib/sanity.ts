@@ -12,6 +12,7 @@ export const sanityClient = projectId
       apiVersion: "2026-08-01",
       useCdn: true,
       perspective: "published",
+      requestTagPrefix: "siamo",
     })
   : null;
 

@@ -1,4 +1,4 @@
-# SIAMO Un Magazine
+# SIAMO Magazine
 
 Migrazione completa del sito SIAMO da Framer a Next.js con Sanity Studio.
 
@@ -41,3 +41,17 @@ Le immagini locali e quelle pubblicate da Sanity vengono ridimensionate automati
 ## URL migrati
 
 I vecchi URL `/articoli-cms/*` e `/eventi-cms/*` effettuano redirect permanenti verso i nuovi URL puliti.
+
+## Architettura dati e cache
+
+Sanity è l'unica source of truth applicativa: articoli, eventi, servizi, timeline, magazine, impostazioni e iscritti newsletter sono gestiti dal Content Lake. Il progetto non richiede un database D1/Drizzle parallelo.
+
+Le letture pubbliche usano il CDN di Sanity e una cache applicativa con TTL differenziati:
+
+- articoli ed eventi: 5 minuti;
+- servizi, timeline e impostazioni: 1 ora;
+- magazine: 24 ore.
+
+Questo evita una richiesta origin a Sanity per ogni pageview e mantiene più freschi i contenuti editoriali che cambiano spesso. I fallback locali vengono usati solo quando Sanity non è configurato, non risponde o restituisce un valore nullo; una collezione CMS volutamente vuota resta vuota.
+
+Su deployment Cloudflare molto trafficati si può aggiungere in seguito un backend condiviso per la Data Cache di Vinext (per esempio KV) senza reintrodurre un database applicativo.
