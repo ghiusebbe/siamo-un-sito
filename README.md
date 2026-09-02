@@ -1,4 +1,4 @@
-# SIAMO Magazine
+# SIAMO Un Magazine
 
 Migrazione completa del sito SIAMO da Framer a Next.js con Sanity Studio.
 
