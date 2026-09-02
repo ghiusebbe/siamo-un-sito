@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "@/components/site-image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { DynamicTitle } from "@/components/dynamic-title";
 import { getService, getServices } from "@/lib/content";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -20,7 +21,7 @@ export default async function ServiceDetailPage({ params }: Props) {
     <article className="service-detail">
       <header className="service-detail-hero shell">
         <span className="eyebrow">SIAMO Studio</span>
-        <h1>{service.title}</h1>
+        <DynamicTitle as="h1" lines={[service.title]} eager />
         <p className="service-tagline">{service.tagline}</p>
         <p className="service-intro">{service.intro}</p>
       </header>
@@ -60,7 +61,7 @@ export default async function ServiceDetailPage({ params }: Props) {
       ) : null}
       {service.faq.length ? (
         <section className="faq-section shell">
-          <h2>Domande frequenti</h2>
+          <DynamicTitle lines={["Domande frequenti"]} />
           {service.faq.map((item) => <details key={item.question}><summary>{item.question}</summary><p>{item.answer}</p></details>)}
         </section>
       ) : null}

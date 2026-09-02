@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "@/components/site-image";
 import Link from "next/link";
+import { DynamicTitle } from "@/components/dynamic-title";
 
 export const metadata: Metadata = { title: "Chi siamo" };
 
@@ -8,7 +9,7 @@ export default function AboutPage() {
   return (
     <article className="about-page shell">
       <span className="eyebrow">Progetto editoriale indipendente</span>
-      <h1>SIAMO</h1>
+      <DynamicTitle as="h1" lines={["SIAMO"]} eager />
       <div className="about-grid">
         <p>SIAMO racconta la scena musicale e culturale italiana con un focus su ciò che è emergente.</p>
         <Image

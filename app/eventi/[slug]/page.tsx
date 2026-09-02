@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "@/components/site-image";
 import { notFound } from "next/navigation";
 import { RichTextContent } from "@/components/rich-text";
+import { DynamicTitle } from "@/components/dynamic-title";
 import { getEvent } from "@/lib/content";
 import { formatDate } from "@/lib/format";
 
@@ -20,7 +21,7 @@ export default async function EventDetailPage({ params }: Props) {
     <article className="event-detail shell">
       <div className="event-detail-copy">
         <span className="eyebrow">{event.status === "upcoming" ? "Prossimo evento" : "Dall’archivio"}</span>
-        <h1>{event.title}</h1>
+        <DynamicTitle as="h1" lines={[event.title]} eager />
         <div className="event-facts">
           <span>{formatDate(event.date)}</span>
           {event.venue ? <span>{event.venue}</span> : null}
