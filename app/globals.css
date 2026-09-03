@@ -971,6 +971,8 @@ html { scroll-padding-top: calc(var(--header-height) + 24px); }
 }
 .bento-card-arrow { color: var(--acid); }
 .card-hover:hover { border-color: var(--acid); background: #181818; }
+.bento-small .bento-card-copy strong { font-size: clamp(34px, 3.4vw, 52px); }
+.bento-photo { padding: 26px 28px; }
 .bento-stack .bento-nav-card .bento-card-copy strong { font-size: clamp(27px, 2.5vw, 38px); }
 
 /* Full-screen vertical home feed on portrait phones. Each rich section keeps its content
@@ -1026,6 +1028,7 @@ html { scroll-padding-top: calc(var(--header-height) + 24px); }
     margin: 0;
     padding: 0;
     display: flex;
+    flex-direction: row;
     align-items: stretch;
     gap: 12px;
     overflow-x: auto;
