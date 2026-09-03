@@ -3,7 +3,6 @@ import Image from "@/components/site-image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArticleAdSlot } from "@/components/article-ad-slot";
-import { DynamicTitle } from "@/components/dynamic-title";
 import { RichTextContent } from "@/components/rich-text";
 import { getArticle, getArticles } from "@/lib/content";
 import { formatDate } from "@/lib/format";
@@ -26,10 +25,14 @@ export default async function ArticlePage({ params }: Props) {
   return (
     <article className="editorial-page shell">
       <header className="editorial-header">
+        <Link className="back-link" href="/articoli">← Tutti gli articoli</Link>
         <span className="eyebrow">{article.category}</span>
-        <DynamicTitle as="h1" lines={[article.title]} eager />
+        <h1>{article.title}</h1>
         <p className="editorial-subtitle">{article.subtitle}</p>
-        <div className="editorial-meta"><span>{article.author}</span><span>{formatDate(article.publishedAt)}</span></div>
+        <div className="editorial-meta">
+          <span>{article.author}</span>
+          <time dateTime={article.publishedAt}>{formatDate(article.publishedAt)}</time>
+        </div>
       </header>
       <Image
         className="editorial-cover"

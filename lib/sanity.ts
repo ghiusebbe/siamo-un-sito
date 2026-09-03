@@ -5,6 +5,9 @@ const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || "production";
 
 export const sanityConfigured = Boolean(projectId);
 
+/** The newsletter needs a write token: without it the form would only produce errors. */
+export const newsletterConfigured = Boolean(projectId && process.env.SANITY_API_WRITE_TOKEN);
+
 export const sanityClient = projectId
   ? createClient({
       projectId,

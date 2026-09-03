@@ -14,11 +14,9 @@ export const fallbackSettings: SiteSettings = {
   email: "siamounmagazine@gmail.com",
   instagramHandle: "@siamounmagazine",
   instagramUrl: "https://www.instagram.com/siamounmagazine/",
-  metrics: [
-    { value: "1200+", label: "Articoli" },
-    { value: "50+", label: "Eventi" },
-    { value: "20K", label: "Followers" },
-  ],
+  // Metrics come from the CMS only: unverifiable figures on a site with two
+  // articles cost credibility, so the fallback shows none.
+  metrics: [],
 };
 
 export const fallbackMagazines: Magazine[] = [

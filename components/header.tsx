@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import Image from "@/components/site-image";
+import { NewTabNote } from "@/components/new-tab-note";
 
 const links = [
   ["Articoli", "/articoli"],
@@ -94,11 +95,9 @@ export function Header() {
             </Link>
           ))}
           <a className="desktop-social" href="https://www.instagram.com/siamounmagazine/" target="_blank" rel="noreferrer">
-            IG ↗
+            IG ↗<NewTabNote />
           </a>
         </nav>
-
-        <span className="header-index">INDIPENDENTE · ITALIA</span>
 
         <button
           className="mobile-menu-trigger"
@@ -127,7 +126,7 @@ export function Header() {
             </Link>
           ))}
           <a className="mobile-instagram" href="https://www.instagram.com/siamounmagazine/" target="_blank" rel="noreferrer" onClick={() => setMenuOpen(false)}>
-            <span>IG</span><strong>Instagram</strong><span aria-hidden="true">↗</span>
+            <span>IG</span><strong>Instagram<NewTabNote /></strong><span aria-hidden="true">↗</span>
           </a>
         </div>
       </nav>
