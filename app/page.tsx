@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "@/components/site-image";
 import { DynamicTitle } from "@/components/dynamic-title";
 import { NewsletterForm } from "@/components/newsletter-form";
+import { NewTabNote } from "@/components/new-tab-note";
 import {
   getArticles,
   getEvents,
@@ -12,6 +13,7 @@ import {
 } from "@/lib/content";
 import { formatDate } from "@/lib/format";
 import { instagramAssets } from "@/lib/instagram-assets";
+import { newsletterConfigured } from "@/lib/sanity";
 
 export default async function HomePage() {
   const [articles, events, magazines, services, settings, timeline] = await Promise.all([
@@ -25,20 +27,32 @@ export default async function HomePage() {
 
   const leadArticle = articles[0];
   const leadEvent = events[0];
+  const upcomingEvent = events.find((event) => event.status === "upcoming");
+  const latestArticles = articles.slice(0, 3);
+
+  // Sections earn their place with content: a "latest" rail with one card or a
+  // promo for an event already in the bento would only repeat what is above.
+  const showLatest = latestArticles.length >= 2;
+  const showEventPromo = Boolean(upcomingEvent);
+  const showMetrics = settings.metrics.length > 0;
+  const showNewsletter = newsletterConfigured;
+  const sectionNumbers = ["01", "02", "03", "04"];
+  let sectionIndex = 0;
+  const nextSectionNumber = () => sectionNumbers[sectionIndex++];
 
   return (
     <div className="home-feed">
       <section className="home-intro shell">
-        <div className="wordmark" aria-label="SIAMO">
+        <h1 className="wordmark">
           <Image
             src="/brand/siamo-wordmark-black.png"
-            alt=""
+            alt="SIAMO"
             width={2200}
             height={546}
             sizes="100vw"
             priority
           />
-        </div>
+        </h1>
         <div className="home-intro-row">
           <p className="home-intro-copy">Musica, immagini, persone e tutto quello che sta per esplodere.</p>
           <span className="home-intro-index">Magazine indipendente · Italia</span>
@@ -117,9 +131,10 @@ export default async function HomePage() {
                 className="bento-brand-illustration"
                 src="/brand/siamo-illustration.png"
                 alt=""
-                width={1500}
-                height={1380}
+                width={1000}
+                height={920}
                 sizes="(max-width: 767px) 84vw, 25vw"
+                loading="lazy"
               />
               <span className="bento-card-copy"><small>Il magazine</small><strong>Chi siamo?</strong></span>
               <span className="bento-card-arrow" aria-hidden="true">↗</span>
@@ -128,38 +143,32 @@ export default async function HomePage() {
         </nav>
       </section>
 
-      <section className="dark-section latest-section">
-        <div className="shell split-heading">
-          <div className="heading-lockup">
-            <span className="section-count">01</span>
-            <DynamicTitle lines={["Ultime storie"]} />
+      {showLatest ? (
+        <section className="dark-section latest-section">
+          <div className="shell split-heading">
+            <div className="heading-lockup">
+              <span className="section-count">{nextSectionNumber()}</span>
+              <DynamicTitle lines={["Ultime storie"]} />
+            </div>
+            <Link className="text-link compact-link" href="/articoli">Tutti gli articoli ↗</Link>
           </div>
-          <Link className="text-link compact-link" href="/articoli">Tutti gli articoli ↗</Link>
-        </div>
-        <div className="shell latest-grid">
-          {articles.slice(0, 3).map((article) => (
-            <Link className="latest-card" href={`/articoli/${article.slug}`} key={article.id}>
-              <Image src={article.cover} alt="" width={900} height={830} sizes="(max-width: 900px) 76vw, 33vw" />
-              <span className="eyebrow">{article.category} · {formatDate(article.publishedAt)}</span>
-              <h3>{article.title}</h3>
-              <p>{article.excerpt}</p>
-            </Link>
-          ))}
-          {articles.length < 3 && leadEvent ? (
-            <Link className="latest-card latest-event" href={`/eventi/${leadEvent.slug}`}>
-              <Image src={leadEvent.cover} alt="" width={900} height={830} sizes="(max-width: 900px) 76vw, 33vw" />
-              <span className="eyebrow">Evento · {formatDate(leadEvent.date)}</span>
-              <h3>{leadEvent.title}</h3>
-              <p>{leadEvent.lineup.join(" · ")}</p>
-            </Link>
-          ) : null}
-        </div>
-      </section>
+          <div className="shell latest-grid">
+            {latestArticles.map((article) => (
+              <Link className="latest-card" href={`/articoli/${article.slug}`} key={article.id}>
+                <Image src={article.cover} alt="" width={900} height={830} sizes="(max-width: 900px) 76vw, 33vw" />
+                <span className="eyebrow">{article.category} · {formatDate(article.publishedAt)}</span>
+                <h3>{article.title}</h3>
+                <p>{article.excerpt}</p>
+              </Link>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <section className="dark-section instagram-section">
         <div className="shell split-heading">
           <div className="heading-lockup">
-            <span className="section-count">02</span>
+            <span className="section-count">{nextSectionNumber()}</span>
             <DynamicTitle lines={["Dal feed."]} />
           </div>
           <a
@@ -168,7 +177,7 @@ export default async function HomePage() {
             target="_blank"
             rel="noreferrer"
           >
-            Segui {settings.instagramHandle} ↗
+            Segui {settings.instagramHandle} ↗<NewTabNote />
           </a>
         </div>
         <div className="shell instagram-grid">
@@ -189,7 +198,7 @@ export default async function HomePage() {
               />
               <span className="instagram-card-copy">
                 <small>{asset.category}</small>
-                <strong>{asset.title}</strong>
+                <strong>{asset.title}<NewTabNote /></strong>
               </span>
               <span className="instagram-card-arrow" aria-hidden="true">↗</span>
             </a>
@@ -201,7 +210,7 @@ export default async function HomePage() {
         <div className="shell">
           <div className="section-heading">
             <div>
-              <span className="section-count">03</span>
+              <span className="section-count">{nextSectionNumber()}</span>
               <span className="eyebrow">I nostri cartacei in digitale</span>
             </div>
             <DynamicTitle lines={["Tre volumi.", "Una scena intera."]} />
@@ -221,7 +230,9 @@ export default async function HomePage() {
                 <div>
                   <span>Volume {magazine.volume}</span>
                   <h3>{magazine.title}</h3>
-                  <a className="acid-button" href={magazine.checkoutUrl} target="_blank" rel="noreferrer">Acquista ↗</a>
+                  <a className="acid-button" href={magazine.checkoutUrl} target="_blank" rel="noreferrer">
+                    Acquista ↗<span className="sr-only"> {magazine.title}</span><NewTabNote />
+                  </a>
                 </div>
               </article>
             ))}
@@ -232,7 +243,7 @@ export default async function HomePage() {
       <section className="dark-section studio-section">
         <div className="shell split-heading">
           <div className="heading-lockup">
-            <span className="section-count">04</span>
+            <span className="section-count">{nextSectionNumber()}</span>
             <DynamicTitle lines={["SIAMO Studio"]} />
           </div>
           <Link className="text-link compact-link" href="/servizi">Tutti i servizi ↗</Link>
@@ -250,6 +261,7 @@ export default async function HomePage() {
                     width={900}
                     height={760}
                     sizes="(max-width: 620px) 86vw, (max-width: 900px) 46vw, 33vw"
+                    loading="lazy"
                   />
                 ) : null}
                 <span>{String(index + 1).padStart(2, "0")}</span>
@@ -270,8 +282,8 @@ export default async function HomePage() {
             <p>La raccontiamo su carta, la portiamo dal vivo e costruiamo progetti insieme a chi la rende possibile.</p>
             <Link className="text-link" href="/chi-siamo">Conosci SIAMO ↗</Link>
           </div>
-          <Image className="story-image story-image-one" src="/media/instagram/festival-recap.jpg" alt="Artista sul palco durante SIAMO il terzo festival" width={1080} height={1350} sizes="(max-width: 620px) 100vw, 58vw" />
-          <Image className="story-image story-image-two" src="/media/instagram/magazine-third-issue.jpg" alt="Terzo magazine SIAMO" width={720} height={900} sizes="(max-width: 620px) 100vw, 42vw" />
+          <Image className="story-image story-image-one" src="/media/instagram/festival-recap.jpg" alt="Artista sul palco durante SIAMO il terzo festival" width={1080} height={1350} sizes="(max-width: 620px) 100vw, 58vw" loading="lazy" />
+          <Image className="story-image story-image-two" src="/media/instagram/magazine-third-issue.jpg" alt="Terzo magazine SIAMO" width={720} height={900} sizes="(max-width: 620px) 100vw, 42vw" loading="lazy" />
           <div className="latest-strip">
             <span className="eyebrow">Dall’archivio</span>
             {timeline.slice(0, 4).map((item) => <span key={item.id}>{item.year} — {item.title}</span>)}
@@ -280,37 +292,41 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {leadEvent ? (
+      {showEventPromo && upcomingEvent ? (
         <section className="dark-section event-promo">
           <div className="shell event-promo-grid">
-            <Link className="event-promo-poster" href={`/eventi/${leadEvent.slug}`}>
-              <Image src={leadEvent.cover} alt="" width={960} height={1200} sizes="(max-width: 620px) 100vw, 44vw" />
+            <Link className="event-promo-poster" href={`/eventi/${upcomingEvent.slug}`}>
+              <Image src={upcomingEvent.cover} alt="" width={960} height={1200} sizes="(max-width: 620px) 100vw, 44vw" loading="lazy" />
             </Link>
             <div className="event-promo-copy">
-              <span className="eyebrow">Evento · {formatDate(leadEvent.date)}</span>
-              <DynamicTitle lines={[leadEvent.title]} />
-              <p>{leadEvent.lineup.join(" · ")}</p>
-              <Link className="acid-button" href={`/eventi/${leadEvent.slug}`}>Scopri l’evento ↗</Link>
+              <span className="eyebrow">Prossimo evento · {formatDate(upcomingEvent.date)}</span>
+              <DynamicTitle lines={[upcomingEvent.title]} />
+              <p>{upcomingEvent.lineup.join(" · ")}</p>
+              <Link className="acid-button" href={`/eventi/${upcomingEvent.slug}`}>Scopri l’evento ↗</Link>
             </div>
           </div>
         </section>
       ) : null}
 
-      <section className="metrics-section dark-section">
-        <div className="shell metrics-grid">
-          {settings.metrics.map((metric) => (
-            <div key={metric.label}><strong>{metric.value}</strong><span>{metric.label}</span></div>
-          ))}
-        </div>
-      </section>
+      {showMetrics ? (
+        <section className="metrics-section dark-section">
+          <div className="shell metrics-grid">
+            {settings.metrics.map((metric) => (
+              <div key={metric.label}><strong>{metric.value}</strong><span>{metric.label}</span></div>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
-      <section className="newsletter-section dark-section">
-        <div className="shell newsletter-inner">
-          <span className="eyebrow">La nostra newsletter</span>
-          <DynamicTitle lines={["Le cose giuste,", "prima che diventino ovvie."]} />
-          <NewsletterForm />
-        </div>
-      </section>
+      {showNewsletter ? (
+        <section className="newsletter-section dark-section">
+          <div className="shell newsletter-inner">
+            <span className="eyebrow">La nostra newsletter</span>
+            <DynamicTitle lines={["Le cose giuste,", "prima che diventino ovvie."]} />
+            <NewsletterForm />
+          </div>
+        </section>
+      ) : null}
     </div>
   );
 }

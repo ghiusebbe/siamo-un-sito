@@ -210,3 +210,33 @@ Consiglio: consolidare in un solo strato per componente (CSS Modules o un file p
 7. **Servizi e timeline.** Titoli con container query, immagini a piena opacità, timeline con link.
 8. **Contrasti** dei testi piccoli e coerenza dell'header.
 9. **CSS.** Consolidare gli strati, tre breakpoint, test visivi e axe in CI.
+
+## Interventi applicati
+
+Aggiornamento del 3 settembre 2026, stesso branch. Verificato con build di produzione, test e screenshot.
+
+| # | Problema | Stato | Intervento |
+| --- | --- | --- | --- |
+| 1 | Font Oblique corrotto | Risolto | File eliminato, obliquo sintetizzato dal Regular (`font-synthesis: style`); Regular e Bold convertiti in WOFF2 (434 KB → 135 KB) e preloadati dal layout. Verifica DevTools: claim, eyebrow e nav ora usano la webfont. |
+| 2 | 404 nuda | Risolto | `app/not-found.tsx` e `app/error.tsx` con layout, titolo hero e link alle sezioni. Test aggiunto. |
+| 3 | Home senza h1 | Risolto | Il wordmark è un `h1` con `alt="SIAMO"`. |
+| 4 | Placeholder e metriche | Parziale | Metriche rimosse dal fallback (restano gestibili da CMS); "Ultime storie" appare solo con almeno due articoli; la promo evento solo per eventi in programma; sezioni numerate in base a ciò che è presente. I testi segnaposto degli articoli vanno sostituiti dal CMS. |
+| 5 | Feed mobile obbligatorio | Risolto | Snap `proximity` senza `scroll-snap-stop`, pull-to-refresh ripristinato, metriche e newsletter ad altezza naturale, footer fuori dal feed, titoli card a tre righe. |
+| 6 | Immagini pesanti | Risolto (alla fonte) | Asset ricompressi e ridimensionati con sharp (12,8 MB → 3,7 MB in `public/`); home desktop 2,5 MB → 1,4 MB. L'ottimizzatore resta disattivato perché in produzione rompeva le card; il README ora documenta il limite. |
+| 7 | Font TTF | Risolto | Vedi 1. |
+| 8 | Asset orfani | Risolto | Rimossi 6 file (≈8,6 MB). |
+| 9 | Titoli tagliati servizi | Risolto | Font-size in `cqi` sulla larghezza della card, `overflow-wrap`. |
+| 10 | Card servizi sbiadite | Risolto | Immagini a piena opacità con gradiente scuro, stesso stato su desktop e touch. |
+| 11 | Contrasti | Risolto | Grigi dei testi piccoli portati sopra 4.5:1. |
+| 12 | Newsletter | Risolto | Sezione visibile solo con token Sanity configurato; checkbox di consenso obbligatoria lato client e server; campo `consentAt` nello schema. |
+| 13 | Timeline | Parziale | Immagini a colori, righe più compatte, anno mostrato una volta per gruppo. I link alle voci richiedono un campo nel CMS. |
+| 14 | Empty state eventi | Risolto | Senza eventi in programma si apre con l'archivio; l'invito a seguire IG chiude la pagina. |
+| 15 | Home ridondante | Parziale | Vedi 4; la struttura a nove sezioni resta e si riempirà con i contenuti. |
+| 16 | Effetto typing | Risolto | Rimosso dagli `h1` di articoli, eventi e servizi. |
+| 17 | Link esterni | Risolto | Testo sr-only "(si apre in una nuova scheda)" su IG, Acquista, feed, biglietti. |
+| 18 | Pagine di dettaglio | Parziale | Link "Tutti gli articoli/eventi/servizi", "Altri eventi", `<time>` sulle date, alt sulle gallery. Recap, autore e condivisione restano da progettare con il CMS. |
+| 19 | Footer | Parziale | Aggiunta la navigazione. Privacy, cookie e dati legali dipendono da informazioni del cliente. |
+| 20 | Header ridondante | Risolto | Rimosso "INDIPENDENTE · ITALIA". |
+| 21 | Crop listing | Risolto | Cover articoli in 4:5. |
+| 22 | Alt gallery | Risolto | Alt descrittivi con titolo del servizio e numero. |
+| CSS | Regole morte | Parziale | Rimosse le regole del vecchio menu `<details>`, `.header-brand-row`, `.header-index`, gli override duplicati delle card servizi. Il consolidamento in un solo strato per componente resta il passo successivo, da fare con test visivi. |

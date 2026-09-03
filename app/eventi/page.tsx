@@ -2,13 +2,14 @@ import type { Metadata } from "next";
 import Image from "@/components/site-image";
 import Link from "next/link";
 import { PageHero } from "@/components/page-hero";
-import { getEvents } from "@/lib/content";
+import { NewTabNote } from "@/components/new-tab-note";
+import { getEvents, getSiteSettings } from "@/lib/content";
 import { formatDate } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Eventi" };
 
 export default async function EventsPage() {
-  const events = await getEvents();
+  const [events, settings] = await Promise.all([getEvents(), getSiteSettings()]);
   const upcoming = events.filter((event) => event.status === "upcoming");
   const archived = events.filter((event) => event.status !== "upcoming");
 
@@ -16,10 +17,22 @@ export default async function EventsPage() {
     <>
       <PageHero kicker="Dal vivo" title="EVENTI" intro="Le serate, i format e gli incontri che trasformano una scena in comunità." />
       <section className="events-section shell">
-        <h2 className="section-label">Prossimamente</h2>
-        {upcoming.length ? upcoming.map((event) => <EventCard key={event.id} event={event} />) : <p className="empty-state">Nuove date in arrivo. Nel frattempo, scendi nell’archivio.</p>}
-        <h2 className="section-label archive-label">Archivio</h2>
+        {upcoming.length ? (
+          <>
+            <h2 className="section-label">Prossimamente</h2>
+            {upcoming.map((event) => <EventCard key={event.id} event={event} />)}
+            <h2 className="section-label archive-label">Archivio</h2>
+          </>
+        ) : (
+          <h2 className="section-label">Archivio</h2>
+        )}
         {archived.map((event) => <EventCard key={event.id} event={event} />)}
+        {!upcoming.length ? (
+          <p className="events-closing">
+            Nuove date in arrivo. Le annunciamo prima su{" "}
+            <a href={settings.instagramUrl} target="_blank" rel="noreferrer">Instagram ↗<NewTabNote /></a>.
+          </p>
+        ) : null}
       </section>
     </>
   );

@@ -20,8 +20,9 @@ export default async function ServiceDetailPage({ params }: Props) {
   return (
     <article className="service-detail">
       <header className="service-detail-hero shell">
+        <Link className="back-link" href="/servizi">← Tutti i servizi</Link>
         <span className="eyebrow">SIAMO Studio</span>
-        <DynamicTitle as="h1" lines={[service.title]} eager />
+        <h1>{service.title}</h1>
         <p className="service-tagline">{service.tagline}</p>
         <p className="service-intro">{service.intro}</p>
       </header>
@@ -46,11 +47,11 @@ export default async function ServiceDetailPage({ params }: Props) {
         ))}
       </section>
       {service.gallery?.length ? (
-        <section className="service-gallery shell">
-          {service.gallery.map((image) => (
+        <section className="service-gallery shell" aria-label={`Galleria ${service.title}`}>
+          {service.gallery.map((image, index) => (
             <Image
               src={image}
-              alt=""
+              alt={`${service.title}, immagine ${index + 1} di ${service.gallery?.length}`}
               width={900}
               height={1200}
               sizes="(max-width: 620px) 100vw, 50vw"

@@ -26,7 +26,11 @@ La build per la pubblicazione usa Vinext/Cloudflare Workers, mentre i comandi Ne
 
 ## Immagini
 
-Le immagini locali e quelle pubblicate da Sanity vengono ridimensionate automaticamente in base al dispositivo, convertite in AVIF o WebP quando supportato e servite con cache. Ogni layout dichiara le dimensioni responsive per evitare download inutilmente grandi.
+Le immagini in `public/media` sono servite così come sono committate (l'ottimizzatore di Vinext è disattivato in `next.config.ts` e `components/site-image.tsx` perché in produzione rompeva il caricamento delle card). Vanno quindi salvate già alla dimensione giusta: massimo 1600 px sul lato lungo, JPEG a qualità 75-80 o WebP, sotto i 200 KB. Ogni layout dichiara comunque `width`, `height` e `sizes`, così il giorno in cui l'ottimizzatore verrà riattivato non servirà toccare i componenti.
+
+## Font
+
+Il sito usa due tagli di Helvetica in WOFF2 (`public/fonts`): Regular e Bold. Il corsivo è sintetizzato dal Regular (`font-synthesis: style`), perché il file Oblique originale era danneggiato e i browser lo scartavano.
 
 ## Contenuti gestibili
 

@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Image from "@/components/site-image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { RichTextContent } from "@/components/rich-text";
-import { DynamicTitle } from "@/components/dynamic-title";
-import { getEvent } from "@/lib/content";
+import { NewTabNote } from "@/components/new-tab-note";
+import { getEvent, getEvents } from "@/lib/content";
 import { formatDate } from "@/lib/format";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -14,14 +15,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function EventDetailPage({ params }: Props) {
-  const event = await getEvent((await params).slug);
+  const { slug } = await params;
+  const [event, events] = await Promise.all([getEvent(slug), getEvents()]);
   if (!event) notFound();
+  const others = events.filter((item) => item.slug !== slug).slice(0, 4);
 
   return (
     <article className="event-detail shell">
       <div className="event-detail-copy">
+        <Link className="back-link" href="/eventi">← Tutti gli eventi</Link>
         <span className="eyebrow">{event.status === "upcoming" ? "Prossimo evento" : "Dall’archivio"}</span>
-        <DynamicTitle as="h1" lines={[event.title]} eager />
+        <h1>{event.title}</h1>
         <div className="event-facts">
           <span>{formatDate(event.date)}</span>
           {event.venue ? <span>{event.venue}</span> : null}
@@ -29,7 +33,15 @@ export default async function EventDetailPage({ params }: Props) {
         </div>
         <p className="lineup">{event.lineup.join(" · ")}</p>
         <RichTextContent value={event.description} />
-        {event.ticketUrl ? <a className="acid-button" href={event.ticketUrl} target="_blank" rel="noreferrer">Biglietti ↗</a> : null}
+        {event.ticketUrl ? (
+          <a className="acid-button" href={event.ticketUrl} target="_blank" rel="noreferrer">Biglietti ↗<NewTabNote /></a>
+        ) : null}
+        {others.length ? (
+          <nav className="related-nav" aria-label="Altri eventi">
+            <span className="eyebrow">Altri eventi</span>
+            {others.map((item) => <Link href={`/eventi/${item.slug}`} key={item.id}>{item.title} ↗</Link>)}
+          </nav>
+        ) : null}
       </div>
       <Image
         className="event-detail-poster"
