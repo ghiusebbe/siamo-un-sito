@@ -29,6 +29,8 @@ test("renders the accessible responsive site shell", async () => {
   assert.match(html, /class="skip-link"[^>]*href="#contenuto"/i);
   assert.match(html, /aria-label="Navigazione principale"/i);
   assert.match(html, /aria-controls="mobile-menu"/i);
+  assert.match(html, /class="home-feed"/i);
+  assert.match(html, /aria-label="Esplora SIAMO"/i);
   assert.match(html, /class="dynamic-title[^"']*"[^>]*aria-label="Ultime storie"/i);
   assert.doesNotMatch(html, /class="article-ad(?:\s|"|-)/i);
 });

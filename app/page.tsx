@@ -27,7 +27,7 @@ export default async function HomePage() {
   const leadEvent = events[0];
 
   return (
-    <>
+    <div className="home-feed">
       <section className="home-intro shell">
         <div className="wordmark" aria-label="SIAMO">
           <span>S</span><span>I</span><span>A</span><span>M</span><span>O</span>
@@ -37,9 +37,13 @@ export default async function HomePage() {
           <span className="home-intro-index">Magazine indipendente · Italia</span>
         </div>
 
-        <div className="bento-grid">
-          <Link className="bento-card bento-small card-hover" href="/articoli">
-            <span>Articoli</span><span aria-hidden="true">↗</span>
+        <nav className="bento-grid" aria-label="Esplora SIAMO">
+          <Link className="bento-card bento-small bento-nav-card card-hover" href="/articoli">
+            <span className="bento-card-copy">
+              <small>Archivio editoriale</small>
+              <strong>Articoli</strong>
+            </span>
+            <span className="bento-card-arrow" aria-hidden="true">↗</span>
           </Link>
 
           <Link className="bento-card bento-wide bento-feature media-card" href={leadArticle ? `/articoli/${leadArticle.slug}` : "/articoli"}>
@@ -52,10 +56,10 @@ export default async function HomePage() {
               priority
             />
             <span className="bento-card-copy">
-              <small>{leadArticle?.category || "In evidenza"}</small>
+              <small>In evidenza · {leadArticle?.category || "Storie"}</small>
               <strong>{leadArticle?.title || "Le storie che stanno muovendo la scena."}</strong>
             </span>
-            <span aria-hidden="true">↗</span>
+            <span className="bento-card-arrow" aria-hidden="true">↗</span>
           </Link>
 
           <Link className="bento-card bento-timeline media-card" href={leadEvent ? `/eventi/${leadEvent.slug}` : "/eventi"}>
@@ -67,10 +71,10 @@ export default async function HomePage() {
               sizes="(max-width: 620px) 100vw, (max-width: 900px) 100vw, 50vw"
             />
             <span className="bento-card-copy">
-              <small>Eventi</small>
+              <small>Dal vivo · Eventi</small>
               <strong>{leadEvent?.title || "SIAMO dal vivo"}</strong>
             </span>
-            <span aria-hidden="true">↗</span>
+            <span className="bento-card-arrow" aria-hidden="true">↗</span>
           </Link>
 
           <Link className="bento-card bento-photo media-card" href="/timeline">
@@ -81,14 +85,24 @@ export default async function HomePage() {
               height={1100}
               sizes="(max-width: 620px) 100vw, (max-width: 900px) 50vw, 25vw"
             />
-            <span>Timeline</span><span aria-hidden="true">↗</span>
+            <span className="bento-card-copy">
+              <small>Archivio visivo</small>
+              <strong>Timeline</strong>
+            </span>
+            <span className="bento-card-arrow" aria-hidden="true">↗</span>
           </Link>
 
           <div className="bento-stack">
-            <Link className="bento-card card-hover" href="/servizi"><span>Servizi</span><span>↗</span></Link>
-            <Link className="bento-card card-hover" href="/chi-siamo"><span>Chi siamo?</span><span>↗</span></Link>
+            <Link className="bento-card bento-nav-card card-hover" href="/servizi">
+              <span className="bento-card-copy"><small>Progetti</small><strong>Servizi</strong></span>
+              <span className="bento-card-arrow" aria-hidden="true">↗</span>
+            </Link>
+            <Link className="bento-card bento-nav-card card-hover" href="/chi-siamo">
+              <span className="bento-card-copy"><small>Il magazine</small><strong>Chi siamo?</strong></span>
+              <span className="bento-card-arrow" aria-hidden="true">↗</span>
+            </Link>
           </div>
-        </div>
+        </nav>
       </section>
 
       <section className="dark-section latest-section">
@@ -274,6 +288,6 @@ export default async function HomePage() {
           <NewsletterForm />
         </div>
       </section>
-    </>
+    </div>
   );
 }
