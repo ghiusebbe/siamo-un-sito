@@ -44,6 +44,9 @@ test("renders the accessible responsive site shell", async () => {
   assert.doesNotMatch(html, /class="article-ad(?:\s|"|-)/i);
   // Placeholder figures are gone from the fallback content.
   assert.doesNotMatch(html, /1200\+/);
+  // Entry animation: the overlay is server-rendered and gated by the inline session check.
+  assert.match(html, /class="site-intro"/);
+  assert.match(html, /sessionStorage\.getItem\("siamo-intro"\)/);
   // Fonts: only the two valid cuts, preloaded as WOFF2.
   assert.match(html, /rel="preload"[^>]*href="\/fonts\/Helvetica-Regular\.woff2"/i);
   assert.doesNotMatch(html, /Helvetica-Oblique/);
