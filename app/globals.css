@@ -997,11 +997,12 @@ html { scroll-padding-top: calc(var(--header-height) + 24px); }
 /* Full-screen vertical home feed on portrait phones. Each rich section keeps its content
    comfortably sized by turning repeated items into a native horizontal swipe rail. */
 @media (max-width: 767px) and (orientation: portrait) {
-  /* Soft snap: sections settle into place when close, but a long swipe still
-     travels the page and the browser keeps pull-to-refresh. */
+  /* Every section is one screen and every swipe lands on a section: with a softer
+     snap a short swipe stops mid-section and the fixed-height screens look cut. */
   html:has(.home-feed) {
     scroll-padding-top: var(--header-height);
-    scroll-snap-type: y proximity;
+    scroll-snap-type: y mandatory;
+    overscroll-behavior-y: none;
   }
 
   .home-feed > section {
@@ -1010,15 +1011,7 @@ html { scroll-padding-top: calc(var(--header-height) + 24px); }
     min-height: calc(100svh - var(--header-height));
     overflow: hidden;
     scroll-snap-align: start;
-  }
-
-  /* Short sections keep their natural height instead of an empty screen each. */
-  .home-feed > .metrics-section,
-  .home-feed > .newsletter-section {
-    height: auto;
-    min-height: 0;
-    overflow: visible;
-    scroll-snap-align: none;
+    scroll-snap-stop: always;
   }
 
   .home-feed > .dark-section { border-top-width: 1px; }
@@ -1305,7 +1298,7 @@ html { scroll-padding-top: calc(var(--header-height) + 24px); }
   .home-feed .event-promo-copy p { margin-bottom: 22px; font-size: 17px; }
 
   .home-feed > .metrics-section,
-  .home-feed > .newsletter-section { display: grid; place-items: center; padding-block: 56px; }
+  .home-feed > .newsletter-section { display: grid; place-items: center; }
   .home-feed .metrics-grid { width: min(calc(100% - 42px), 420px); }
   .home-feed .metrics-grid { gap: clamp(18px, 3dvh, 34px); }
   .home-feed .metrics-grid div { padding-bottom: clamp(16px, 2.8dvh, 30px); }
@@ -1315,6 +1308,18 @@ html { scroll-padding-top: calc(var(--header-height) + 24px); }
     margin-block: 16px 30px;
     font-size: clamp(40px, 12vw, 58px);
   }
+
+  /* The footer is the last screen of the feed, so the page can rest on it. */
+  body:has(.home-feed) .footer {
+    min-height: calc(100svh - var(--header-height));
+    align-content: center;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+}
+
+@media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: reduce) {
+  html:has(.home-feed) { scroll-snap-type: y proximity; }
 }
 
 /* SIAMO typography: every supplied Helvetica cut has a distinct editorial role. */
@@ -1411,7 +1416,6 @@ html { scroll-padding-top: calc(var(--header-height) + 24px); }
   pointer-events: none;
 }
 html[data-intro="play"] .site-intro { display: grid; }
-html[data-intro="play"]:has(.site-intro) { overflow: hidden; }
 .site-intro img {
   width: clamp(96px, 24vw, 200px);
   height: auto;

@@ -221,7 +221,7 @@ Aggiornamento del 3 settembre 2026, stesso branch. Verificato con build di produ
 | 2 | 404 nuda | Risolto | `app/not-found.tsx` e `app/error.tsx` con layout, titolo hero e link alle sezioni. Test aggiunto. |
 | 3 | Home senza h1 | Risolto | Il wordmark è un `h1` con `alt="SIAMO"`. |
 | 4 | Placeholder e metriche | Parziale | Metriche rimosse dal fallback (restano gestibili da CMS); "Ultime storie" appare solo con almeno due articoli; la promo evento solo per eventi in programma; sezioni numerate in base a ciò che è presente. I testi segnaposto degli articoli vanno sostituiti dal CMS. |
-| 5 | Feed mobile obbligatorio | Risolto | Snap `proximity` senza `scroll-snap-stop`, pull-to-refresh ripristinato, metriche e newsletter ad altezza naturale, footer fuori dal feed, titoli card a tre righe. |
+| 5 | Feed mobile obbligatorio | Mantenuto | Provato lo snap `proximity`: una scorsa parziale si fermava a metà sezione e le schermate a altezza fissa risultavano tagliate. Ripristinato il feed originale (`mandatory`, una schermata per swipe, footer come ultima schermata). Tenuti i titoli delle card a tre righe. |
 | 6 | Immagini pesanti | Risolto (alla fonte) | Asset ricompressi e ridimensionati con sharp (12,8 MB → 3,7 MB in `public/`); home desktop 2,5 MB → 1,4 MB. L'ottimizzatore resta disattivato perché in produzione rompeva le card; il README ora documenta il limite. |
 | 7 | Font TTF | Risolto | Vedi 1. |
 | 8 | Asset orfani | Risolto | Rimossi 6 file (≈8,6 MB). |
