@@ -32,6 +32,7 @@
   --line: rgba(255, 255, 255, 0.18);
   --radius: 30px;
   --shell: 1180px;
+  --font-siamo: "Helvetica SIAMO", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 * { box-sizing: border-box; }
@@ -40,7 +41,8 @@ body {
   margin: 0;
   background: var(--black);
   color: var(--white);
-  font-family: "Helvetica SIAMO", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: var(--font-siamo);
+  font-weight: 400;
   font-size: 16px;
   line-height: 1.35;
   text-rendering: optimizeLegibility;
@@ -1352,4 +1354,48 @@ html { scroll-padding-top: calc(var(--header-height) + 24px); }
 
 @media (max-width: 767px) and (orientation: portrait) and (prefers-reduced-motion: reduce) {
   html:has(.home-feed) { scroll-snap-type: y proximity; }
+}
+
+/* SIAMO typography: every supplied Helvetica cut has a distinct editorial role. */
+:where(
+  h1,
+  h2,
+  h3,
+  .dynamic-title,
+  .desktop-nav a,
+  .mobile-nav a strong,
+  .bento-card-copy strong,
+  .instagram-card-copy strong,
+  .acid-button
+) {
+  font-family: var(--font-siamo);
+  font-style: normal;
+  font-weight: 700;
+}
+
+:where(
+  .home-intro-copy,
+  .editorial-subtitle,
+  .service-tagline
+) {
+  font-family: var(--font-siamo);
+  font-style: oblique;
+  font-weight: 400;
+}
+
+:where(
+  .eyebrow,
+  .home-intro-index,
+  .section-count,
+  .section-label,
+  .row-number,
+  .row-author,
+  .magazine-card span,
+  .bento-card-copy small,
+  .instagram-card-copy small,
+  .article-ad__label
+) {
+  font-family: var(--font-siamo);
+  font-style: oblique;
+  font-weight: 400;
 }
