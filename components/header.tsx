@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import Image from "@/components/site-image";
 
 const links = [
   ["Articoli", "/articoli"],
@@ -72,7 +73,18 @@ export function Header() {
     <header ref={headerRef} className={headerClassName}>
       <div className="header-inner">
         <Link className="brand-link" href="/" aria-label="SIAMO, homepage">
-          SIAMO <span>(UN SITO)</span>
+          <picture className="brand-art">
+            <source media="(max-width: 620px)" srcSet="/brand/siamo-symbol-black.png" />
+            <Image
+              src="/brand/siamo-wordmark-black.png"
+              alt=""
+              width={2200}
+              height={546}
+              sizes="(max-width: 620px) 32px, 112px"
+              priority
+            />
+          </picture>
+          <span className="brand-site-suffix">(UN SITO)</span>
         </Link>
 
         <nav className="desktop-nav" aria-label="Navigazione principale">

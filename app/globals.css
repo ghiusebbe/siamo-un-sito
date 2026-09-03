@@ -1,3 +1,27 @@
+@font-face {
+  font-family: "Helvetica SIAMO";
+  src: url("/fonts/Helvetica-Regular.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Helvetica SIAMO";
+  src: url("/fonts/Helvetica-Bold.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 700 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Helvetica SIAMO";
+  src: url("/fonts/Helvetica-Oblique.ttf") format("truetype");
+  font-style: oblique;
+  font-weight: 400;
+  font-display: swap;
+}
+
 :root {
   --black: #080808;
   --white: #f5f5f2;
@@ -16,10 +40,11 @@ body {
   margin: 0;
   background: var(--black);
   color: var(--white);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Helvetica SIAMO", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 16px;
   line-height: 1.35;
   text-rendering: optimizeLegibility;
+  font-synthesis: none;
 }
 
 a { color: inherit; text-decoration: none; }
@@ -38,8 +63,10 @@ button, input { font: inherit; }
 
 .site-header { background: var(--black); position: relative; z-index: 20; }
 .header-brand-row { min-height: 64px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
-.brand-link { font-weight: 800; letter-spacing: -.03em; }
-.brand-link span { color: #d8d8d8; }
+.brand-link { display: inline-flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: -.03em; }
+.brand-art { width: 94px; display: block; line-height: 0; }
+.brand-art img { width: 100%; height: auto; filter: invert(1); }
+.brand-site-suffix { color: #d8d8d8; }
 .header-index { color: var(--muted); font-size: 10px; letter-spacing: .12em; }
 .desktop-nav { min-height: 72px; display: flex; align-items: center; gap: clamp(18px, 3vw, 34px); font-size: 15px; }
 .desktop-nav a { transition: color .2s ease; }
@@ -54,21 +81,15 @@ button, input { font: inherit; }
 
 .home-intro { background: var(--white); color: var(--black); width: min(100%, 1340px); padding: 0 16px 86px; }
 .wordmark {
-  height: clamp(100px, 13vw, 190px); display: flex; align-items: center; justify-content: center;
-  font-size: clamp(74px, 13vw, 178px); font-weight: 900; letter-spacing: -.115em; line-height: .72;
+  height: clamp(120px, 22vw, 360px); display: flex; align-items: center; justify-content: center;
   overflow: hidden; position: relative;
 }
-.wordmark span { display: inline-block; animation: word-rise .7s both cubic-bezier(.2,.8,.2,1); }
-.wordmark span:nth-child(2) { animation-delay: .05s; }
-.wordmark span:nth-child(3) { animation-delay: .1s; }
-.wordmark span:nth-child(4) { animation-delay: .15s; }
-.wordmark span:nth-child(5) { animation-delay: .2s; }
-.wordmark::after {
-  content: "SIAMO"; position: absolute; inset: auto 0 -18px; text-align: center; color: rgba(0,0,0,.54);
-  filter: blur(14px); transform: scaleY(.45); transform-origin: bottom; pointer-events: none;
+.wordmark img {
+  width: min(100%, 2200px); height: 100%; object-fit: contain;
+  animation: brand-rise .75s both cubic-bezier(.16, 1, .3, 1);
 }
 .home-intro-copy { width: min(580px, 100%); margin: 8px auto 34px; text-align: center; font-size: clamp(18px, 2vw, 26px); letter-spacing: -.025em; }
-@keyframes word-rise { from { opacity: 0; transform: translateY(60%); } to { opacity: 1; transform: translateY(0); } }
+@keyframes brand-rise { from { opacity: 0; transform: translateY(24%) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
 .bento-grid { display: grid; grid-template-columns: repeat(12, 1fr); grid-auto-rows: 310px; gap: 14px; }
 .bento-card {
@@ -242,7 +263,10 @@ button, input { font: inherit; }
 .services-nav a:hover { background: var(--acid); color: var(--black); }
 
 .about-page { padding: 100px 0 120px; }
-.about-page > h1 { margin: 30px 0 70px; font-size: clamp(100px, 23vw, 276px); line-height: .7; letter-spacing: -.11em; }
+.about-brand-lockup { margin: 30px 0 70px; display: grid; grid-template-columns: minmax(0, 1fr) clamp(220px, 27vw, 360px); gap: clamp(18px, 4vw, 64px); align-items: end; }
+.about-brand-lockup h1 { margin: 0; font-size: clamp(100px, 19vw, 248px); line-height: .7; letter-spacing: -.11em; }
+.about-brand-illustration { aspect-ratio: 1; overflow: hidden; border-radius: 28px; background: var(--acid); }
+.about-brand-illustration img { width: 100%; height: 100%; object-fit: cover; }
 .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
 .about-grid p { font-size: clamp(30px, 5vw, 64px); line-height: 1; letter-spacing: -.055em; margin: 0; padding: 50px 20px 90px 0; }
 .about-grid img { width: 100%; height: 600px; border-radius: 28px; object-fit: cover; }
@@ -255,6 +279,8 @@ button, input { font: inherit; }
 .footer a { font-size: 18px; }
 .footer-mark { text-align: right; justify-items: end; }
 .footer-mark a { font-size: 38px; font-weight: 900; letter-spacing: -.07em; }
+.footer-mark .footer-brand-link { width: 112px; display: block; line-height: 0; }
+.footer-brand-link img { width: 100%; height: auto; }
 .footer-mark span { color: var(--muted); }
 
 @media (max-width: 900px) {
@@ -262,7 +288,7 @@ button, input { font: inherit; }
   .header-index, .desktop-nav { display: none; }
   .mobile-nav { display: block; }
   .home-intro { padding-inline: 8px; }
-  .wordmark { height: 120px; font-size: clamp(72px, 21vw, 132px); }
+  .wordmark { height: 120px; }
   .bento-grid { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 240px; }
   .bento-small, .bento-wide, .bento-timeline, .bento-photo, .bento-stack { grid-column: span 1; }
   .bento-wide, .bento-timeline { grid-column: span 2; }
@@ -349,7 +375,9 @@ button, input { font: inherit; }
   .deliverables article p { grid-column: 2; }
   .service-gallery { grid-template-columns: 1fr; }
   .service-gallery img, .service-gallery img:nth-child(even) { height: 390px; margin-top: 0; }
-  .about-page > h1 { font-size: 110px; }
+  .about-brand-lockup { grid-template-columns: minmax(0, 1fr) clamp(108px, 34vw, 145px); gap: 12px; margin-block: 28px 52px; }
+  .about-brand-lockup h1 { font-size: clamp(64px, 19vw, 94px); }
+  .about-brand-illustration { border-radius: 18px; }
   .about-grid { grid-template-columns: 1fr; }
   .about-grid p { padding: 30px 0 50px; font-size: 36px; }
   .about-grid img, .about-grid img:nth-of-type(2) { height: 390px; margin-top: 0; }
@@ -400,7 +428,7 @@ summary::-webkit-details-marker { display: none; }
   gap: 30px;
 }
 .home-intro-copy { width: min(610px, 100%); margin: 0; text-align: left; }
-.home-intro-index { max-width: 190px; color: #696964; font-size: 12px; letter-spacing: .08em; text-align: right; text-transform: uppercase; }
+.home-intro-index { max-width: 190px; color: #696964; font-size: 12px; font-style: oblique; letter-spacing: .08em; text-align: right; text-transform: uppercase; }
 
 .bento-card { isolation: isolate; }
 .bento-card::before {
@@ -599,8 +627,7 @@ summary::-webkit-details-marker { display: none; }
   .mobile-nav nav a { min-height: 48px; display: flex; align-items: center; border-top: 1px solid var(--line); }
 
   .home-intro { padding-top: 0; }
-  .wordmark { height: 104px; font-size: clamp(70px, 21vw, 108px); }
-  .wordmark::after { bottom: -10px; filter: blur(10px); }
+  .wordmark { height: 104px; }
   .home-intro-row { margin-bottom: 28px; align-items: flex-start; flex-direction: column; gap: 10px; }
   .home-intro-copy { padding: 0; font-size: 18px; }
   .home-intro-index { max-width: none; text-align: left; }
@@ -660,7 +687,6 @@ summary::-webkit-details-marker { display: none; }
 }
 
 @media (max-width: 420px) {
-  .wordmark { font-size: 20.5vw; }
   .latest-card { flex-basis: 86vw; }
   .magazine-card { flex-basis: 82vw; }
   .home-service-card { flex-basis: 86vw; }
@@ -707,8 +733,9 @@ html { scroll-padding-top: calc(var(--header-height) + 24px); }
 }
 
 .is-compact .header-inner { min-height: 64px; }
-.brand-link { justify-self: start; font-size: clamp(17px, 1.25vw, 20px); white-space: nowrap; }
-.brand-link span { font-weight: 400; color: #a9a9a4; }
+.brand-link { justify-self: start; font-size: clamp(13px, 1vw, 16px); white-space: nowrap; }
+.brand-art { width: clamp(82px, 7.6vw, 112px); }
+.brand-site-suffix { font-weight: 400; color: #a9a9a4; }
 .header-index { justify-self: end; font-size: 11px; white-space: nowrap; }
 
 .desktop-nav {
@@ -845,20 +872,12 @@ html { scroll-padding-top: calc(var(--header-height) + 24px); }
   padding: 6px var(--page-gutter) clamp(64px, 7vw, 104px);
 }
 .wordmark {
-  --wordmark-scale: 1.12;
   width: 100%;
-  height: clamp(118px, 15vw, 250px);
-  justify-content: space-between;
-  font-size: clamp(78px, 15vw, 284px);
+  height: clamp(136px, 22vw, 380px);
+  justify-content: center;
 }
-.wordmark span { transform: scaleX(var(--wordmark-scale)); }
 .home-intro-row { width: 100%; max-width: none; }
 .bento-grid { grid-auto-rows: clamp(270px, 23vw, 390px); }
-
-@keyframes word-rise {
-  from { opacity: 0; transform: translateY(60%) scaleX(var(--wordmark-scale)); }
-  to { opacity: 1; transform: translateY(0) scaleX(var(--wordmark-scale)); }
-}
 
 .bento-card,
 .latest-card,
@@ -920,7 +939,7 @@ html { scroll-padding-top: calc(var(--header-height) + 24px); }
   .mobile-menu-trigger { display: inline-flex; }
   .site-header { width: 100%; }
   .home-intro { padding-top: 0; }
-  .wordmark { height: clamp(92px, 23vw, 132px); font-size: clamp(68px, 21vw, 124px); }
+  .wordmark { height: clamp(92px, 23vw, 132px); }
   body:has(.site-header.menu-is-open) { overflow: hidden; }
 }
 
@@ -932,7 +951,8 @@ html { scroll-padding-top: calc(var(--header-height) + 24px); }
   .home-intro { width: 100%; padding-inline: var(--page-gutter); }
   .home-intro-row { padding-inline: 0; }
   .wordmark { width: 100%; }
-  .wordmark { --wordmark-scale: 1.04; }
+  .brand-art { width: 32px; }
+  .brand-site-suffix { font-size: 12px; }
   .bento-grid { gap: 12px; }
   .mobile-nav a { min-height: 62px; }
 }
@@ -974,6 +994,40 @@ html { scroll-padding-top: calc(var(--header-height) + 24px); }
 .bento-small .bento-card-copy strong { font-size: clamp(34px, 3.4vw, 52px); }
 .bento-photo { padding: 26px 28px; }
 .bento-stack .bento-nav-card .bento-card-copy strong { font-size: clamp(27px, 2.5vw, 38px); }
+.bento-brand-symbol,
+.bento-brand-illustration {
+  position: absolute;
+  z-index: 0;
+  max-width: none;
+  pointer-events: none;
+  transition: opacity .3s ease, transform .45s var(--ease-out);
+}
+.bento-small.bento-nav-card {
+  border-color: rgba(8, 8, 8, .14);
+  background: var(--acid);
+  color: var(--black);
+}
+.bento-small.bento-nav-card .bento-card-arrow { color: var(--black); }
+.bento-brand-symbol {
+  top: 8%;
+  right: -44%;
+  width: 145%;
+  height: 92%;
+  object-fit: contain;
+  opacity: .13;
+  transform: rotate(-7deg);
+}
+.bento-small:hover .bento-brand-symbol { opacity: .2; transform: rotate(-3deg) scale(1.035); }
+.bento-brand-illustration {
+  right: -13%;
+  bottom: -88%;
+  width: 112%;
+  height: auto;
+  filter: invert(1);
+  opacity: .14;
+  transform: rotate(-7deg);
+}
+.bento-card:hover .bento-brand-illustration { opacity: .22; transform: rotate(-3deg) scale(1.025); }
 
 /* Full-screen vertical home feed on portrait phones. Each rich section keeps its content
    comfortably sized by turning repeated items into a native horizontal swipe rail. */
@@ -1004,7 +1058,6 @@ html { scroll-padding-top: calc(var(--header-height) + 24px); }
 
   .home-feed .wordmark {
     height: clamp(70px, 12dvh, 104px);
-    font-size: clamp(66px, 20.5vw, 104px);
   }
   .home-feed .home-intro-row {
     margin: 0;

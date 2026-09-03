@@ -9,7 +9,19 @@ export default function AboutPage() {
   return (
     <article className="about-page shell">
       <span className="eyebrow">Progetto editoriale indipendente</span>
-      <DynamicTitle as="h1" lines={["SIAMO"]} eager />
+      <div className="about-brand-lockup">
+        <DynamicTitle as="h1" lines={["SIAMO"]} eager />
+        <div className="about-brand-illustration" aria-hidden="true">
+          <Image
+            src="/brand/siamo-illustration.png"
+            alt=""
+            width={1500}
+            height={1380}
+            sizes="(max-width: 620px) 35vw, 28vw"
+            priority
+          />
+        </div>
+      </div>
       <div className="about-grid">
         <p>SIAMO racconta la scena musicale e culturale italiana con un focus su ciò che è emergente.</p>
         <Image

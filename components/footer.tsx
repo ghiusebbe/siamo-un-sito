@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getSiteSettings } from "@/lib/content";
+import Image from "@/components/site-image";
 
 export async function Footer() {
   const settings = await getSiteSettings();
@@ -17,7 +18,9 @@ export async function Footer() {
         </a>
       </div>
       <div className="footer-mark">
-        <Link href="/">SIAMO</Link>
+        <Link className="footer-brand-link" href="/" aria-label="SIAMO, homepage">
+          <Image src="/brand/siamo-symbol-white.png" alt="" width={900} height={730} sizes="112px" />
+        </Link>
         <span>© {new Date().getFullYear()}</span>
       </div>
     </footer>

@@ -30,7 +30,14 @@ export default async function HomePage() {
     <div className="home-feed">
       <section className="home-intro shell">
         <div className="wordmark" aria-label="SIAMO">
-          <span>S</span><span>I</span><span>A</span><span>M</span><span>O</span>
+          <Image
+            src="/brand/siamo-wordmark-black.png"
+            alt=""
+            width={2200}
+            height={546}
+            sizes="100vw"
+            priority
+          />
         </div>
         <div className="home-intro-row">
           <p className="home-intro-copy">Musica, immagini, persone e tutto quello che sta per esplodere.</p>
@@ -39,6 +46,14 @@ export default async function HomePage() {
 
         <nav className="bento-grid" aria-label="Esplora SIAMO">
           <Link className="bento-card bento-small bento-nav-card card-hover" href="/articoli">
+            <Image
+              className="bento-brand-symbol"
+              src="/brand/siamo-symbol-black.png"
+              alt=""
+              width={900}
+              height={730}
+              sizes="(max-width: 767px) 84vw, 25vw"
+            />
             <span className="bento-card-copy">
               <small>Archivio editoriale</small>
               <strong>Articoli</strong>
@@ -98,6 +113,14 @@ export default async function HomePage() {
               <span className="bento-card-arrow" aria-hidden="true">↗</span>
             </Link>
             <Link className="bento-card bento-nav-card card-hover" href="/chi-siamo">
+              <Image
+                className="bento-brand-illustration"
+                src="/brand/siamo-illustration.png"
+                alt=""
+                width={1500}
+                height={1380}
+                sizes="(max-width: 767px) 84vw, 25vw"
+              />
               <span className="bento-card-copy"><small>Il magazine</small><strong>Chi siamo?</strong></span>
               <span className="bento-card-arrow" aria-hidden="true">↗</span>
             </Link>
