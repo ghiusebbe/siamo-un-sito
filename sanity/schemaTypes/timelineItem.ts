@@ -8,6 +8,13 @@ export default defineType({
     defineField({ name: "order", title: "Ordine nello stesso anno", type: "number", initialValue: 0 }),
     defineField({ name: "description", title: "Descrizione", type: "text", rows: 3 }),
     defineField({ name: "image", title: "Immagine", type: "image", options: { hotspot: true } }),
+    defineField({
+      name: "link",
+      title: "Collegamento",
+      description: "Dove porta questa voce: un articolo o evento del sito (es. /eventi/ancora-kasino) oppure un link esterno.",
+      type: "url",
+      validation: (rule) => rule.uri({ allowRelative: true, scheme: ["http", "https"] }),
+    }),
   ],
   preview: { select: { title: "title", subtitle: "year", media: "image" } },
 });

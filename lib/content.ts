@@ -20,6 +20,32 @@ const CACHE = {
   settings: 3600,
 } as const;
 
+/**
+ * Sanity's CDN resizes and converts on request. The site serves images
+ * unoptimised, so ask the CDN for a sensible size and format up front.
+ */
+const IMAGE_PARAMS = "auto=format&fit=max&w=1600&q=78";
+
+export function sanityImage(url: string | null | undefined): string {
+  if (!url) return "";
+  if (!url.includes("cdn.sanity.io") || url.includes("?")) return url;
+  return `${url}?${IMAGE_PARAMS}`;
+}
+
+const withImages = {
+  article: (item: Article): Article => ({ ...item, cover: sanityImage(item.cover) }),
+  event: (item: EventItem): EventItem => ({ ...item, cover: sanityImage(item.cover) }),
+  service: (item: Service): Service => ({
+    ...item,
+    cover: item.cover ? sanityImage(item.cover) : item.cover,
+    gallery: item.gallery?.filter(Boolean).map(sanityImage),
+    deliverables: item.deliverables ?? [],
+    faq: item.faq ?? [],
+  }),
+  timeline: (item: TimelineItem): TimelineItem => ({ ...item, image: item.image ? sanityImage(item.image) : item.image }),
+  magazine: (item: Magazine): Magazine => ({ ...item, cover: sanityImage(item.cover) }),
+};
+
 async function queryOrFallback<T>(
   query: string,
   fallback: T,
@@ -81,38 +107,46 @@ const serviceProjection = `{
 }`;
 
 export async function getArticles(): Promise<Article[]> {
-  return queryOrFallback(`*[_type == "article" && defined(slug.current)] | order(publishedAt desc) ${articleProjection}`, fallbackArticles, {}, { revalidate: CACHE.editorial, requestTag: "articles" });
+  const items = await queryOrFallback(`*[_type == "article" && defined(slug.current)] | order(publishedAt desc) ${articleProjection}`, fallbackArticles, {}, { revalidate: CACHE.editorial, requestTag: "articles" });
+  return items.map(withImages.article);
 }
 
 export async function getArticle(slug: string): Promise<Article | undefined> {
   const fallback = fallbackArticles.find((item) => item.slug === slug);
-  return queryOrFallback(`*[_type == "article" && slug.current == $slug][0] ${articleProjection}`, fallback, { slug }, { revalidate: CACHE.editorial, requestTag: "article" });
+  const item = await queryOrFallback(`*[_type == "article" && slug.current == $slug][0] ${articleProjection}`, fallback, { slug }, { revalidate: CACHE.editorial, requestTag: "article" });
+  return item && withImages.article(item);
 }
 
 export async function getEvents(): Promise<EventItem[]> {
-  return queryOrFallback(`*[_type == "event" && defined(slug.current)] | order(date desc) ${eventProjection}`, fallbackEvents, {}, { revalidate: CACHE.events, requestTag: "events" });
+  const items = await queryOrFallback(`*[_type == "event" && defined(slug.current)] | order(date desc) ${eventProjection}`, fallbackEvents, {}, { revalidate: CACHE.events, requestTag: "events" });
+  return items.map(withImages.event);
 }
 
 export async function getEvent(slug: string): Promise<EventItem | undefined> {
   const fallback = fallbackEvents.find((item) => item.slug === slug);
-  return queryOrFallback(`*[_type == "event" && slug.current == $slug][0] ${eventProjection}`, fallback, { slug }, { revalidate: CACHE.events, requestTag: "event" });
+  const item = await queryOrFallback(`*[_type == "event" && slug.current == $slug][0] ${eventProjection}`, fallback, { slug }, { revalidate: CACHE.events, requestTag: "event" });
+  return item && withImages.event(item);
 }
 
 export async function getServices(): Promise<Service[]> {
-  return queryOrFallback(`*[_type == "service" && defined(slug.current)] | order(order asc) ${serviceProjection}`, fallbackServices, {}, { revalidate: CACHE.services, requestTag: "services" });
+  const items = await queryOrFallback(`*[_type == "service" && defined(slug.current)] | order(order asc) ${serviceProjection}`, fallbackServices, {}, { revalidate: CACHE.services, requestTag: "services" });
+  return items.map(withImages.service);
 }
 
 export async function getService(slug: string): Promise<Service | undefined> {
   const fallback = fallbackServices.find((item) => item.slug === slug);
-  return queryOrFallback(`*[_type == "service" && slug.current == $slug][0] ${serviceProjection}`, fallback, { slug }, { revalidate: CACHE.services, requestTag: "service" });
+  const item = await queryOrFallback(`*[_type == "service" && slug.current == $slug][0] ${serviceProjection}`, fallback, { slug }, { revalidate: CACHE.services, requestTag: "service" });
+  return item && withImages.service(item);
 }
 
 export async function getTimeline(): Promise<TimelineItem[]> {
-  return queryOrFallback(`*[_type == "timelineItem"] | order(year desc, order asc) { "id": _id, year, title, description, "image": image.asset->url }`, fallbackTimeline, {}, { revalidate: CACHE.archive, requestTag: "timeline" });
+  const items = await queryOrFallback(`*[_type == "timelineItem"] | order(year desc, order asc) { "id": _id, year, title, description, link, "image": image.asset->url }`, fallbackTimeline, {}, { revalidate: CACHE.archive, requestTag: "timeline" });
+  return items.map(withImages.timeline);
 }
 
 export async function getMagazines(): Promise<Magazine[]> {
-  return queryOrFallback(`*[_type == "magazine"] | order(volume asc) { "id": _id, volume, title, "cover": coverImage.asset->url, checkoutUrl }`, fallbackMagazines, {}, { revalidate: CACHE.magazines, requestTag: "magazines" });
+  const items = await queryOrFallback(`*[_type == "magazine"] | order(volume asc) { "id": _id, volume, title, "cover": coverImage.asset->url, checkoutUrl }`, fallbackMagazines, {}, { revalidate: CACHE.magazines, requestTag: "magazines" });
+  return items.map(withImages.magazine);
 }
 
 export async function getSiteSettings(): Promise<SiteSettings> {

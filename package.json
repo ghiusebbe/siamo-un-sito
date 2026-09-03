@@ -12,7 +12,9 @@
     "start": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext start",
     "test": "npm run build && node --test tests/*.test.mjs",
     "lint": "bash scripts/sites-env.sh -- eslint . --ignore-pattern dist --ignore-pattern .next",
-    "seed": "node --env-file=.env.local scripts/seed-sanity.mjs"
+    "seed": "node --env-file=.env.local scripts/seed-sanity.mjs",
+    "sanity": "sanity",
+    "sanity:manage": "sanity manage"
   },
   "dependencies": {
     "@sanity/client": "8.4.0",
