@@ -3,6 +3,11 @@ import { preload } from "react-dom";
 import "./globals.css";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
+import { SiteIntro } from "@/components/site-intro";
+import { INTRO_STORAGE_KEY } from "@/lib/intro";
+
+// Runs before first paint: decides whether the entry animation plays this session.
+const introScript = `try{document.documentElement.dataset.intro=sessionStorage.getItem(${JSON.stringify(INTRO_STORAGE_KEY)})?"skip":"play"}catch(e){document.documentElement.dataset.intro="play"}`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
@@ -30,6 +35,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="it">
       <body>
+        <script dangerouslySetInnerHTML={{ __html: introScript }} />
+        <SiteIntro />
         <a className="skip-link" href="#contenuto">Vai al contenuto</a>
         <Header />
         <main id="contenuto">{children}</main>
