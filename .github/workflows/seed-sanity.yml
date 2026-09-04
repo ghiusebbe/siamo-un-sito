@@ -28,6 +28,6 @@ jobs:
       - name: Importa contenuti e immagini
         run: node scripts/seed-sanity.mjs
         env:
-          NEXT_PUBLIC_SANITY_PROJECT_ID: ${{ secrets.SANITY_PROJECT_ID }}
-          NEXT_PUBLIC_SANITY_DATASET: ${{ inputs.dataset }}
+          SANITY_PROJECT_ID: ${{ secrets.SANITY_PROJECT_ID }}
+          SANITY_DATASET: ${{ inputs.dataset }}
           SANITY_API_WRITE_TOKEN: ${{ secrets.SANITY_API_WRITE_TOKEN }}

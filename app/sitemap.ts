@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { getArticles, getEvents, getServices } from "@/lib/content";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const base = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const base = (process.env.SITE_URL || process.env.NEXT_PUBLIC_SITE_URL) || "http://localhost:3000";
   const [articles, events, services] = await Promise.all([getArticles(), getEvents(), getServices()]);
   const staticPages = ["", "/articoli", "/eventi", "/timeline", "/servizi", "/chi-siamo"];
   return [

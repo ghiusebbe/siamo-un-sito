@@ -17,7 +17,7 @@ Il sito funziona subito con i contenuti migrati inclusi nel repository. Il panne
 Guida completa passo-passo in [docs/sanity-setup.md](docs/sanity-setup.md).
 
 1. Crea un progetto su Sanity e un dataset `production`.
-2. Copia `.env.example` in `.env.local` e inserisci `NEXT_PUBLIC_SANITY_PROJECT_ID`.
+2. Copia `.env.example` in `.env.local` e inserisci `SANITY_PROJECT_ID`.
 3. Crea un token Editor e inseriscilo come `SANITY_API_WRITE_TOKEN`.
 4. Aggiungi `http://localhost:3000` e il dominio definitivo tra le CORS origins del progetto Sanity.
 5. Esegui `npm run seed` una sola volta per importare testi e immagini iniziali.

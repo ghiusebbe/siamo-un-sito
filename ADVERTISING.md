@@ -19,8 +19,8 @@ Il caricamento è differito finché l’annuncio non si avvicina alla viewport. 
 Inserire i percorsi completi delle unità pubblicitarie nelle variabili:
 
 ```env
-NEXT_PUBLIC_GAM_ARTICLE_INLINE_PATH=/NETWORK_ID/UNITA_INLINE
-NEXT_PUBLIC_GAM_ARTICLE_FOOTER_PATH=/NETWORK_ID/UNITA_FOOTER
+GAM_ARTICLE_INLINE_PATH=/NETWORK_ID/UNITA_INLINE
+GAM_ARTICLE_FOOTER_PATH=/NETWORK_ID/UNITA_FOOTER
 ```
 
 Finché le variabili restano vuote non viene caricato Google Publisher Tag e non appare alcuno spazio pubblicitario. Prima dell’attivazione pubblica va collegata la gestione del consenso scelta per il sito.

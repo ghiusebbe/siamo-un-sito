@@ -9,6 +9,12 @@ import { formatDate } from "@/lib/format";
 
 type Props = { params: Promise<{ slug: string }> };
 
+// Ad unit paths stay server-side and reach the client slot as props.
+const adUnits = {
+  inline: process.env.GAM_ARTICLE_INLINE_PATH || process.env.NEXT_PUBLIC_GAM_ARTICLE_INLINE_PATH,
+  footer: process.env.GAM_ARTICLE_FOOTER_PATH || process.env.NEXT_PUBLIC_GAM_ARTICLE_FOOTER_PATH,
+};
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const article = await getArticle(slug);
@@ -45,11 +51,11 @@ export default async function ArticlePage({ params }: Props) {
       />
       <div className="editorial-body">
         <RichTextContent
-          inlineContent={<ArticleAdSlot placement="inline" />}
+          inlineContent={<ArticleAdSlot placement="inline" unitPath={adUnits.inline} />}
           value={article.body}
         />
       </div>
-      <ArticleAdSlot placement="footer" />
+      <ArticleAdSlot placement="footer" unitPath={adUnits.footer} />
       {next ? <Link className="next-content" href={`/articoli/${next.slug}`}><span>Continua a leggere</span><strong>{next.title} ↗</strong></Link> : null}
     </article>
   );

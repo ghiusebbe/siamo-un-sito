@@ -2,12 +2,12 @@ import { createClient } from "@sanity/client";
 import { createReadStream } from "node:fs";
 import { extname, resolve } from "node:path";
 
-const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
-const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || "production";
+const projectId = process.env.SANITY_PROJECT_ID || process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
+const dataset = process.env.SANITY_DATASET || process.env.NEXT_PUBLIC_SANITY_DATASET || "production";
 const token = process.env.SANITY_API_WRITE_TOKEN;
 
 if (!projectId || !token) {
-  throw new Error("Inserisci NEXT_PUBLIC_SANITY_PROJECT_ID e SANITY_API_WRITE_TOKEN in .env.local");
+  throw new Error("Inserisci SANITY_PROJECT_ID e SANITY_API_WRITE_TOKEN in .env.local");
 }
 
 const client = createClient({ projectId, dataset, token, apiVersion: "2026-08-01", useCdn: false });
