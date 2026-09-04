@@ -46,6 +46,28 @@ const withImages = {
   magazine: (item: Magazine): Magazine => ({ ...item, cover: sanityImage(item.cover) }),
 };
 
+const CONTENT_TYPES = ["article", "event", "service", "timelineItem", "magazine", "siteSettings"];
+
+/**
+ * A freshly created dataset has no documents at all. Until the first import
+ * the site keeps serving the bundled content instead of going blank; once
+ * anything is published, an intentionally empty collection stays empty.
+ */
+async function datasetHasContent(): Promise<boolean> {
+  if (!sanityClient) return false;
+  try {
+    const count = await sanityClient.fetch<number>(
+      `count(*[_type in $types])`,
+      { types: CONTENT_TYPES },
+      { next: { revalidate: 60 }, tag: "dataset-state" },
+    );
+    return count > 0;
+  } catch (error) {
+    console.error("[sanity:dataset-state] query failed; serving fallback content", error);
+    return false;
+  }
+}
+
 async function queryOrFallback<T>(
   query: string,
   fallback: T,
@@ -53,6 +75,7 @@ async function queryOrFallback<T>(
   { revalidate = CACHE.editorial, requestTag = "content" }: QueryOptions = {},
 ): Promise<T> {
   if (!sanityClient) return fallback;
+  if (!(await datasetHasContent())) return fallback;
 
   try {
     const value = await sanityClient.fetch<T>(query, params, {
