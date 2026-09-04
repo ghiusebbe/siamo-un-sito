@@ -60,3 +60,15 @@ test("renders a branded 404 page", async () => {
   assert.match(html, /Pagina non trovata/);
   assert.match(html, /aria-label="Sezioni del sito"/i);
 });
+
+test("gives the Studio the whole viewport", async () => {
+  const { response, html } = await render("/studio");
+
+  assert.equal(response.status, 200);
+  // Header and footer would push the Studio past the fold and hide its
+  // publish action bar, so /studio renders without the site chrome.
+  assert.doesNotMatch(html, /aria-label="Navigazione principale"/i);
+  assert.doesNotMatch(html, /class="skip-link"/i);
+  assert.doesNotMatch(html, /class="site-intro"/);
+  assert.doesNotMatch(html, /aria-label="Sezioni del sito"/i);
+});
