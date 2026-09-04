@@ -164,10 +164,14 @@ button, input { font: inherit; }
 
 .editorial-page { padding: 90px 0 120px; }
 .editorial-header { max-width: 1000px; }
-.editorial-header h1 { margin: 22px 0; font-size: clamp(58px, 10vw, 126px); line-height: .88; letter-spacing: -.075em; text-transform: uppercase; }
+.editorial-header h1 { margin: 22px 0; font-size: clamp(58px, 6.4vw, 92px); line-height: .88; letter-spacing: -.075em; text-transform: uppercase; }
 .editorial-subtitle { font-size: clamp(22px, 4vw, 42px); color: #aaa; max-width: 850px; }
 .editorial-meta { display: flex; gap: 30px; padding: 30px 0 56px; color: #a9a9a5; }
-.editorial-cover { width: 100%; max-height: 760px; object-fit: cover; border-radius: 28px; }
+/* The cover keeps the proportions of the photo: the width follows the ratio
+   read from the asset, so capping the height never crops. The max-height is
+   the safety net for an asset whose size could not be read — there the box
+   keeps the declared shape and object-fit letterboxes rather than cropping. */
+.editorial-cover { display: block; width: min(100%, calc(760px * var(--cover-ratio, 1.6))); height: auto; max-height: 760px; margin-inline: auto; object-fit: contain; border-radius: 28px; }
 .editorial-body { width: min(720px, 100%); margin: 70px auto 100px; }
 .prose { font-size: 20px; line-height: 1.68; }
 .prose p { margin: 0 0 1.5em; }
@@ -198,7 +202,7 @@ button, input { font: inherit; }
 .event-facts { display: flex; flex-wrap: wrap; gap: 10px 26px; color: #aaa; border-block: 1px solid var(--line); padding: 20px 0; }
 .lineup { font-size: 24px; margin: 35px 0; }
 .event-detail .prose { font-size: 17px; color: #bcbcb8; }
-.event-detail-poster { width: 100%; border-radius: 24px; }
+.event-detail-poster { display: block; width: min(100%, calc(80vh * var(--cover-ratio, .8))); height: auto; max-height: 80vh; margin-inline: auto; object-fit: contain; border-radius: 24px; }
 
 .timeline-section { padding-bottom: 120px; }
 .timeline-row { min-height: 150px; padding: 26px 0; display: grid; grid-template-columns: 110px 52px 1fr 300px; gap: 28px; align-items: center; border-top: 1px solid var(--line); position: relative; overflow: hidden; }
@@ -225,7 +229,7 @@ button, input { font: inherit; }
 .service-detail-hero h1 { margin: 22px 0; font-size: clamp(74px, 16vw, 190px); line-height: .75; letter-spacing: -.09em; text-transform: uppercase; }
 .service-tagline { font-size: clamp(28px, 5vw, 58px); letter-spacing: -.05em; max-width: 800px; }
 .service-intro { color: #b8b8b3; font-size: 20px; max-width: 720px; margin: 40px 0 0 auto; }
-.service-cover img { width: 100%; height: min(72vw, 760px); object-fit: cover; border-radius: 28px; }
+.service-cover img { display: block; width: min(100%, calc(min(72vw, 760px) * var(--cover-ratio, 1.6))); height: auto; max-height: min(72vw, 760px); margin-inline: auto; object-fit: contain; border-radius: 28px; }
 .deliverables { padding: 100px 0; }
 .deliverables > article { display: grid; grid-template-columns: 70px 1fr 1fr; gap: 30px; border-top: 1px solid var(--line); padding: 34px 0; }
 .deliverables article > span { color: var(--muted); }
@@ -288,7 +292,7 @@ button, input { font: inherit; }
   .event-card img { width: 220px; }
   .event-detail { grid-template-columns: 1fr; }
   .event-detail-copy { position: static; }
-  .event-detail-poster { max-width: 620px; }
+  .event-detail-poster { width: min(100%, 620px); }
   .timeline-row { grid-template-columns: 80px 35px 1fr 190px; }
   .timeline-row img { width: 180px; height: 160px; }
   .services-grid { grid-template-columns: 1fr; }
@@ -350,7 +354,7 @@ button, input { font: inherit; }
   .service-card { min-height: 300px; }
   .service-detail-hero { padding-top: 75px; }
   .service-detail-hero h1 { font-size: 65px; }
-  .service-cover img { height: 390px; border-radius: 19px; }
+  .service-cover img { width: min(100%, calc(390px * var(--cover-ratio, 1.6))); max-height: 390px; border-radius: 19px; }
   .deliverables > article { grid-template-columns: 38px 1fr; }
   .deliverables article p { grid-column: 2; }
   .service-gallery { grid-template-columns: 1fr; }
@@ -647,7 +651,7 @@ summary::-webkit-details-marker { display: none; }
   .page-hero .dynamic-title { font-size: clamp(58px, 20vw, 95px); }
   .article-row { align-items: start; }
   .row-number { padding-top: 6px; }
-  .editorial-cover { width: 100%; height: min(112vw, 520px); max-height: none; object-fit: cover; }
+  .editorial-cover { width: min(100%, calc(min(112vw, 520px) * var(--cover-ratio, 1.6))); max-height: min(112vw, 520px); }
   .event-card .row-arrow { grid-column: 2; grid-row: 2; }
   .newsletter-inner .dynamic-title { font-size: clamp(44px, 13vw, 62px); }
   .newsletter-form input, .newsletter-form button { width: 100%; }
