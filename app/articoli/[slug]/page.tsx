@@ -2,18 +2,24 @@ import type { Metadata } from "next";
 import Image from "@/components/site-image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { AdsenseAdSlot } from "@/components/adsense-ad-slot";
 import { ArticleAdSlot } from "@/components/article-ad-slot";
 import { RichTextContent } from "@/components/rich-text";
+import { articleAd, type AdPlacement } from "@/lib/advertising";
 import { getArticle, getArticles } from "@/lib/content";
 import { formatDate } from "@/lib/format";
 
 type Props = { params: Promise<{ slug: string }> };
 
-// Ad unit paths stay server-side and reach the client slot as props.
-const adUnits = {
-  inline: process.env.GAM_ARTICLE_INLINE_PATH || process.env.NEXT_PUBLIC_GAM_ARTICLE_INLINE_PATH,
-  footer: process.env.GAM_ARTICLE_FOOTER_PATH || process.env.NEXT_PUBLIC_GAM_ARTICLE_FOOTER_PATH,
-};
+// Account details stay server-side and reach the client slot as props.
+function adSlot(placement: AdPlacement) {
+  const ad = articleAd(placement);
+  if (!ad) return null;
+
+  return ad.source === "adManager"
+    ? <ArticleAdSlot placement={placement} unitPath={ad.unitPath} />
+    : <AdsenseAdSlot clientId={ad.clientId} placement={placement} slotId={ad.slotId} />;
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
@@ -51,11 +57,11 @@ export default async function ArticlePage({ params }: Props) {
       />
       <div className="editorial-body">
         <RichTextContent
-          inlineContent={<ArticleAdSlot placement="inline" unitPath={adUnits.inline} />}
+          inlineContent={adSlot("inline")}
           value={article.body}
         />
       </div>
-      <ArticleAdSlot placement="footer" unitPath={adUnits.footer} />
+      {adSlot("footer")}
       {next ? <Link className="next-content" href={`/articoli/${next.slug}`}><span>Continua a leggere</span><strong>{next.title} ↗</strong></Link> : null}
     </article>
   );
