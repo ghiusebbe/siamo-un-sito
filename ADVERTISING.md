@@ -24,3 +24,17 @@ GAM_ARTICLE_FOOTER_PATH=/NETWORK_ID/UNITA_FOOTER
 ```
 
 Finché le variabili restano vuote non viene caricato Google Publisher Tag e non appare alcuno spazio pubblicitario. Prima dell’attivazione pubblica va collegata la gestione del consenso scelta per il sito.
+
+## ads.txt
+
+Google paga solo sui domini che dichiarano il venditore in `/ads.txt`. Il file non è nel repository: viene generato dalle variabili d’ambiente, e senza di esse la richiesta risponde 404.
+
+```env
+# La riga standard AdSense, composta dall’ID editore:
+ADSENSE_PUBLISHER_ID=pub-0000000000000000
+
+# Oppure il contenuto completo, se l’account richiede più righe:
+ADS_TXT=google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0
+```
+
+`ADS_TXT` ha la precedenza e viene servito senza modifiche. Dopo il deploy verifica `https://tuo-dominio/ads.txt`: Google rilegge il file entro qualche giorno.

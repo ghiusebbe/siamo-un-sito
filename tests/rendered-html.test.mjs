@@ -72,3 +72,14 @@ test("gives the Studio the whole viewport", async () => {
   assert.doesNotMatch(html, /class="site-intro"/);
   assert.doesNotMatch(html, /aria-label="Sezioni del sito"/i);
 });
+
+test("serves no ads.txt until an advertising account is configured", async () => {
+  const worker = await loadWorker();
+  const response = await worker.fetch(
+    new Request("http://localhost/ads.txt"),
+    { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } },
+    { waitUntil() {}, passThroughOnException() {} },
+  );
+
+  assert.equal(response.status, 404);
+});
