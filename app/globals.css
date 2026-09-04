@@ -178,6 +178,11 @@ button, input { font: inherit; }
 .prose h2 { font-size: 42px; line-height: 1; margin: 1.6em 0 .6em; }
 .prose h3 { font-size: 30px; margin-top: 1.6em; }
 .prose blockquote { border-left: 3px solid var(--acid); margin: 2em 0; padding: 0 0 0 24px; font-size: 28px; }
+/* Links in the body inherit the site's plain anchor style, which would make
+   them indistinguishable from the text around them. */
+.prose a { color: var(--acid); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+.prose a:hover { text-decoration-thickness: 2px; }
+.prose code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .9em; }
 .article-ad { width: min(970px, 100%); margin: 0 auto 70px; text-align: center; }
 .article-ad--inline { width: min(728px, calc(100vw - 28px)); margin: 54px 50%; transform: translateX(-50%); }
 .article-ad__label { display: block; margin-bottom: 9px; color: #8f8f8a; font-size: 10px; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; }

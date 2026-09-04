@@ -1,8 +1,14 @@
+export type PortableSpan = { _key?: string; _type?: string; text?: string; marks?: string[] };
+
+/** Annotations Studio attaches to a span; today the block editor only offers links. */
+export type PortableMarkDef = { _key: string; _type: string; href?: string };
+
 export type PortableBlock = {
   _key?: string;
   _type: "block";
   style?: string;
-  children?: Array<{ _key?: string; _type?: string; text?: string; marks?: string[] }>;
+  children?: PortableSpan[];
+  markDefs?: PortableMarkDef[];
 };
 
 export type RichText = string[] | PortableBlock[];
