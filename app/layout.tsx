@@ -3,6 +3,7 @@ import { preload } from "react-dom";
 import "./globals.css";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
+import { SiteChrome } from "@/components/site-chrome";
 import { SiteIntro } from "@/components/site-intro";
 import { INTRO_STORAGE_KEY } from "@/lib/intro";
 
@@ -36,11 +37,15 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="it">
       <body>
         <script dangerouslySetInnerHTML={{ __html: introScript }} />
-        <SiteIntro />
-        <a className="skip-link" href="#contenuto">Vai al contenuto</a>
-        <Header />
+        <SiteChrome>
+          <SiteIntro />
+          <a className="skip-link" href="#contenuto">Vai al contenuto</a>
+          <Header />
+        </SiteChrome>
         <main id="contenuto">{children}</main>
-        <Footer />
+        <SiteChrome>
+          <Footer />
+        </SiteChrome>
       </body>
     </html>
   );

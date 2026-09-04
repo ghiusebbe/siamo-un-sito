@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { StudioClient } from "@/components/studio-client";
 import { sanityConfigured, sanityDataset, sanityProjectId } from "@/lib/sanity";
 
@@ -12,6 +13,10 @@ export default function StudioPage() {
         <p style={{ maxWidth: 620, color: "#b9b9b4", fontSize: 20 }}>
           Il sito sta usando i contenuti migrati inclusi nel progetto. Inserisci SANITY_PROJECT_ID nelle variabili d’ambiente e questa pagina diventerà il pannello editoriale completo.
         </p>
+        {/* The site chrome steps aside on /studio, so this screen carries its own way back. */}
+        <Link href="/" style={{ display: "inline-block", marginTop: 40, color: "#45ff16", fontSize: 18, textDecoration: "underline" }}>
+          Torna al sito
+        </Link>
       </main>
     );
   }
