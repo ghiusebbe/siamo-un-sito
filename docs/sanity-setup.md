@@ -9,7 +9,7 @@ Se il progetto vive solo su GitHub e Vercel, si può fare tutto dal browser:
 1. **Progetto.** Su [sanity.io/manage](https://www.sanity.io/manage) → *Create project*, nome `SIAMO`, dataset `production`. Copia il Project ID dalla pagina del progetto.
 2. **Token.** Nel progetto: *API → Tokens → Add API token*, nome `siamo-site`, permessi **Editor**. Copialo subito, non viene più mostrato.
 3. **CORS.** *API → CORS origins → Add*: `https://siamo-un-sito.vercel.app` e `https://*.vercel.app`, entrambi con *Allow credentials*.
-4. **Vercel.** *Settings → Environment Variables*: `NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET` = `production`, `SANITY_API_WRITE_TOKEN`, `NEXT_PUBLIC_SITE_URL` = `https://siamo-un-sito.vercel.app`. Poi *Deployments → Redeploy*.
+4. **Vercel.** *Settings → Environment Variables*: `SANITY_PROJECT_ID`, `SANITY_DATASET` = `production`, `SANITY_API_WRITE_TOKEN`, `SITE_URL` = `https://siamo-un-sito.vercel.app`. Poi *Deployments → Redeploy*.
 5. **Contenuti iniziali.** Su GitHub: *Settings → Secrets and variables → Actions → New repository secret*, crea `SANITY_PROJECT_ID` e `SANITY_API_WRITE_TOKEN`. Poi *Actions → Seed Sanity → Run workflow* (dataset `production`). In un paio di minuti carica immagini e documenti.
 6. **Studio.** Apri `https://siamo-un-sito.vercel.app/studio` e accedi con l'account Sanity: trovi i contenuti importati e puoi iniziare a modificarli.
 
@@ -38,12 +38,12 @@ Compila `.env.local`:
 
 | Variabile | Valore |
 | --- | --- |
-| `NEXT_PUBLIC_SITE_URL` | `http://localhost:3000` in locale, il dominio definitivo in produzione |
-| `NEXT_PUBLIC_SANITY_PROJECT_ID` | il Project ID del passo 1 |
-| `NEXT_PUBLIC_SANITY_DATASET` | `production` |
+| `SITE_URL` | `http://localhost:3000` in locale, il dominio definitivo in produzione |
+| `SANITY_PROJECT_ID` | il Project ID del passo 1 |
+| `SANITY_DATASET` | `production` |
 | `SANITY_API_WRITE_TOKEN` | token con permessi **Editor** (passo 3) |
 
-Le due variabili `NEXT_PUBLIC_GAM_*` riguardano la pubblicità e possono restare vuote.
+Le due variabili `GAM_*` riguardano la pubblicità e possono restare vuote.
 
 ## 3. Token di scrittura
 
@@ -84,13 +84,13 @@ I due articoli e l'evento importati sono ancora segnaposto ("Titolo format in ge
 npm run dev
 ```
 
-- `http://localhost:5173/studio` deve mostrare lo Studio con i sette tipi di documento nella colonna di sinistra. Se vedi la schermata "Collega il CMS" la variabile `NEXT_PUBLIC_SANITY_PROJECT_ID` non è stata letta: riavvia il dev server.
+- `http://localhost:5173/studio` deve mostrare lo Studio con i sette tipi di documento nella colonna di sinistra. Se vedi la schermata "Collega il CMS" la variabile `SANITY_PROJECT_ID` non è stata letta: riavvia il dev server.
 - La home deve mostrare gli stessi contenuti di prima, ma le immagini arrivano da `cdn.sanity.io`.
 - Modifica un titolo in Studio e pubblica: in locale la modifica compare al refresh; in produzione entro il tempo di cache (vedi sotto).
 
 ## 7. Produzione
 
-Nel pannello dell'hosting (Vercel: Settings → Environment Variables) inserisci le stesse quattro variabili del passo 2, con `NEXT_PUBLIC_SITE_URL` impostato sul dominio pubblico, e rilancia il deploy. Aggiungi il dominio alle CORS origins (passo 4).
+Nel pannello dell'hosting (Vercel: Settings → Environment Variables) inserisci le stesse quattro variabili del passo 2, con `SITE_URL` impostato sul dominio pubblico, e rilancia il deploy. Aggiungi il dominio alle CORS origins (passo 4).
 
 Poi invita la redazione: **Members → Invite** su sanity.io/manage. Ruolo **Editor** per chi scrive, **Administrator** solo per chi gestisce il progetto. Ognuno accede allo Studio su `https://tuo-dominio/studio` con il proprio account Sanity.
 

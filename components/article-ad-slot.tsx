@@ -56,11 +56,6 @@ declare global {
 
 const GPT_SOURCE = "https://securepubads.g.doubleclick.net/tag/js/gpt.js";
 
-const unitPaths: Record<AdPlacement, string | undefined> = {
-  inline: process.env.NEXT_PUBLIC_GAM_ARTICLE_INLINE_PATH,
-  footer: process.env.NEXT_PUBLIC_GAM_ARTICLE_FOOTER_PATH,
-};
-
 const sizes: Record<AdPlacement, AdSize[]> = {
   inline: [[728, 90], [320, 100], [300, 100]],
   footer: [[970, 90], [728, 90], [320, 100], [300, 100]],
@@ -114,10 +109,15 @@ function buildSizeMapping(googletag: GoogleTag, placement: AdPlacement) {
   return mapping.build();
 }
 
-export function ArticleAdSlot({ placement }: { placement: AdPlacement }) {
+type ArticleAdSlotProps = {
+  placement: AdPlacement;
+  /** Ad unit path from the server (GAM_ARTICLE_*_PATH); the slot renders nothing without it. */
+  unitPath?: string;
+};
+
+export function ArticleAdSlot({ placement, unitPath }: ArticleAdSlotProps) {
   const reactId = useId();
   const slotId = `siamo-ad-${placement}-${reactId.replace(/[^a-zA-Z0-9_-]/g, "")}`;
-  const unitPath = unitPaths[placement];
   const [state, setState] = useState<"loading" | "filled" | "empty" | "error">(
     "loading",
   );

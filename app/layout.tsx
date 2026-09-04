@@ -10,7 +10,7 @@ import { INTRO_STORAGE_KEY } from "@/lib/intro";
 const introScript = `try{document.documentElement.dataset.intro=sessionStorage.getItem(${JSON.stringify(INTRO_STORAGE_KEY)})?"skip":"play"}catch(e){document.documentElement.dataset.intro="play"}`;
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
+  metadataBase: new URL((process.env.SITE_URL || process.env.NEXT_PUBLIC_SITE_URL) || "http://localhost:3000"),
   title: {
     default: "SIAMO — musica e cultura emergente",
     template: "%s — SIAMO",
