@@ -100,3 +100,16 @@ test("serves no ads.txt until an advertising account is configured", async () =>
 
   assert.equal(response.status, 404);
 });
+
+test("publishes the privacy and cookie policy", async () => {
+  const { response, html } = await render("/privacy");
+
+  assert.equal(response.status, 200);
+  assert.match(html, /PRIVACY E COOKIE/);
+  assert.match(html, /Titolare del trattamento/);
+  assert.match(html, /garanteprivacy\.it/);
+
+  // The footer links it from every page.
+  const { html: home } = await render("/");
+  assert.match(home, /href="\/privacy"/);
+});

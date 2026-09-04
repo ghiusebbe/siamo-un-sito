@@ -20,6 +20,7 @@ export async function Footer() {
       <nav className="footer-nav" aria-label="Sezioni del sito">
         <span className="eyebrow">Esplora</span>
         {sections.map(([label, href]) => <Link href={href} key={href}>{label}</Link>)}
+        <Link href="/privacy">Privacy e cookie</Link>
         <ConsentLink />
       </nav>
       <div>
