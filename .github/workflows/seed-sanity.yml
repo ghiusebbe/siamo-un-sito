@@ -1,0 +1,33 @@
+# Importa i contenuti iniziali in Sanity senza bisogno di un terminale locale.
+# Da GitHub: Actions → "Seed Sanity" → Run workflow. Richiede i secret
+# SANITY_PROJECT_ID e SANITY_API_WRITE_TOKEN (Settings → Secrets → Actions).
+name: Seed Sanity
+
+on:
+  workflow_dispatch:
+    inputs:
+      dataset:
+        description: "Dataset da popolare"
+        type: choice
+        default: production
+        options:
+          - production
+          - staging
+
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Importa contenuti e immagini
+        run: node scripts/seed-sanity.mjs
+        env:
+          NEXT_PUBLIC_SANITY_PROJECT_ID: ${{ secrets.SANITY_PROJECT_ID }}
+          NEXT_PUBLIC_SANITY_DATASET: ${{ inputs.dataset }}
+          SANITY_API_WRITE_TOKEN: ${{ secrets.SANITY_API_WRITE_TOKEN }}
