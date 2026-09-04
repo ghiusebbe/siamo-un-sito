@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getSiteSettings } from "@/lib/content";
 import Image from "@/components/site-image";
+import { ConsentLink } from "@/components/consent-link";
 import { NewTabNote } from "@/components/new-tab-note";
 
 const sections = [
@@ -19,6 +20,7 @@ export async function Footer() {
       <nav className="footer-nav" aria-label="Sezioni del sito">
         <span className="eyebrow">Esplora</span>
         {sections.map(([label, href]) => <Link href={href} key={href}>{label}</Link>)}
+        <ConsentLink />
       </nav>
       <div>
         <span className="eyebrow">Email</span>
