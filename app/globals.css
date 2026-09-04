@@ -65,14 +65,24 @@ button, input { font: inherit; }
 .desktop-nav { min-height: 72px; display: flex; align-items: center; gap: clamp(18px, 3vw, 34px); font-size: 15px; }
 .desktop-nav a { transition: color .2s ease; }
 .desktop-nav a:hover { color: var(--acid); }
-.home-intro { background: var(--white); color: var(--black); width: min(100%, 1340px); padding: 0 16px 86px; }
+/* clip, not hidden: the lean of the wordmark must not become page scroll. */
+.home-intro { background: var(--white); color: var(--black); width: min(100%, 1340px); padding: 0 16px 86px; overflow: clip; }
 .wordmark {
   height: clamp(120px, 22vw, 360px); display: flex; align-items: center; justify-content: center;
   position: relative;
 }
-.wordmark img {
-  width: min(100%, 2200px); height: 100%; object-fit: contain;
+.wordmark-stack {
+  position: relative; display: block; width: min(100%, 2200px); height: 100%;
+  --slices: 6;
+  --entry-delay: 0s;
+  transform: perspective(1100px)
+    rotateX(calc(var(--lean-y, 0) * -2deg))
+    rotateY(calc(var(--lean-x, 0) * 3.5deg))
+    translate3d(calc(var(--lean-x, 0) * .5%), calc(var(--lean-y, 0) * .5%), 0);
+  transition: transform .5s cubic-bezier(.16, 1, .3, 1);
 }
+.wordmark img { width: 100%; height: 100%; object-fit: contain; }
+.wordmark-face { position: relative; }
 .home-intro-copy { width: min(580px, 100%); margin: 8px auto 34px; text-align: center; font-size: clamp(18px, 2vw, 26px); letter-spacing: -.025em; }
 
 .bento-grid { display: grid; grid-template-columns: repeat(12, 1fr); grid-auto-rows: 310px; gap: 14px; }
@@ -1378,6 +1388,7 @@ html { scroll-padding-top: calc(var(--header-height) + 24px); }
 /* Structure, system pages and small affordances added with the UI/UX audit. */
 .wordmark { margin: 0; }
 .wordmark img { max-width: 100%; }
+.wordmark-stack { max-width: 100%; }
 
 .back-link { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 26px; color: var(--muted); font-size: 14px; }
 .back-link:hover, .back-link:focus-visible { color: var(--acid); }
@@ -1458,27 +1469,82 @@ html[data-intro="play"] .site-intro { display: grid; }
   to { clip-path: inset(0 0 100% 0); }
 }
 
-/* Home wordmark: wiped in from the left, then a slow breath. Starts as the curtain lifts. */
-.wordmark img {
-  animation: wordmark-reveal 1.05s cubic-bezier(.16, 1, .3, 1) both, wordmark-breathe 7s ease-in-out 1.2s infinite;
+/* Home wordmark: six slices of the logotype drop into place one after the
+   other, an acid bar sweeps across as they land, then the finished mark takes
+   over and breathes. Slices are cut in percentages, so the whole sequence
+   holds at any width. The delay waits for the entry curtain when it plays. */
+html[data-intro="play"] .wordmark-stack { --entry-delay: 1.15s; }
+
+.wordmark-slice {
+  position: absolute; inset: 0; display: block;
+  background: url("/brand/siamo-wordmark-black.png") center / contain no-repeat;
+  clip-path: inset(
+    0
+    calc((var(--slices) - 1 - var(--slice)) * (100% / var(--slices)))
+    0
+    calc(var(--slice) * (100% / var(--slices)))
+  );
+  animation: wordmark-slice-drop .82s cubic-bezier(.16, 1, .3, 1) both,
+             wordmark-slice-retire .24s linear both;
+  animation-delay:
+    calc(var(--entry-delay) + var(--slice) * .085s),
+    calc(var(--entry-delay) + .95s);
 }
-html[data-intro="play"] .wordmark img {
-  animation-delay: 1.15s, 2.3s;
+.wordmark-sweep {
+  position: absolute; inset: -4% -40%; width: 30%; pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--acid), transparent);
+  mix-blend-mode: multiply;
+  animation: wordmark-sweep 1.15s cubic-bezier(.4, 0, .2, 1) both;
+  animation-delay: calc(var(--entry-delay) + .1s);
 }
-@keyframes wordmark-reveal {
-  0% { clip-path: inset(0 100% 0 0); transform: translateY(14%); opacity: 0; }
-  35% { opacity: 1; }
-  70% { clip-path: inset(0 0 0 0); }
-  100% { clip-path: inset(0 0 0 0); transform: translateY(0); opacity: 1; }
+.wordmark-face {
+  animation: wordmark-arrive .3s ease-out both,
+             wordmark-breathe 7s ease-in-out infinite;
+  animation-delay: calc(var(--entry-delay) + .92s), calc(var(--entry-delay) + 1.4s);
+}
+@keyframes wordmark-slice-drop {
+  0% { opacity: 0; translate: 0 -34%; scale: 1 1.25; }
+  60% { opacity: 1; }
+  100% { opacity: 1; translate: 0 0; scale: 1 1; }
+}
+@keyframes wordmark-slice-retire {
+  to { opacity: 0; }
+}
+@keyframes wordmark-sweep {
+  0% { opacity: 0; translate: 0 0; }
+  15% { opacity: .85; }
+  85% { opacity: .85; }
+  100% { opacity: 0; translate: 460% 0; }
+}
+@keyframes wordmark-arrive {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 @keyframes wordmark-breathe {
   0%, 100% { translate: 0 0; }
   50% { translate: 0 -2%; }
 }
 
+/* The mark drifts and dims as the home hero scrolls away, where the browser
+   can drive an animation from the scroll position. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .wordmark-stack {
+      animation: wordmark-drift linear both;
+      animation-timeline: view();
+      animation-range: exit 0% exit 90%;
+    }
+  }
+}
+@keyframes wordmark-drift {
+  to { opacity: .45; scale: .94; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .site-intro { display: none !important; }
-  .wordmark img { animation: none; clip-path: none; opacity: 1; transform: none; translate: none; }
+  .wordmark-slice, .wordmark-sweep { display: none; }
+  .wordmark-stack { transform: none; transition: none; }
+  .wordmark-face { animation: none; opacity: 1; translate: none; }
 }
 
 /* Timeline entries can point somewhere (CMS field "Collegamento"). */

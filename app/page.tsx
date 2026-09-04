@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "@/components/site-image";
+import { Wordmark } from "@/components/wordmark";
 import { DynamicTitle } from "@/components/dynamic-title";
 import { NewsletterForm } from "@/components/newsletter-form";
 import { NewTabNote } from "@/components/new-tab-note";
@@ -43,16 +44,7 @@ export default async function HomePage() {
   return (
     <div className="home-feed">
       <section className="home-intro shell">
-        <h1 className="wordmark">
-          <Image
-            src="/brand/siamo-wordmark-black.png"
-            alt="SIAMO"
-            width={2200}
-            height={546}
-            sizes="100vw"
-            priority
-          />
-        </h1>
+        <Wordmark />
         <div className="home-intro-row">
           <p className="home-intro-copy">Musica, immagini, persone e tutto quello che sta per esplodere.</p>
           <span className="home-intro-index">Magazine indipendente · Italia</span>
