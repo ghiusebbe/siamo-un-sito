@@ -1,3 +1,5 @@
+import { adsenseAccount } from "@/lib/advertising";
+
 /**
  * Both AdSense and Ad Manager only pay out on domains that authorise the
  * seller in /ads.txt. The lines carry account identifiers rather than
@@ -11,10 +13,10 @@ function adsTxtBody(): string | null {
   const verbatim = process.env.ADS_TXT?.trim();
   if (verbatim) return `${verbatim}\n`;
 
-  const publisherId = process.env.ADSENSE_PUBLISHER_ID?.trim();
-  if (!publisherId) return null;
+  const account = adsenseAccount();
+  if (!account) return null;
 
-  return `google.com, ${publisherId}, DIRECT, ${ADSENSE_EXCHANGE_ID}\n`;
+  return `google.com, ${account.publisherId}, DIRECT, ${ADSENSE_EXCHANGE_ID}\n`;
 }
 
 export function GET() {

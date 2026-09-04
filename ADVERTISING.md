@@ -29,6 +29,16 @@ Finché le variabili restano vuote non viene caricato Google Publisher Tag e non
 
 AdSense non ha un tag proprio sul sito: l'account viene collegato ad Ad Manager come fonte di domanda, così gli annunci AdSense competono per gli stessi due spazi già serviti da Google Publisher Tag. In Ad Manager: *Amministrazione → Collegamenti account → AdSense*, poi abilita la domanda AdSense sulle due unità. Sul sito non cambia nulla: un solo script, nessun doppio conteggio.
 
+Il tag AdSense va comunque sul sito: serve a Google per verificare la proprietà del dominio e ad AdSense per servire. Viene reso nell'`head` di ogni pagina, esattamente come lo fornisce Google (`async`, `crossorigin="anonymous"`), a partire dall'ID account:
+
+```env
+ADSENSE_PUBLISHER_ID=ca-pub-0000000000000000
+```
+
+La stessa variabile accetta anche la forma `pub-…` e compone la riga di `ads.txt`. Senza variabile il tag non viene emesso.
+
+**Tieni gli annunci automatici disattivati** nel pannello AdSense: con Auto ads accesi il tag inserirebbe annunci ovunque, anche in home e negli archivi, contro la regola dei due soli spazi negli articoli.
+
 Ricorda di riportare in `ads.txt` tutte le righe che Google elenca per l'account, non solo quella AdSense (vedi sotto).
 
 ## Consenso
