@@ -37,6 +37,19 @@ ADSENSE_PUBLISHER_ID=ca-pub-0000000000000000
 
 La stessa variabile accetta anche la forma `pub-…` e compone la riga di `ads.txt`. Senza variabile il tag non viene emesso.
 
+### Senza Ad Manager
+
+Ad Manager richiede un account AdSense già approvato, quindi all'inizio può non essere disponibile. In quel caso i due spazi vengono serviti direttamente da AdSense: crea due unità display nel pannello AdSense e inserisci i loro ID numerici.
+
+```env
+ADSENSE_ARTICLE_INLINE_SLOT=1234567890
+ADSENSE_ARTICLE_FOOTER_SLOT=0987654321
+```
+
+Valgono solo finché i percorsi Ad Manager restano vuoti: appena `GAM_ARTICLE_*_PATH` è configurato, lo spazio torna a Google Publisher Tag, che può servire anche la domanda AdSense. Un'unità che AdSense non riesce a riempire viene richiusa senza lasciare un riquadro vuoto.
+
+Prima dell'approvazione del sito da parte di AdSense non viene servito alcun annuncio, per quanto la configurazione sia completa.
+
 **Tieni gli annunci automatici disattivati** nel pannello AdSense: con Auto ads accesi il tag inserirebbe annunci ovunque, anche in home e negli archivi, contro la regola dei due soli spazi negli articoli.
 
 Ricorda di riportare in `ads.txt` tutte le righe che Google elenca per l'account, non solo quella AdSense (vedi sotto).

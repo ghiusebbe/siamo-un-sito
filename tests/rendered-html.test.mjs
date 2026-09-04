@@ -113,3 +113,20 @@ test("publishes the privacy and cookie policy", async () => {
   const { html: home } = await render("/");
   assert.match(home, /href="\/privacy"/);
 });
+
+test("fills the article ad spaces only for a configured account", async () => {
+  const { html: unconfigured } = await render("/articoli/titolo-format-2026");
+  assert.doesNotMatch(unconfigured, /class="article-ad/);
+
+  process.env.ADSENSE_PUBLISHER_ID = "ca-pub-0000000000000000";
+  process.env.ADSENSE_ARTICLE_FOOTER_SLOT = "1234567890";
+  try {
+    const { html } = await render("/articoli/titolo-format-2026");
+    assert.match(html, /class="[^"]*adsbygoogle[^"]*"/);
+    assert.match(html, /data-ad-client="ca-pub-0000000000000000"/);
+    assert.match(html, /data-ad-slot="1234567890"/);
+  } finally {
+    delete process.env.ADSENSE_PUBLISHER_ID;
+    delete process.env.ADSENSE_ARTICLE_FOOTER_SLOT;
+  }
+});
