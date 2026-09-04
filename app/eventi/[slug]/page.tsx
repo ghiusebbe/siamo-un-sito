@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { RichTextContent } from "@/components/rich-text";
 import { NewTabNote } from "@/components/new-tab-note";
 import { getEvent, getEvents } from "@/lib/content";
+import { coverProps } from "@/lib/media";
 import { formatDate } from "@/lib/format";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -47,8 +48,7 @@ export default async function EventDetailPage({ params }: Props) {
         className="event-detail-poster"
         src={event.cover}
         alt={`Locandina ${event.title}`}
-        width={1000}
-        height={1250}
+        {...coverProps(event.cover, { width: 1000, height: 1250 })}
         sizes="(max-width: 900px) 100vw, 42vw"
         priority
       />

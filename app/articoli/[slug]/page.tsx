@@ -7,6 +7,7 @@ import { ArticleAdSlot } from "@/components/article-ad-slot";
 import { RichTextContent } from "@/components/rich-text";
 import { articleAd, type AdPlacement } from "@/lib/advertising";
 import { getArticle, getArticles } from "@/lib/content";
+import { coverProps } from "@/lib/media";
 import { formatDate } from "@/lib/format";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -50,8 +51,7 @@ export default async function ArticlePage({ params }: Props) {
         className="editorial-cover"
         src={article.cover}
         alt={`Copertina: ${article.title}`}
-        width={1600}
-        height={1000}
+        {...coverProps(article.cover, { width: 1600, height: 1000 })}
         sizes="(max-width: 1220px) 100vw, 1180px"
         priority
       />

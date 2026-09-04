@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { DynamicTitle } from "@/components/dynamic-title";
 import { getService, getServices } from "@/lib/content";
+import { coverProps } from "@/lib/media";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -31,8 +32,7 @@ export default async function ServiceDetailPage({ params }: Props) {
           <Image
             src={service.cover}
             alt={`Progetto ${service.title}`}
-            width={1600}
-            height={1000}
+            {...coverProps(service.cover, { width: 1600, height: 1000 })}
             sizes="(max-width: 1220px) 100vw, 1180px"
             priority
           />
