@@ -72,3 +72,44 @@ test("gives the Studio the whole viewport", async () => {
   assert.doesNotMatch(html, /class="site-intro"/);
   assert.doesNotMatch(html, /aria-label="Sezioni del sito"/i);
 });
+
+test("carries the AdSense tag only once an account is configured", async () => {
+  const { html: unconfigured } = await render("/");
+  assert.doesNotMatch(unconfigured, /adsbygoogle/);
+
+  process.env.ADSENSE_PUBLISHER_ID = "ca-pub-0000000000000000";
+  try {
+    const { html } = await render("/");
+    const head = html.slice(0, html.indexOf("</head>"));
+    // Google requires the tag in the head, loaded async and anonymously.
+    assert.match(head, /<script[^>]*src="https:\/\/pagead2\.googlesyndication\.com\/pagead\/js\/adsbygoogle\.js\?client=ca-pub-0000000000000000"/);
+    assert.match(head, /<script[^>]*async[^>]*adsbygoogle/);
+    assert.match(head, /<script[^>]*crossorigin="anonymous"[^>]*adsbygoogle/);
+  } finally {
+    delete process.env.ADSENSE_PUBLISHER_ID;
+  }
+});
+
+test("serves no ads.txt until an advertising account is configured", async () => {
+  const worker = await loadWorker();
+  const response = await worker.fetch(
+    new Request("http://localhost/ads.txt"),
+    { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } },
+    { waitUntil() {}, passThroughOnException() {} },
+  );
+
+  assert.equal(response.status, 404);
+});
+
+test("publishes the privacy and cookie policy", async () => {
+  const { response, html } = await render("/privacy");
+
+  assert.equal(response.status, 200);
+  assert.match(html, /PRIVACY E COOKIE/);
+  assert.match(html, /Titolare del trattamento/);
+  assert.match(html, /garanteprivacy\.it/);
+
+  // The footer links it from every page.
+  const { html: home } = await render("/");
+  assert.match(home, /href="\/privacy"/);
+});

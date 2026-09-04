@@ -24,3 +24,41 @@ GAM_ARTICLE_FOOTER_PATH=/NETWORK_ID/UNITA_FOOTER
 ```
 
 Finché le variabili restano vuote non viene caricato Google Publisher Tag e non appare alcuno spazio pubblicitario. Prima dell’attivazione pubblica va collegata la gestione del consenso scelta per il sito.
+
+## AdSense
+
+AdSense non ha un tag proprio sul sito: l'account viene collegato ad Ad Manager come fonte di domanda, così gli annunci AdSense competono per gli stessi due spazi già serviti da Google Publisher Tag. In Ad Manager: *Amministrazione → Collegamenti account → AdSense*, poi abilita la domanda AdSense sulle due unità. Sul sito non cambia nulla: un solo script, nessun doppio conteggio.
+
+Il tag AdSense va comunque sul sito: serve a Google per verificare la proprietà del dominio e ad AdSense per servire. Viene reso nell'`head` di ogni pagina, esattamente come lo fornisce Google (`async`, `crossorigin="anonymous"`), a partire dall'ID account:
+
+```env
+ADSENSE_PUBLISHER_ID=ca-pub-0000000000000000
+```
+
+La stessa variabile accetta anche la forma `pub-…` e compone la riga di `ads.txt`. Senza variabile il tag non viene emesso.
+
+**Tieni gli annunci automatici disattivati** nel pannello AdSense: con Auto ads accesi il tag inserirebbe annunci ovunque, anche in home e negli archivi, contro la regola dei due soli spazi negli articoli.
+
+Ricorda di riportare in `ads.txt` tutte le righe che Google elenca per l'account, non solo quella AdSense (vedi sotto).
+
+## Consenso
+
+Gli annunci in Italia richiedono un CMP certificato IAB TCF. Usiamo *Privacy e messaggi* (Funding Choices) di Ad Manager: crea un messaggio GDPR, associa il dominio e pubblicalo. Non serve aggiungere script — Google Publisher Tag carica il CMP da sé sulle pagine che hanno uno spazio configurato, e trattiene le richieste di annuncio finché non arriva il segnale TCF, quindi nessun annuncio parte prima della scelta dell'utente.
+
+Il footer mostra "Gestisci il consenso" (`components/consent-link.tsx`) appena il CMP si annuncia: riapre il messaggio per revocare o modificare la scelta, come richiede il GDPR. Finché la pubblicità è spenta il pulsante non compare.
+
+Resta da scrivere la pagina privacy e cookie policy, a cui il messaggio di consenso deve puntare: oggi il sito non ne ha una.
+
+## ads.txt
+
+Google paga solo sui domini che dichiarano il venditore in `/ads.txt`. Il file non è nel repository: viene generato dalle variabili d’ambiente, e senza di esse la richiesta risponde 404.
+
+```env
+# La riga standard AdSense, composta dall’ID editore:
+ADSENSE_PUBLISHER_ID=pub-0000000000000000
+
+# Oppure il contenuto completo, se l’account richiede più righe:
+ADS_TXT=google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0
+```
+
+`ADS_TXT` ha la precedenza e viene servito senza modifiche. Dopo il deploy verifica `https://tuo-dominio/ads.txt`: Google rilegge il file entro qualche giorno.

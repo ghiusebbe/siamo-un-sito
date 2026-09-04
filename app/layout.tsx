@@ -5,6 +5,7 @@ import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import { SiteChrome } from "@/components/site-chrome";
 import { SiteIntro } from "@/components/site-intro";
+import { adsenseAccount } from "@/lib/advertising";
 import { INTRO_STORAGE_KEY } from "@/lib/intro";
 
 // Runs before first paint: decides whether the entry animation plays this session.
@@ -32,10 +33,20 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   // Both cuts sit on the critical path of every heading: fetch them with the HTML.
   preload("/fonts/Helvetica-Regular.woff2", fontPreloadOptions);
   preload("/fonts/Helvetica-Bold.woff2", fontPreloadOptions);
+  // AdSense verifies ownership and serves through this tag on every page; the
+  // consent message still gates what it may request. React hoists it to head.
+  const adsense = adsenseAccount();
 
   return (
     <html lang="it">
       <body>
+        {adsense ? (
+          <script
+            async
+            crossOrigin="anonymous"
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsense.clientId}`}
+          />
+        ) : null}
         <script dangerouslySetInnerHTML={{ __html: introScript }} />
         <SiteChrome>
           <SiteIntro />
