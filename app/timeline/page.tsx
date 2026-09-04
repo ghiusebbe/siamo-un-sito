@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import Image from "@/components/site-image";
 import { PageHero } from "@/components/page-hero";
 import { getTimeline } from "@/lib/content";
@@ -18,7 +19,7 @@ export default async function TimelinePage() {
             <article className="timeline-row" key={item.id}>
               <span className={firstOfYear ? "timeline-year" : "timeline-year timeline-year-repeat"}>{item.year}</span>
               <span className="timeline-index">{String(index + 1).padStart(2, "0")}</span>
-              <h2>{item.title}</h2>
+              <h2>{item.link ? <Link href={item.link}>{item.title} ↗</Link> : item.title}</h2>
               {item.image ? (
                 <Image
                   src={item.image}

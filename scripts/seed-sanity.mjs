@@ -128,7 +128,8 @@ const documents = [
     description: "Progetto editoriale indipendente dedicato alla musica e alla cultura emergente italiana.",
     email: "siamounmagazine@gmail.com", instagramHandle: "@siamounmagazine",
     instagramUrl: "https://www.instagram.com/siamounmagazine/",
-    metrics: keyed([{ value: "1200+", label: "Articoli" }, { value: "50+", label: "Eventi" }, { value: "20K", label: "Followers" }], "metric"),
+    // Add real figures from Studio when you have them: the home shows the block only if present.
+    metrics: [],
   },
   ...[
     [1, assets.volume1, "3c06dd53-53ac-4034-af67-8961cf2f48d4"],

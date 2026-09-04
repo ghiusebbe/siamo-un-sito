@@ -1469,3 +1469,7 @@ html[data-intro="play"] .wordmark img {
   .site-intro { display: none !important; }
   .wordmark img { animation: none; clip-path: none; opacity: 1; transform: none; translate: none; }
 }
+
+/* Timeline entries can point somewhere (CMS field "Collegamento"). */
+.timeline-row h2 a { color: inherit; transition: color .2s ease; }
+.timeline-row h2 a:hover, .timeline-row h2 a:focus-visible { color: var(--acid); }

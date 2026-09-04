@@ -55,6 +55,8 @@ export type TimelineItem = {
   title: string;
   description?: string;
   image?: string;
+  /** Optional destination: an article, event, volume or external page. */
+  link?: string;
 };
 
 export type Magazine = {
