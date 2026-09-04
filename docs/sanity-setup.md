@@ -97,7 +97,7 @@ Poi invita la redazione: **Members → Invite** su sanity.io/manage. Ruolo **Edi
 ## 8. Come si comporta il sito con il CMS
 
 - **Cache.** Le letture usano il CDN di Sanity e una cache applicativa: articoli ed eventi 5 minuti, servizi, timeline e impostazioni 1 ora, volumi 24 ore. Una modifica in Studio compare in produzione al più tardi dopo questo tempo.
-- **Fallback.** Se Sanity non risponde o una query fallisce, il sito serve i contenuti del repo e logga l'errore. Una collezione vuota nel CMS resta vuota.
+- **Fallback.** Finché il dataset è completamente vuoto (nessun documento pubblicato) il sito continua a mostrare i contenuti inclusi nel repo: collegare Sanity prima di importare non svuota il sito. Dal primo documento pubblicato in poi comanda il CMS, e una collezione svuotata apposta resta vuota. Se Sanity non risponde o una query fallisce, il sito serve i contenuti del repo e logga l'errore.
 - **Immagini.** Gli URL del CDN Sanity ricevono automaticamente `auto=format&fit=max&w=1600&q=78`: carica pure originali ad alta risoluzione, il CDN li serve ridotti e in WebP/AVIF.
 - **Sezioni condizionali della home.** "Ultime storie" appare con almeno due articoli; la promo evento solo con un evento in stato "Prossimamente"; i numeri solo se compilati in Impostazioni sito; la newsletter solo con il token configurato.
 - **Newsletter.** Le iscrizioni diventano documenti "Iscritto newsletter" con email, data e consenso. Esporta la lista da Studio o via API quando serve.

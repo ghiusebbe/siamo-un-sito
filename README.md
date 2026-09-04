@@ -22,7 +22,7 @@ Guida completa passo-passo in [docs/sanity-setup.md](docs/sanity-setup.md).
 4. Aggiungi `http://localhost:3000` e il dominio definitivo tra le CORS origins del progetto Sanity.
 5. Esegui `npm run seed` una sola volta per importare testi e immagini iniziali.
 
-Il frontend passa automaticamente dai dati inclusi a quelli del CMS appena il progetto è configurato.
+Il frontend passa automaticamente dai dati inclusi a quelli del CMS appena il dataset contiene almeno un documento pubblicato: finché è vuoto continua a mostrare i contenuti inclusi nel repository.
 
 La build per la pubblicazione usa Vinext/Cloudflare Workers, mentre i comandi Next.js originali restano compatibili con il progetto sorgente di migrazione.
 
