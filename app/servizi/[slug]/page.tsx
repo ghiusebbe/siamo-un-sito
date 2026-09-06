@@ -17,6 +17,7 @@ export default async function ServiceDetailPage({ params }: Props) {
   const service = await getService((await params).slug);
   if (!service) notFound();
   const services = await getServices();
+  const others = services.filter((item) => item.slug !== service.slug);
 
   return (
     <article className="service-detail">
@@ -38,14 +39,15 @@ export default async function ServiceDetailPage({ params }: Props) {
           />
         </div>
       ) : null}
-      <section className="deliverables shell">
+      {service.deliverables.length ? <section className="deliverables shell">
         <span className="section-label">Cosa facciamo?</span>
         {service.deliverables.map((item, index) => (
           <article key={item.title}>
-            <span>{String(index + 1).padStart(2, "0")}</span><h2>{item.title}</h2><p>{item.description}</p>
+            <span>{String(index + 1).padStart(2, "0")}</span><h2>{item.title}</h2>
+            {item.description ? <p>{item.description}</p> : null}
           </article>
         ))}
-      </section>
+      </section> : null}
       {service.gallery?.length ? (
         <section className="service-gallery shell" aria-label={`Galleria ${service.title}`}>
           {service.gallery.map((image, index) => (
@@ -66,9 +68,9 @@ export default async function ServiceDetailPage({ params }: Props) {
           {service.faq.map((item) => <details key={item.question}><summary>{item.question}</summary><p>{item.answer}</p></details>)}
         </section>
       ) : null}
-      <nav className="services-nav shell" aria-label="Altri servizi">
-        {services.filter((item) => item.slug !== service.slug).map((item) => <Link href={`/servizi/${item.slug}`} key={item.id}>{item.title} ↗</Link>)}
-      </nav>
+      {others.length ? <nav className="services-nav shell" aria-label="Altri servizi">
+        {others.map((item) => <Link href={`/servizi/${item.slug}`} key={item.id}>{item.title} ↗</Link>)}
+      </nav> : null}
     </article>
   );
 }

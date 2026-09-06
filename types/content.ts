@@ -11,7 +11,10 @@ export type PortableBlock = {
   markDefs?: PortableMarkDef[];
 };
 
-export type RichText = string[] | PortableBlock[];
+export type RichText = Array<string | PortableBlock>;
+
+// Frontend models: lib/content normalizes optional Sanity fields to empty
+// strings/arrays so all pages can consistently omit their empty components.
 
 export type Article = {
   id: string;

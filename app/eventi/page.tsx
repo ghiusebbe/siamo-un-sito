@@ -16,24 +16,22 @@ export default async function EventsPage() {
   return (
     <>
       <PageHero kicker="Dal vivo" title="EVENTI" intro="Le serate, i format e gli incontri che trasformano una scena in comunità." />
-      <section className="events-section shell">
+      {events.length || settings.instagramUrl ? <section className="events-section shell">
         {upcoming.length ? (
           <>
             <h2 className="section-label">Prossimamente</h2>
             {upcoming.map((event) => <EventCard key={event.id} event={event} />)}
-            <h2 className="section-label archive-label">Archivio</h2>
           </>
-        ) : (
-          <h2 className="section-label">Archivio</h2>
-        )}
+        ) : null}
+        {archived.length ? <h2 className={`section-label${upcoming.length ? " archive-label" : ""}`}>Archivio</h2> : null}
         {archived.map((event) => <EventCard key={event.id} event={event} />)}
-        {!upcoming.length ? (
+        {!upcoming.length && settings.instagramUrl ? (
           <p className="events-closing">
             Nuove date in arrivo. Le annunciamo prima su{" "}
             <a href={settings.instagramUrl} target="_blank" rel="noreferrer">Instagram ↗<NewTabNote /></a>.
           </p>
         ) : null}
-      </section>
+      </section> : null}
     </>
   );
 }
@@ -51,7 +49,7 @@ function EventCard({ event }: { event: Awaited<ReturnType<typeof getEvents>>[num
       <div>
         <span className="eyebrow">{formatDate(event.date)}{event.city ? ` · ${event.city}` : ""}</span>
         <h2>{event.title}</h2>
-        <p>{event.lineup.join(" · ")}</p>
+        {event.lineup.length ? <p>{event.lineup.join(" · ")}</p> : null}
       </div>
       <span className="row-arrow">↗</span>
     </Link>
