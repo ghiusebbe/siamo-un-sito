@@ -11,7 +11,7 @@ export default async function TimelinePage() {
   return (
     <>
       <PageHero kicker="Dal 2023 a oggi" title="TIMELINE" intro="Carta, tour, collaborazioni e progetti nati un passo alla volta." />
-      <section className="timeline-section shell">
+      {items.length ? <section className="timeline-section shell">
         {items.map((item, index) => {
           // Show the year once per group; keep it in the accessible name of every row.
           const firstOfYear = index === 0 || items[index - 1].year !== item.year;
@@ -34,7 +34,7 @@ export default async function TimelinePage() {
             </article>
           );
         })}
-      </section>
+      </section> : null}
     </>
   );
 }

@@ -150,7 +150,7 @@ export default async function HomePage() {
                 <Image src={article.cover} alt="" width={900} height={830} sizes="(max-width: 900px) 76vw, 33vw" />
                 <span className="eyebrow">{article.category} · {formatDate(article.publishedAt)}</span>
                 <h3>{article.title}</h3>
-                <p>{article.excerpt}</p>
+                {article.excerpt ? <p>{article.excerpt}</p> : null}
               </Link>
             ))}
           </div>
@@ -163,14 +163,14 @@ export default async function HomePage() {
             <span className="section-count">{nextSectionNumber()}</span>
             <DynamicTitle lines={["Dal feed."]} />
           </div>
-          <a
+          {settings.instagramUrl && settings.instagramHandle ? <a
             className="text-link compact-link"
             href={settings.instagramUrl}
             target="_blank"
             rel="noreferrer"
           >
             Segui {settings.instagramHandle} ↗<NewTabNote />
-          </a>
+          </a> : null}
         </div>
         <div className="shell instagram-grid">
           {instagramAssets.map((asset) => (
@@ -198,7 +198,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="dark-section magazine-section">
+      {magazines.length ? <section className="dark-section magazine-section">
         <div className="shell">
           <div className="section-heading">
             <div>
@@ -230,9 +230,9 @@ export default async function HomePage() {
             ))}
           </div>
         </div>
-      </section>
+      </section> : null}
 
-      <section className="dark-section studio-section">
+      {services.length ? <section className="dark-section studio-section">
         <div className="shell split-heading">
           <div className="heading-lockup">
             <span className="section-count">{nextSectionNumber()}</span>
@@ -264,7 +264,7 @@ export default async function HomePage() {
             );
           })}
         </div>
-      </section>
+      </section> : null}
 
       <section className="dark-section story-section">
         <div className="shell story-grid">
@@ -276,11 +276,11 @@ export default async function HomePage() {
           </div>
           <Image className="story-image story-image-one" src="/media/instagram/festival-recap.jpg" alt="Artista sul palco durante SIAMO il terzo festival" width={1080} height={1350} sizes="(max-width: 620px) 100vw, 58vw" loading="lazy" />
           <Image className="story-image story-image-two" src="/media/instagram/magazine-third-issue.jpg" alt="Terzo magazine SIAMO" width={720} height={900} sizes="(max-width: 620px) 100vw, 42vw" loading="lazy" />
-          <div className="latest-strip">
+          {timeline.length ? <div className="latest-strip">
             <span className="eyebrow">Dall’archivio</span>
             {timeline.slice(0, 4).map((item) => <span key={item.id}>{item.year} — {item.title}</span>)}
             <Link href="/timeline">Apri la timeline ↗</Link>
-          </div>
+          </div> : null}
         </div>
       </section>
 
@@ -293,7 +293,7 @@ export default async function HomePage() {
             <div className="event-promo-copy">
               <span className="eyebrow">Prossimo evento · {formatDate(upcomingEvent.date)}</span>
               <DynamicTitle lines={[upcomingEvent.title]} />
-              <p>{upcomingEvent.lineup.join(" · ")}</p>
+              {upcomingEvent.lineup.length ? <p>{upcomingEvent.lineup.join(" · ")}</p> : null}
               <Link className="acid-button" href={`/eventi/${upcomingEvent.slug}`}>Scopri l’evento ↗</Link>
             </div>
           </div>

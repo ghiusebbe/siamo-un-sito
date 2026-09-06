@@ -11,7 +11,7 @@ export default async function ServicesPage() {
   return (
     <>
       <PageHero kicker="SIAMO Studio" title="I NOSTRI SERVIZI." intro="Per brand, etichette, artisti e progetti culturali che vogliono costruire qualcosa di riconoscibile." />
-      <section className="services-grid shell">
+      {services.length ? <section className="services-grid shell">
         {services.map((service, index) => {
           const cardImage = service.gallery?.[0] || service.cover;
 
@@ -32,7 +32,7 @@ export default async function ServicesPage() {
             </Link>
           );
         })}
-      </section>
+      </section> : null}
     </>
   );
 }

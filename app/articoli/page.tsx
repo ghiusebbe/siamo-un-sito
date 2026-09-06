@@ -12,7 +12,7 @@ export default async function ArticlesPage() {
   return (
     <>
       <PageHero kicker="Archivio editoriale" title="ARTICOLI" intro="Interviste, approfondimenti e tutto ciò che si muove nella scena emergente." />
-      <section className="listing-section shell">
+      {articles.length ? <section className="listing-section shell">
         {articles.map((article, index) => (
           <Link className="article-row" href={`/articoli/${article.slug}`} key={article.id}>
             <span className="row-number">{String(index + 1).padStart(2, "0")}</span>
@@ -26,13 +26,13 @@ export default async function ArticlesPage() {
             <div className="article-row-copy">
               <span className="eyebrow">{article.category} · {formatDate(article.publishedAt)}</span>
               <h2>{article.title}</h2>
-              <p>{article.excerpt}</p>
+              {article.excerpt ? <p>{article.excerpt}</p> : null}
               <span className="row-author">{article.author}</span>
             </div>
             <span className="row-arrow">↗</span>
           </Link>
         ))}
-      </section>
+      </section> : null}
     </>
   );
 }

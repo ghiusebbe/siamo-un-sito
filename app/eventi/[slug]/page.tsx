@@ -32,7 +32,7 @@ export default async function EventDetailPage({ params }: Props) {
           {event.venue ? <span>{event.venue}</span> : null}
           {event.city ? <span>{event.city}</span> : null}
         </div>
-        <p className="lineup">{event.lineup.join(" · ")}</p>
+        {event.lineup.length ? <p className="lineup">{event.lineup.join(" · ")}</p> : null}
         <RichTextContent value={event.description} />
         {event.ticketUrl ? (
           <a className="acid-button" href={event.ticketUrl} target="_blank" rel="noreferrer">Biglietti ↗<NewTabNote /></a>

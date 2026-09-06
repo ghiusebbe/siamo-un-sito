@@ -41,7 +41,7 @@ export default async function ArticlePage({ params }: Props) {
         <Link className="back-link" href="/articoli">← Tutti gli articoli</Link>
         <span className="eyebrow">{article.category}</span>
         <h1>{article.title}</h1>
-        <p className="editorial-subtitle">{article.subtitle}</p>
+        {article.subtitle ? <p className="editorial-subtitle">{article.subtitle}</p> : null}
         <div className="editorial-meta">
           <span>{article.author}</span>
           <time dateTime={article.publishedAt}>{formatDate(article.publishedAt)}</time>
@@ -55,12 +55,14 @@ export default async function ArticlePage({ params }: Props) {
         sizes="(max-width: 1220px) 100vw, 1180px"
         priority
       />
-      <div className="editorial-body">
-        <RichTextContent
-          inlineContent={adSlot("inline")}
-          value={article.body}
-        />
-      </div>
+      {article.body.length ? (
+        <div className="editorial-body">
+          <RichTextContent
+            inlineContent={adSlot("inline")}
+            value={article.body}
+          />
+        </div>
+      ) : null}
       {adSlot("footer")}
       {next ? <Link className="next-content" href={`/articoli/${next.slug}`}><span>Continua a leggere</span><strong>{next.title} ↗</strong></Link> : null}
     </article>

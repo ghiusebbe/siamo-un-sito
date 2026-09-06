@@ -7,6 +7,7 @@ import {
   fallbackTimeline,
 } from "@/lib/fallback-content";
 import { sanityClient } from "@/lib/sanity";
+import { contentText, hasText, richTextBlocks } from "@/lib/content-presence";
 import type { Article, EventItem, Magazine, Service, SiteSettings, TimelineItem } from "@/types/content";
 
 type QueryOptions = { revalidate?: number; requestTag?: string };
@@ -27,22 +28,45 @@ const CACHE = {
 const IMAGE_PARAMS = "auto=format&fit=max&w=1600&q=78";
 
 export function sanityImage(url: string | null | undefined): string {
+  url = contentText(url);
   if (!url) return "";
   if (!url.includes("cdn.sanity.io") || url.includes("?")) return url;
   return `${url}?${IMAGE_PARAMS}`;
 }
 
-const withImages = {
-  article: (item: Article): Article => ({ ...item, cover: sanityImage(item.cover) }),
-  event: (item: EventItem): EventItem => ({ ...item, cover: sanityImage(item.cover) }),
+const normalizeContent = {
+  article: (item: Article): Article => ({
+    ...item,
+    cover: sanityImage(item.cover),
+    subtitle: contentText(item.subtitle),
+    excerpt: contentText(item.excerpt),
+    body: richTextBlocks(item.body),
+  }),
+  event: (item: EventItem): EventItem => ({
+    ...item,
+    cover: sanityImage(item.cover),
+    venue: contentText(item.venue),
+    city: contentText(item.city),
+    ticketUrl: contentText(item.ticketUrl),
+    lineup: (item.lineup ?? []).map(contentText).filter(hasText),
+    description: richTextBlocks(item.description),
+  }),
   service: (item: Service): Service => ({
     ...item,
-    cover: item.cover ? sanityImage(item.cover) : item.cover,
-    gallery: item.gallery?.filter(Boolean).map(sanityImage),
-    deliverables: item.deliverables ?? [],
-    faq: item.faq ?? [],
+    cover: sanityImage(item.cover),
+    gallery: (item.gallery ?? []).map(sanityImage).filter(hasText),
+    deliverables: (item.deliverables ?? [])
+      .filter((entry) => hasText(entry?.title))
+      .map((entry) => ({ ...entry, description: contentText(entry.description) })),
+    // An accordion without an answer offers no content when opened.
+    faq: (item.faq ?? []).filter((entry) => hasText(entry?.question) && hasText(entry?.answer)),
   }),
-  timeline: (item: TimelineItem): TimelineItem => ({ ...item, image: item.image ? sanityImage(item.image) : item.image }),
+  timeline: (item: TimelineItem): TimelineItem => ({
+    ...item,
+    image: sanityImage(item.image),
+    description: contentText(item.description),
+    link: contentText(item.link),
+  }),
   magazine: (item: Magazine): Magazine => ({ ...item, cover: sanityImage(item.cover) }),
 };
 
@@ -131,47 +155,54 @@ const serviceProjection = `{
 
 export async function getArticles(): Promise<Article[]> {
   const items = await queryOrFallback(`*[_type == "article" && defined(slug.current)] | order(publishedAt desc) ${articleProjection}`, fallbackArticles, {}, { revalidate: CACHE.editorial, requestTag: "articles" });
-  return items.map(withImages.article);
+  return items.map(normalizeContent.article);
 }
 
 export async function getArticle(slug: string): Promise<Article | undefined> {
   const fallback = fallbackArticles.find((item) => item.slug === slug);
   const item = await queryOrFallback(`*[_type == "article" && slug.current == $slug][0] ${articleProjection}`, fallback, { slug }, { revalidate: CACHE.editorial, requestTag: "article" });
-  return item && withImages.article(item);
+  return item && normalizeContent.article(item);
 }
 
 export async function getEvents(): Promise<EventItem[]> {
   const items = await queryOrFallback(`*[_type == "event" && defined(slug.current)] | order(date desc) ${eventProjection}`, fallbackEvents, {}, { revalidate: CACHE.events, requestTag: "events" });
-  return items.map(withImages.event);
+  return items.map(normalizeContent.event);
 }
 
 export async function getEvent(slug: string): Promise<EventItem | undefined> {
   const fallback = fallbackEvents.find((item) => item.slug === slug);
   const item = await queryOrFallback(`*[_type == "event" && slug.current == $slug][0] ${eventProjection}`, fallback, { slug }, { revalidate: CACHE.events, requestTag: "event" });
-  return item && withImages.event(item);
+  return item && normalizeContent.event(item);
 }
 
 export async function getServices(): Promise<Service[]> {
   const items = await queryOrFallback(`*[_type == "service" && defined(slug.current)] | order(order asc) ${serviceProjection}`, fallbackServices, {}, { revalidate: CACHE.services, requestTag: "services" });
-  return items.map(withImages.service);
+  return items.map(normalizeContent.service);
 }
 
 export async function getService(slug: string): Promise<Service | undefined> {
   const fallback = fallbackServices.find((item) => item.slug === slug);
   const item = await queryOrFallback(`*[_type == "service" && slug.current == $slug][0] ${serviceProjection}`, fallback, { slug }, { revalidate: CACHE.services, requestTag: "service" });
-  return item && withImages.service(item);
+  return item && normalizeContent.service(item);
 }
 
 export async function getTimeline(): Promise<TimelineItem[]> {
   const items = await queryOrFallback(`*[_type == "timelineItem"] | order(year desc, order asc) { "id": _id, year, title, description, link, "image": image.asset->url }`, fallbackTimeline, {}, { revalidate: CACHE.archive, requestTag: "timeline" });
-  return items.map(withImages.timeline);
+  return items.map(normalizeContent.timeline);
 }
 
 export async function getMagazines(): Promise<Magazine[]> {
   const items = await queryOrFallback(`*[_type == "magazine"] | order(volume asc) { "id": _id, volume, title, "cover": coverImage.asset->url, checkoutUrl }`, fallbackMagazines, {}, { revalidate: CACHE.magazines, requestTag: "magazines" });
-  return items.map(withImages.magazine);
+  return items.map(normalizeContent.magazine);
 }
 
 export async function getSiteSettings(): Promise<SiteSettings> {
-  return queryOrFallback(`*[_type == "siteSettings"][0] { title, description, email, instagramHandle, instagramUrl, metrics }`, fallbackSettings, {}, { revalidate: CACHE.settings, requestTag: "settings" });
+  const settings = await queryOrFallback(`*[_type == "siteSettings"][0] { title, description, email, instagramHandle, instagramUrl, metrics }`, fallbackSettings, {}, { revalidate: CACHE.settings, requestTag: "settings" });
+  return {
+    ...settings,
+    description: contentText(settings.description),
+    instagramHandle: contentText(settings.instagramHandle),
+    instagramUrl: contentText(settings.instagramUrl),
+    metrics: (settings.metrics ?? []).filter((metric) => hasText(metric?.value) && hasText(metric?.label)),
+  };
 }
