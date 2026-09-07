@@ -22,17 +22,30 @@ test("seeking backwards reproduces the same frame geometry", () => {
   assert.deepEqual(tilePose(12, 2, 0.8), first);
 });
 
-test("the final frame keeps the fragment geometry instead of swapping render mode", () => {
+test("the extrusion stays deterministic at the final pose and caches source sampling", () => {
   const calls = [];
-  const context = {
-    clearRect() {}, save() {}, restore() {}, translate() {}, rotate() {}, scale() {},
-    set globalAlpha(value) {},
-    drawImage(...args) { calls.push(args); },
-  };
+  let sourceReads = 0;
   const logo = { naturalWidth: 1600, naturalHeight: 397 };
-  drawWordmark(context, logo, DURATION);
-  assert.equal(calls.length, 32 * 4);
-  assert.equal(Math.max(...calls.map(args => args[1] + args[3])), logo.naturalWidth);
-  assert.equal(Math.max(...calls.map(args => args[2] + args[4])), logo.naturalHeight);
-  assert.equal(calls[0][3], 50);
+  const context = () => ({
+    clearRect() {}, fillRect() {}, save() {}, restore() {}, translate() {}, rotate() {}, scale() {},
+    drawImage(...args) { if (args[0] === logo) sourceReads++; },
+  });
+  const previous = globalThis.document;
+  globalThis.document = { createElement: () => ({ getContext: context }) };
+  try {
+    const ctx = context();
+    ctx.drawImage = (...args) => calls.push(args);
+    drawWordmark(ctx, logo, DURATION);
+    const first = [...calls];
+    const reads = sourceReads;
+    calls.length = 0;
+    drawWordmark(ctx, logo, 7.5);
+    assert.deepEqual(calls, first, "no renderer or size swap after the entrance");
+    assert.equal(sourceReads, reads, "volume is baked only once");
+    assert.ok(reads > 0);
+    assert.equal(calls.length, 128 * 3, "each block has a volume, shadow and reflection");
+  } finally {
+    if (previous === undefined) delete globalThis.document;
+    else globalThis.document = previous;
+  }
 });

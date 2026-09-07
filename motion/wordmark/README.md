@@ -1,9 +1,20 @@
-# SIAMO — campo tipografico
+# SIAMO — campo tipografico in rilievo
 
 128 fragments of the original transparent logo assemble along a fan-shaped field.
 The website adds local pointer displacement and a tap/keyboard impulse. The
 HyperFrames composition demonstrates those same interactions deterministically.
 Both use `public/brand/wordmark-motion.mjs`; no video is loaded by the website.
+
+The shared Canvas renderer now bakes a 32-unit silhouette extrusion with charcoal
+sides and a narrow bevel. It thickens the original bitmap mask before slicing,
+retaining the custom wordmark rather than replacing it with a font. Each moving
+block casts a soft floor shadow and a compressed, subdued reflection. This is a
+Canvas 2.5D extrusion, not a WebGL mesh or a freely orbitable 3D model.
+
+The fixed stage leaves space below for the floor at every timestamp. Source
+pixels are normalized before slicing, and the same draw path is used during the
+entrance and final hold, preventing a final-frame size jump. Cached per-block
+surfaces avoid rebuilding the extrusion in the animation loop.
 
 Run `node scripts/prepare-wordmark-motion.mjs` from the repository root after
 changing the shared renderer, then from `motion/wordmark`:
