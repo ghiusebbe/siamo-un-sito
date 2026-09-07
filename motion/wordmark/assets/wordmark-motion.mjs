@@ -30,6 +30,10 @@ export function drawWordmark(ctx, logo, time, pointer, pulse) {
   ctx.clearRect(0, 0, WIDTH, HEIGHT);
   const w = WIDTH / 32;
   const h = HEIGHT / 4;
+  // Source pixels and composition coordinates are different spaces. The
+  // optimized PNG is 1600x397, while the composition is 2200x546.
+  const sourceW = (logo.naturalWidth || WIDTH) / 32;
+  const sourceH = (logo.naturalHeight || HEIGHT) / 4;
   for (let col = 0; col < 32; col++) {
     for (let row = 0; row < 4; row++) {
       const pose = tilePose(col, row, time, pointer, pulse);
@@ -39,10 +43,10 @@ export function drawWordmark(ctx, logo, time, pointer, pulse) {
       ctx.scale(pose.scale, pose.scale);
       if (pose.echo > 0.04) {
         ctx.globalAlpha = pose.echo * 0.3;
-        ctx.drawImage(logo, col * w, row * h, w, h, -w / 2 - 30 * pose.echo, -h / 2 + 45 * pose.echo, w, h);
+        ctx.drawImage(logo, col * sourceW, row * sourceH, sourceW, sourceH, -w / 2 - 30 * pose.echo, -h / 2 + 45 * pose.echo, w, h);
       }
       ctx.globalAlpha = pose.alpha;
-      ctx.drawImage(logo, col * w, row * h, w, h, -w / 2, -h / 2, w + 0.35, h + 0.35);
+      ctx.drawImage(logo, col * sourceW, row * sourceH, sourceW, sourceH, -w / 2, -h / 2, w + 0.35, h + 0.35);
       ctx.restore();
     }
   }

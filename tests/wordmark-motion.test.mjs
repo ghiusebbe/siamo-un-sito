@@ -29,6 +29,10 @@ test("the final frame keeps the fragment geometry instead of swapping render mod
     set globalAlpha(value) {},
     drawImage(...args) { calls.push(args); },
   };
-  drawWordmark(context, {}, DURATION);
+  const logo = { naturalWidth: 1600, naturalHeight: 397 };
+  drawWordmark(context, logo, DURATION);
   assert.equal(calls.length, 32 * 4);
+  assert.equal(Math.max(...calls.map(args => args[1] + args[3])), logo.naturalWidth);
+  assert.equal(Math.max(...calls.map(args => args[2] + args[4])), logo.naturalHeight);
+  assert.equal(calls[0][3], 50);
 });
