@@ -81,9 +81,9 @@ screens up to 1020px (including phone landscape). Desktop and HyperFrames keep
 `drawWordmark` and the full composition. Media-query changes resize and redraw
 without restarting the entrance.
 
-Mobile uses 16 full-height strips, half-resolution cached face/side sprites,
+Mobile uses 20 full-height strips, half-resolution cached face/side sprites,
 a cached contact shadow, and no animated reflection or full-frame compositing
-buffers. A settled frame needs 33 draw calls instead of the desktop renderer’s
+buffers. A settled frame needs 41 draw calls instead of the desktop renderer’s
 256 fragment draws plus composition passes. Output density is capped at 1.25×
 and drawing at 30fps, with movement still driven by elapsed time. Tap/keyboard
 impulses, reduced motion, offscreen suspension and the stable final size remain.

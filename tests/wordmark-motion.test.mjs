@@ -61,7 +61,7 @@ test("frame buffers follow output resolution and retain full HyperFrames quality
   assert.ok(mobile.width * (mobile.height + 2 * mobile.floorHeight) < 2200 * 546 * 3 * 0.07);
 });
 
-test("mobile paints 16 strips with no compositing buffers or repeated sprite baking", () => {
+test("mobile paints 20 strips with no compositing buffers or repeated sprite baking", () => {
   let allocations = 0;
   const calls = [];
   const context = () => ({
@@ -77,13 +77,13 @@ test("mobile paints 16 strips with no compositing buffers or repeated sprite bak
     drawWordmarkMobile(ctx, logo, 0);
     assert.equal(allocations, 0, "no initialization behind the intro curtain");
     drawWordmarkMobile(ctx, logo, DURATION);
-    assert.equal(calls.length, 33, "one cached shadow and two passes of sixteen strips");
-    assert.equal(allocations, 34, "source, 32 sprites and a small shadow only");
+    assert.equal(calls.length, 41, "one cached shadow and two passes of twenty strips");
+    assert.equal(allocations, 42, "source, 40 sprites and a small shadow only");
     const first = [...calls];
     calls.length = 0;
     drawWordmarkMobile(ctx, logo, 7.5);
     assert.deepEqual(calls, first, "final pose remains stable");
-    assert.equal(allocations, 34, "steady frames allocate no new canvases");
+    assert.equal(allocations, 42, "steady frames allocate no new canvases");
   } finally {
     if (previous === undefined) delete globalThis.document;
     else globalThis.document = previous;
