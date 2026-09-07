@@ -29,6 +29,16 @@
   --font-siamo: "Helvetica SIAMO", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
+/* Editorial headings are set far larger than their text, so a fixed floor —
+   74px, 65px, 40px — could exceed what the box holds, and `overflow-x: clip` on
+   the body then cut the word off with no scrollbar to reveal it. Each such
+   heading now carries `--title-chars`, the length of the longest word of its
+   title (a title wraps between words, never inside one), and is capped at
+   `calc(100cqi / (var(--title-chars, 12) * 0.66))` inside a
+   `container-type: inline-size` box. 0.66 is the widest per-character advance of
+   the Bold cut over realistic titles — "MASTERCLASS" measures 0.60 — so the cap
+   keeps about a 9% margin. `min()` leaves short titles at their design size. */
+
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body {
@@ -230,14 +240,19 @@ button, input { font: inherit; }
 .service-card:hover img { transform: scale(1.04); }
 .service-card > *:not(img) { position: relative; z-index: 2; }
 .service-number { font-size: 12px; }
-/* Sized on the card width (cqi), not the viewport, so long names never clip. */
-.service-card h2 { margin: 0; font-size: clamp(40px, 15cqi, 84px); letter-spacing: -.075em; line-height: .85; text-transform: uppercase; overflow-wrap: anywhere; }
+.service-card h2 { margin: 0; font-size: min(clamp(40px, 15cqi, 84px), calc(100cqi / (var(--title-chars, 12) * 0.66))); letter-spacing: -.075em; line-height: .85; text-transform: uppercase; overflow-wrap: anywhere; }
 .service-card p { margin: 12px 0 0; font-size: 18px; }
 .service-card .row-arrow { position: absolute; right: 28px; top: 24px; }
 
 .service-detail { padding-bottom: 120px; }
-.service-detail-hero { padding: 100px 0 75px; }
-.service-detail-hero h1 { margin: 22px 0; font-size: clamp(74px, 16vw, 190px); line-height: .75; letter-spacing: -.09em; text-transform: uppercase; }
+.service-detail-hero { padding: 100px 0 75px; container-type: inline-size; }
+.service-detail-hero h1 {
+  margin: 22px 0;
+  font-size: min(clamp(74px, 16vw, 190px), calc(100cqi / (var(--title-chars, 12) * 0.66)));
+  line-height: .75; letter-spacing: -.09em; text-transform: uppercase;
+  /* Last resort for a title wider than the estimate: wrap rather than overflow. */
+  overflow-wrap: anywhere;
+}
 .service-tagline { font-size: clamp(28px, 5vw, 58px); letter-spacing: -.05em; max-width: 800px; }
 .service-intro { color: #b8b8b3; font-size: 20px; max-width: 720px; margin: 40px 0 0 auto; }
 .service-cover img { display: block; width: min(100%, calc(min(72vw, 760px) * var(--cover-ratio, 1.6))); height: auto; max-height: min(72vw, 760px); margin-inline: auto; object-fit: contain; border-radius: 28px; }
@@ -365,7 +380,7 @@ button, input { font: inherit; }
   .timeline-row img { grid-column: 2; width: 100%; height: 260px; margin-top: 12px; }
   .service-card { min-height: 300px; }
   .service-detail-hero { padding-top: 75px; }
-  .service-detail-hero h1 { font-size: 65px; }
+  .service-detail-hero h1 { font-size: min(65px, calc(100cqi / (var(--title-chars, 12) * 0.66))); }
   .service-cover img { width: min(100%, calc(390px * var(--cover-ratio, 1.6))); max-height: 390px; border-radius: 19px; }
   .deliverables > article { grid-template-columns: 38px 1fr; }
   .deliverables article p { grid-column: 2; }
@@ -516,6 +531,7 @@ summary::-webkit-details-marker { display: none; }
 .home-service-card {
   isolation: isolate;
   position: relative;
+  container-type: inline-size;
   min-height: 330px;
   padding: 24px;
   overflow: hidden;
@@ -546,7 +562,7 @@ summary::-webkit-details-marker { display: none; }
 }
 .home-service-card > *:not(img) { position: relative; z-index: 2; }
 .home-service-card > span { color: #8f8f8a; font-size: 12px; }
-.home-service-card h3 { margin: auto 36px 12px 0; font-size: clamp(31px, 3.1vw, 44px); line-height: .88; letter-spacing: -.065em; text-transform: uppercase; }
+.home-service-card h3 { margin: auto 36px 12px 0; font-size: min(clamp(31px, 3.1vw, 44px), calc((100cqi - 36px) / (var(--title-chars, 12) * 0.66))); line-height: .88; letter-spacing: -.065em; text-transform: uppercase; overflow-wrap: anywhere; }
 .home-service-card p { margin: 0 32px 0 0; color: #c2c2bd; font-size: 16px; }
 .home-service-card strong { position: absolute; z-index: 2; right: 23px; bottom: 21px; color: var(--acid); font-size: 22px; }
 .home-service-card:hover { transform: translateY(-5px); border-color: var(--acid); }

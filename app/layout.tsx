@@ -7,12 +7,13 @@ import { SiteChrome } from "@/components/site-chrome";
 import { SiteIntro } from "@/components/site-intro";
 import { adsenseAccount } from "@/lib/advertising";
 import { INTRO_STORAGE_KEY } from "@/lib/intro";
+import { siteUrl } from "@/lib/site-url";
 
 // Runs before first paint: decides whether the entry animation plays this session.
 const introScript = `try{document.documentElement.dataset.intro=sessionStorage.getItem(${JSON.stringify(INTRO_STORAGE_KEY)})?"skip":"play"}catch(e){document.documentElement.dataset.intro="play"}`;
 
 export const metadata: Metadata = {
-  metadataBase: new URL((process.env.SITE_URL || process.env.NEXT_PUBLIC_SITE_URL) || "http://localhost:3000"),
+  metadataBase: new URL(siteUrl),
   title: {
     default: "SIAMO — musica e cultura emergente",
     template: "%s — SIAMO",
@@ -40,6 +41,12 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="it" suppressHydrationWarning>
       <body>
+        {/* The icon lives in public/ and is linked directly: as an app/icon.png
+            file convention (or a metadata.icons entry) Next resolves it against
+            metadataBase, which shipped an absolute href pointing at another
+            origin — localhost when SITE_URL was unset, the production domain on
+            a preview build. Root-relative is right on whatever host serves it. */}
+        <link rel="icon" href="/icon.png" type="image/png" sizes="512x512" />
         {adsense ? (
           <script
             async

@@ -138,3 +138,49 @@ test("keeps an accessible image fallback and keyboard control for the wordmark",
   assert.match(html, /<canvas[^>]*aria-hidden="true"/);
   assert.match(html, /<button[^>]*type="button"[^>]*aria-label="Anima il logo"/);
 });
+
+test("caps editorial titles to what their container can hold", async () => {
+  // The size ceiling in globals.css needs the longest word of each title; without
+  // it the fixed floors (74px/65px on the hero, 40px on the cards) pushed long
+  // names such as "Masterclass" off the page on phones and off the shell on desktop.
+  const { html: detail } = await render("/servizi/masterclass");
+  assert.match(detail, /<h1[^>]*style="[^"]*--title-chars:\s*11[^"]*"[^>]*>Masterclass<\/h1>/i);
+
+  const { html: listing } = await render("/servizi");
+  assert.match(listing, /<h2[^>]*style="[^"]*--title-chars:\s*11[^"]*"[^>]*>Masterclass<\/h2>/i);
+
+  const { html: home } = await render("/");
+  assert.match(home, /<h3[^>]*style="[^"]*--title-chars:\s*11[^"]*"[^>]*>Masterclass<\/h3>/i);
+});
+
+test("links the icon relative to whatever host serves the page", async () => {
+  const { html } = await render("/");
+
+  // Resolved against metadataBase, the icon used to ship as an absolute URL on
+  // another origin: localhost when SITE_URL was unset, the production domain on
+  // a preview deployment.
+  assert.match(html, /<link[^>]*rel="icon"[^>]*href="\/icon\.png"/i);
+  assert.doesNotMatch(html, /rel="icon"[^>]*href="https?:\/\//i);
+});
+
+test("falls back to the deployment host for robots and the sitemap", async () => {
+  // Vercel always exposes the hostname; SITE_URL stays authoritative when set.
+  process.env.VERCEL_PROJECT_PRODUCTION_URL = "siamo.example";
+  const worker = await loadWorker();
+  const fetchText = async (pathname) => {
+    const response = await worker.fetch(
+      new Request(`http://localhost${pathname}`),
+      { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } },
+      { waitUntil() {}, passThroughOnException() {} },
+    );
+    return response.text();
+  };
+
+  try {
+    // Without SITE_URL both files used to advertise http://localhost:3000.
+    assert.match(await fetchText("/robots.txt"), /Sitemap: https:\/\/siamo\.example\/sitemap\.xml/);
+    assert.match(await fetchText("/sitemap.xml"), /<loc>https:\/\/siamo\.example\/servizi<\/loc>/);
+  } finally {
+    delete process.env.VERCEL_PROJECT_PRODUCTION_URL;
+  }
+});
