@@ -14,7 +14,8 @@
     "lint": "bash scripts/sites-env.sh -- eslint . --ignore-pattern dist --ignore-pattern .next",
     "seed": "node --env-file=.env.local scripts/seed-sanity.mjs",
     "sanity": "sanity",
-    "sanity:manage": "sanity manage"
+    "sanity:manage": "sanity manage",
+    "images:prepare": "node scripts/prepare-images.mjs"
   },
   "dependencies": {
     "@sanity/client": "8.4.0",
@@ -23,6 +24,7 @@
     "react": "19.2.6",
     "react-dom": "19.2.6",
     "sanity": "6.12.0",
+    "sharp": "0.34.5",
     "styled-components": "6.5.3"
   },
   "devDependencies": {
