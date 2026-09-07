@@ -28,6 +28,7 @@ test("the extrusion stays deterministic at the final pose and caches source samp
   const logo = { naturalWidth: 1600, naturalHeight: 397 };
   const context = () => ({
     clearRect() {}, fillRect() {}, save() {}, restore() {}, translate() {}, rotate() {}, scale() {},
+    createLinearGradient() { return { addColorStop() {} }; },
     drawImage(...args) { if (args[0] === logo) sourceReads++; },
   });
   const previous = globalThis.document;
@@ -43,7 +44,7 @@ test("the extrusion stays deterministic at the final pose and caches source samp
     assert.deepEqual(calls, first, "no renderer or size swap after the entrance");
     assert.equal(sourceReads, reads, "volume is baked only once");
     assert.ok(reads > 0);
-    assert.equal(calls.length, 128 * 3, "each block has a volume, shadow and reflection");
+    assert.equal(calls.length, 3, "one reflection, one combined shadow and the complete scene prevent overlap darkening");
   } finally {
     if (previous === undefined) delete globalThis.document;
     else globalThis.document = previous;

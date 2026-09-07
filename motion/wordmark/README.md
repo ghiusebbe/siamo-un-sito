@@ -7,8 +7,8 @@ Both use `public/brand/wordmark-motion.mjs`; no video is loaded by the website.
 
 The shared Canvas renderer now bakes a 32-unit silhouette extrusion with charcoal
 sides and a narrow bevel. It thickens the original bitmap mask before slicing,
-retaining the custom wordmark rather than replacing it with a font. Each moving
-block casts a soft floor shadow and a compressed, subdued reflection. This is a
+retaining the custom wordmark rather than replacing it with a font. The moving
+blocks share a soft floor shadow and a compressed, subdued reflection. This is a
 Canvas 2.5D extrusion, not a WebGL mesh or a freely orbitable 3D model.
 
 The fixed stage leaves space below for the floor at every timestamp. Source
@@ -39,3 +39,18 @@ and browser snapshot validation have not been completed here.
 
 GSAP 3.15.0 is included only for the authoring composition; its license notice is
 preserved in `assets/gsap.min.js`. It is not bundled into the website component.
+
+## Occlusion and floor rendering
+
+Side volumes are painted in a separate pass before all front faces. Sorting
+whole block sprites by screen Y was incorrect for this coplanar extrusion and
+made the internal cutting grid show through neighbouring faces.
+
+Shadow and reflection are projected from the completed scene, once per frame.
+The reflection uses one common floor transform and a continuous alpha gradient.
+The shadow is blurred after projection, with opacity applied once, preventing
+stacked dark strips at overlaps. Offscreen frame buffers are reused.
+
+Verified in browser at 1100px and 390px canvas widths: assembly, final hold,
+pointer displacement and tap-wave frames. The CLI export limitation above
+still applies; browser verification uses the shared renderer directly.

@@ -27,8 +27,9 @@ export function tilePose(column, row, time, pointer = { x: -9999, y: -9999, stre
 
 // Fixed orthographic composition: leave room for the floor without changing
 // the canvas or the responsive header at the end of the entrance.
-const STAGE = { x: 58, y: 16, sx: 0.94, sy: 0.72, floor: 446 };
+const STAGE = { x: 58, y: 16, sx: 0.94, sy: 0.72, floor: 432 };
 const sprites = new WeakMap();
+const frames = new WeakMap();
 
 function surface(width, height) {
   const canvas = document.createElement('canvas');
@@ -72,11 +73,7 @@ function volumeTiles(logo) {
     }
     c.drawImage(ink('#858580'), 0, 1.8);
     c.drawImage(ink('#101010'), 0, 0);
-    const shadow = surface(mask.width, mask.height);
-    const shadowCtx = shadow.getContext('2d');
-    shadowCtx.filter = 'blur(9px)';
-    shadowCtx.drawImage(ink('#080808'), 0, 0);
-    result.push({ col, row, body, shadow, pad });
+    result.push({ col, row, body, face: ink('#101010'), pad });
   }
   sprites.set(logo, result);
   return result;
@@ -98,34 +95,65 @@ export function drawWordmark(ctx, logo, time, pointer, pulse) {
       x: STAGE.x + ((tile.col + 0.5) * w + pose.x) * STAGE.sx,
       y: STAGE.y + ((tile.row + 0.5) * h + pose.y) * STAGE.sy - lift };
   });
-  // Shadow and reflection share the exact moving fragments. Reflections are
-  // compressed onto the floor and fade with distance from its contact edge.
-  for (const tile of tiles) {
-    const { pose, x, y, pad, lift } = tile;
-    ctx.save();
-    ctx.globalAlpha = pose.alpha * 0.12 / (1 + lift / 80);
-    ctx.translate(x + 14, STAGE.floor + 8 + (y - STAGE.floor) * 0.055);
-    ctx.scale(STAGE.sx * pose.scale, 0.08 * pose.scale);
-    ctx.rotate(pose.angle);
-    ctx.drawImage(tile.shadow, -w / 2 - pad, -h / 2 - pad);
-    ctx.restore();
-    ctx.save();
-    ctx.globalAlpha = pose.alpha * 0.13 * clamp((y + h / 2) / STAGE.floor);
-    ctx.translate(x, STAGE.floor + (STAGE.floor - y) * 0.18);
-    ctx.scale(STAGE.sx * pose.scale, -STAGE.sy * pose.scale * 0.18);
-    ctx.rotate(pose.angle);
-    ctx.drawImage(tile.body, -w / 2 - pad, -h / 2 - pad);
-    ctx.restore();
+  let buffers = frames.get(ctx);
+  if (!buffers) {
+    buffers = { scene: surface(WIDTH, HEIGHT), reflection: surface(WIDTH, HEIGHT), shadow: surface(WIDTH, HEIGHT) };
+    frames.set(ctx, buffers);
   }
-  // Far fragments first: the nearer extrusions correctly cover their neighbours.
-  tiles.sort((a, b) => a.y - b.y || b.x - a.x);
-  for (const { pose, x, y, body, pad } of tiles) {
-    ctx.save();
-    ctx.globalAlpha = pose.alpha;
-    ctx.translate(x, y);
-    ctx.scale(STAGE.sx * pose.scale, STAGE.sy * pose.scale);
-    ctx.rotate(pose.angle);
-    ctx.drawImage(body, -w / 2 - pad, -h / 2 - pad);
-    ctx.restore();
+  const scene = buffers.scene.getContext('2d');
+  scene.clearRect(0, 0, WIDTH, HEIGHT);
+  // All blocks occupy the same face plane. Finish the complete back volume
+  // before painting ANY front faces: screen-y sorting let a neighbour's side
+  // cut through an already painted face, exposing the rectangular tile grid.
+  for (const layer of ['body', 'face']) {
+    for (const tile of tiles) {
+      const { pose, x, y, pad } = tile;
+      scene.save();
+      scene.globalAlpha = pose.alpha;
+      scene.translate(x, y);
+      scene.scale(STAGE.sx * pose.scale, STAGE.sy * pose.scale);
+      scene.rotate(pose.angle);
+      scene.drawImage(tile[layer], -w / 2 - pad, -h / 2 - pad);
+      scene.restore();
+    }
   }
+  // Project the assembled silhouette once. Per-tile alpha/blur used to stack
+  // at overlaps, and rotating after floor compression produced dark stripes.
+  const shadow = buffers.shadow.getContext('2d');
+  shadow.clearRect(0, 0, WIDTH, HEIGHT);
+  shadow.save();
+  shadow.translate(14, STAGE.floor - STAGE.floor * 0.07);
+  shadow.scale(1, 0.07);
+  shadow.drawImage(buffers.scene, 0, 0);
+  shadow.restore();
+  shadow.save();
+  shadow.globalCompositeOperation = 'source-in';
+  shadow.fillStyle = '#080808';
+  shadow.fillRect(0, 0, WIDTH, HEIGHT);
+  shadow.restore();
+
+  const reflection = buffers.reflection.getContext('2d');
+  reflection.clearRect(0, 0, WIDTH, HEIGHT);
+  reflection.save();
+  reflection.translate(0, STAGE.floor * 1.2);
+  reflection.scale(1, -0.2);
+  reflection.drawImage(buffers.scene, 0, 0);
+  reflection.restore();
+  reflection.save();
+  reflection.globalCompositeOperation = 'destination-in';
+  const fade = reflection.createLinearGradient(0, STAGE.floor, 0, HEIGHT - 12);
+  fade.addColorStop(0, 'rgba(0,0,0,0.17)');
+  fade.addColorStop(0.6, 'rgba(0,0,0,0.045)');
+  fade.addColorStop(1, 'rgba(0,0,0,0)');
+  reflection.fillStyle = fade;
+  reflection.fillRect(0, 0, WIDTH, HEIGHT);
+  reflection.restore();
+
+  ctx.save();
+  ctx.drawImage(buffers.reflection, 0, 0);
+  ctx.globalAlpha = 0.16;
+  ctx.filter = 'blur(5px)';
+  ctx.drawImage(buffers.shadow, 0, 0);
+  ctx.restore();
+  ctx.drawImage(buffers.scene, 0, 0);
 }
