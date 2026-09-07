@@ -38,6 +38,7 @@ const normalizeContent = {
   article: (item: Article): Article => ({
     ...item,
     cover: sanityImage(item.cover),
+    coverAlt: contentText(item.coverAlt),
     subtitle: contentText(item.subtitle),
     excerpt: contentText(item.excerpt),
     body: richTextBlocks(item.body),
@@ -115,6 +116,7 @@ async function queryOrFallback<T>(
 
 const articleProjection = `{
   "id": _id,
+  _updatedAt,
   title,
   "slug": slug.current,
   category,
@@ -122,6 +124,7 @@ const articleProjection = `{
   excerpt,
   body,
   "cover": coverImage.asset->url,
+  "coverAlt": coverImage.alt,
   author,
   publishedAt,
   featured
@@ -129,6 +132,7 @@ const articleProjection = `{
 
 const eventProjection = `{
   "id": _id,
+  _updatedAt,
   title,
   "slug": slug.current,
   date,
@@ -143,6 +147,7 @@ const eventProjection = `{
 
 const serviceProjection = `{
   "id": _id,
+  _updatedAt,
   title,
   "slug": slug.current,
   tagline,

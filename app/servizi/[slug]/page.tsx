@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/seo";
 import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import Image from "@/components/site-image";
@@ -12,7 +13,8 @@ type Props = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const service = await getService((await params).slug);
-  return service ? { title: service.title, description: service.intro } : {};
+  if (!service) notFound();
+  return pageMetadata(`/servizi/${service.slug}`, service.title, service.intro || service.tagline, service.cover);
 }
 
 export default async function ServiceDetailPage({ params }: Props) {

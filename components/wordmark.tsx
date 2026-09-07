@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import Image from "@/components/site-image";
+import { homeTitle } from "@/lib/seo";
 import { INTRO_DURATION } from "@/lib/intro";
 import { drawWordmark, drawWordmarkMobile, WIDTH, HEIGHT, DURATION } from "@/public/brand/wordmark-motion.mjs";
 
@@ -132,8 +133,9 @@ export function Wordmark() {
 
   return (
     <h1 className="wordmark" ref={heading}>
+      <span className="sr-only">{homeTitle}</span>
       <span className="wordmark-stack">
-        <Image alt="SIAMO" className="wordmark-face" {...source} sizes="100vw" priority />
+        <Image alt="" className="wordmark-face" {...source} sizes="100vw" priority />
         <canvas className="wordmark-canvas" ref={canvas} aria-hidden="true" />
         <button className="wordmark-interaction" ref={control} type="button" aria-label="Anima il logo" />
       </span>

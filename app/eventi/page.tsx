@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/seo";
 import type { Metadata } from "next";
 import Image from "@/components/site-image";
 import Link from "next/link";
@@ -6,7 +7,7 @@ import { NewTabNote } from "@/components/new-tab-note";
 import { getEvents, getSiteSettings } from "@/lib/content";
 import { formatDate } from "@/lib/format";
 
-export const metadata: Metadata = { title: "Eventi" };
+export const metadata: Metadata = pageMetadata("/eventi", "Eventi", "Concerti, festival e incontri firmati SIAMO: scopri i prossimi eventi, le lineup e i racconti delle edizioni passate.");
 
 export default async function EventsPage() {
   const [events, settings] = await Promise.all([getEvents(), getSiteSettings()]);

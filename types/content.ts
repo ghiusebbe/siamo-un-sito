@@ -18,6 +18,7 @@ export type RichText = Array<string | PortableBlock>;
 
 export type Article = {
   id: string;
+  _updatedAt?: string;
   title: string;
   slug: string;
   category: string;
@@ -25,6 +26,7 @@ export type Article = {
   excerpt: string;
   body: RichText;
   cover: string;
+  coverAlt?: string;
   author: string;
   publishedAt: string;
   featured?: boolean;
@@ -32,6 +34,7 @@ export type Article = {
 
 export type EventItem = {
   id: string;
+  _updatedAt?: string;
   title: string;
   slug: string;
   date: string;
@@ -48,6 +51,7 @@ export type FaqItem = { question: string; answer: string };
 
 export type Service = {
   id: string;
+  _updatedAt?: string;
   title: string;
   slug: string;
   tagline: string;
@@ -60,6 +64,7 @@ export type Service = {
 
 export type TimelineItem = {
   id: string;
+  _updatedAt?: string;
   year: number;
   title: string;
   description?: string;
@@ -70,6 +75,7 @@ export type TimelineItem = {
 
 export type Magazine = {
   id: string;
+  _updatedAt?: string;
   volume: number;
   title: string;
   cover: string;

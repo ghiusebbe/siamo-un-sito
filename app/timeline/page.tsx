@@ -1,10 +1,11 @@
+import { pageMetadata } from "@/lib/seo";
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "@/components/site-image";
 import { PageHero } from "@/components/page-hero";
 import { getTimeline } from "@/lib/content";
 
-export const metadata: Metadata = { title: "Timeline" };
+export const metadata: Metadata = pageMetadata("/timeline", "Timeline", "Ripercorri la storia di SIAMO: magazine cartacei, tour, eventi e collaborazioni che raccontano il percorso del nostro progetto editoriale indipendente.");
 
 export default async function TimelinePage() {
   const items = await getTimeline();

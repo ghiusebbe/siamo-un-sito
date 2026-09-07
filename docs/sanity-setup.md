@@ -8,10 +8,10 @@ Se il progetto vive solo su GitHub e Vercel, si può fare tutto dal browser:
 
 1. **Progetto.** Su [sanity.io/manage](https://www.sanity.io/manage) → *Create project*, nome `SIAMO`, dataset `production`. Copia il Project ID dalla pagina del progetto.
 2. **Token.** Nel progetto: *API → Tokens → Add API token*, nome `siamo-site`, permessi **Editor**. Copialo subito, non viene più mostrato.
-3. **CORS.** *API → CORS origins → Add*: `https://siamo-un-sito.vercel.app` e `https://*.vercel.app`, entrambi con *Allow credentials*.
-4. **Vercel.** *Settings → Environment Variables*: `SANITY_PROJECT_ID`, `SANITY_DATASET` = `production`, `SANITY_API_WRITE_TOKEN`, `SITE_URL` = `https://siamo-un-sito.vercel.app`. Poi *Deployments → Redeploy*.
+3. **CORS.** *API → CORS origins → Add*: `https://siamounmagazine.com` con *Allow credentials*. Aggiungi eventuali origini di preview singolarmente solo se usi lo Studio anche lì.
+4. **Vercel.** *Settings → Environment Variables*: `SANITY_PROJECT_ID`, `SANITY_DATASET` = `production`, `SANITY_API_WRITE_TOKEN`, `SITE_URL` = `https://siamounmagazine.com`. Poi *Deployments → Redeploy*.
 5. **Contenuti iniziali.** Su GitHub: *Settings → Secrets and variables → Actions → New repository secret*, crea `SANITY_PROJECT_ID` e `SANITY_API_WRITE_TOKEN`. Poi *Actions → Seed Sanity → Run workflow* (dataset `production`). In un paio di minuti carica immagini e documenti.
-6. **Studio.** Apri `https://siamo-un-sito.vercel.app/studio` e accedi con l'account Sanity: trovi i contenuti importati e puoi iniziare a modificarli.
+6. **Studio.** Apri `https://siamounmagazine.com/studio` e accedi con l'account Sanity: trovi i contenuti importati e puoi iniziare a modificarli.
 
 Il resto della guida descrive gli stessi passi da terminale e i dettagli sul funzionamento.
 
@@ -61,7 +61,7 @@ Lo Studio gira dentro il sito, quindi il browser parla direttamente con l'API di
 
 - `http://localhost:3000`
 - `http://localhost:5173` (il dev server Vite)
-- il dominio di produzione, per esempio `https://siamo-un-sito.vercel.app`
+- il dominio di produzione, per esempio `https://siamounmagazine.com`
 - eventuali domini di preview
 
 Senza questa voce lo Studio si apre ma non riesce a caricare né salvare documenti.

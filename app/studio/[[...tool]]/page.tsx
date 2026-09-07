@@ -1,6 +1,9 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { StudioClient } from "@/components/studio-client";
 import { sanityConfigured, sanityDataset, sanityProjectId } from "@/lib/sanity";
+
+export const metadata: Metadata = { title: "Studio", robots: { index: false, follow: false } };
 
 export const dynamic = "force-dynamic";
 
