@@ -38,7 +38,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   const adsense = adsenseAccount();
 
   return (
-    <html lang="it">
+    <html lang="it" suppressHydrationWarning>
       <body>
         {adsense ? (
           <script

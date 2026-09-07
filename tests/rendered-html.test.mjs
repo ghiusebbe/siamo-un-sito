@@ -131,13 +131,10 @@ test("fills the article ad spaces only for a configured account", async () => {
   }
 });
 
-test("assembles the home wordmark from slices around one real image", async () => {
+test("keeps an accessible image fallback and keyboard control for the wordmark", async () => {
   const { html } = await render("/");
 
-  // The slices are decoration: they carry no image of their own and are
-  // hidden from assistive technology, which reads the single logotype.
-  assert.equal(html.match(/class="wordmark-slice"/g)?.length, 6);
-  assert.match(html, /aria-hidden="true" class="wordmark-slice"/);
   assert.equal(html.match(/alt="SIAMO"/g)?.length, 1);
-  assert.match(html, /class="wordmark-sweep"/);
+  assert.match(html, /<canvas[^>]*aria-hidden="true"/);
+  assert.match(html, /<button[^>]*type="button"[^>]*aria-label="Anima il logo"/);
 });

@@ -19,7 +19,10 @@ export default async function TimelinePage() {
             <article className="timeline-row" key={item.id}>
               <span className={firstOfYear ? "timeline-year" : "timeline-year timeline-year-repeat"}>{item.year}</span>
               <span className="timeline-index">{String(index + 1).padStart(2, "0")}</span>
-              <h2>{item.link ? <Link href={item.link}>{item.title} ↗</Link> : item.title}</h2>
+              <div className="timeline-copy">
+                <h2>{item.link ? <Link href={item.link}>{item.title} ↗</Link> : item.title}</h2>
+                {item.description ? <p>{item.description}</p> : null}
+              </div>
               {item.image ? (
                 <Image
                   src={item.image}
@@ -30,7 +33,6 @@ export default async function TimelinePage() {
                   loading="lazy"
                 />
               ) : null}
-              {item.description ? <p>{item.description}</p> : null}
             </article>
           );
         })}
