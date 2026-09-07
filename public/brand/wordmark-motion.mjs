@@ -184,3 +184,79 @@ export function drawWordmark(ctx, logo, time, pointer, pulse) {
   ctx.restore();
   ctx.drawImage(buffers.scene, 0, 0, buffers.width / buffers.scale, buffers.height / buffers.scale);
 }
+
+// Mobile uses 16 full-height strips and no full-frame compositing buffers.
+// The desktop/HyperFrames renderer above is deliberately independent.
+const mobileSprites = new WeakMap();
+function mobileTiles(logo) {
+  if (mobileSprites.has(logo)) return mobileSprites.get(logo);
+  const raster = 0.5, w = WIDTH / 16, pad = 24;
+  const source = surface(WIDTH * raster, HEIGHT * raster);
+  const sourceCtx = source.getContext('2d');
+  for (let angle = 0; angle < Math.PI * 2; angle += Math.PI / 4) {
+    sourceCtx.drawImage(logo, Math.cos(angle) * 1.1, Math.sin(angle) * 1.1, source.width, source.height);
+  }
+  sourceCtx.drawImage(logo, 0, 0, source.width, source.height);
+  const tiles = [];
+  for (let col = 0; col < 16; col++) {
+    const face = surface(w * raster + pad * 2, HEIGHT * raster + pad * 2);
+    const f = face.getContext('2d');
+    f.drawImage(source, col * w * raster, 0, w * raster, source.height,
+      pad, pad, w * raster + 0.175, source.height);
+    f.globalCompositeOperation = 'source-in';
+    f.fillStyle = '#101010';
+    f.fillRect(0, 0, face.width, face.height);
+    const body = surface(face.width, face.height);
+    const b = body.getContext('2d');
+    for (let depth = 16; depth >= 2; depth -= 2) b.drawImage(face, depth * 0.65, depth);
+    b.globalCompositeOperation = 'source-in';
+    b.fillStyle = '#444442';
+    b.fillRect(0, 0, body.width, body.height);
+    tiles.push({ col, face, body });
+  }
+  // A cached soft contact shadow replaces animated blur and reflection on phones.
+  const shadow = surface(440, 24);
+  const sh = shadow.getContext('2d');
+  sh.translate(220, 12);
+  sh.scale(1, 24 / 440);
+  const fade = sh.createRadialGradient(0, 0, 0, 0, 0, 220);
+  fade.addColorStop(0, 'rgba(8,8,8,0.17)');
+  fade.addColorStop(1, 'rgba(8,8,8,0)');
+  sh.fillStyle = fade;
+  sh.fillRect(-220, -220, 440, 440);
+  const result = { tiles, shadow, w, pad, raster };
+  mobileSprites.set(logo, result);
+  return result;
+}
+
+export function drawWordmarkMobile(ctx, logo, time, pointer, pulse) {
+  ctx.clearRect(0, 0, WIDTH, HEIGHT);
+  if (time <= 0) return;
+  const { tiles, shadow, w, pad, raster } = mobileTiles(logo);
+  const localPointer = pointer && { ...pointer,
+    x: (pointer.x - STAGE.x) / STAGE.sx, y: (pointer.y - STAGE.y) / STAGE.sy };
+  const localPulse = pulse && { ...pulse,
+    x: (pulse.x - STAGE.x) / STAGE.sx, y: (pulse.y - STAGE.y) / STAGE.sy };
+  const poses = tiles.map(({ col }) => tilePose(col * 2 + 0.5, 1.5, time, localPointer, localPulse));
+  ctx.save();
+  ctx.globalAlpha = clamp(time / DURATION);
+  ctx.drawImage(shadow, STAGE.x, STAGE.floor - 8, WIDTH * STAGE.sx, 32);
+  ctx.restore();
+  for (const layer of ['body', 'face']) {
+    for (let i = 0; i < tiles.length; i++) {
+      const pose = poses[i];
+      if (pose.alpha === 0) continue;
+      const lift = pose.echo * 100 + Math.abs(pose.y) * 0.12;
+      ctx.save();
+      ctx.globalAlpha = pose.alpha;
+      ctx.translate(STAGE.x + ((i + 0.5) * w + pose.x) * STAGE.sx,
+        STAGE.y + (HEIGHT / 2 + pose.y) * STAGE.sy - lift);
+      ctx.scale(STAGE.sx * pose.scale, STAGE.sy * pose.scale);
+      ctx.rotate(pose.angle);
+      const bitmap = tiles[i][layer];
+      ctx.drawImage(bitmap, -w / 2 - pad / raster, -HEIGHT / 2 - pad / raster,
+        bitmap.width / raster, bitmap.height / raster);
+      ctx.restore();
+    }
+  }
+}

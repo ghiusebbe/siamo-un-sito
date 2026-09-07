@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { drawWordmark, tilePose, DURATION, frameResolution } from "../public/brand/wordmark-motion.mjs";
+import { drawWordmark, drawWordmarkMobile, tilePose, DURATION, frameResolution } from "../public/brand/wordmark-motion.mjs";
 
 test("all fragments return to the original logo without drift", () => {
   for (let col = 0; col < 32; col++) for (let row = 0; row < 4; row++) {
@@ -59,4 +59,33 @@ test("frame buffers follow output resolution and retain full HyperFrames quality
   assert.equal(mobile.height, 194);
   assert.equal(mobile.floorHeight, 59);
   assert.ok(mobile.width * (mobile.height + 2 * mobile.floorHeight) < 2200 * 546 * 3 * 0.07);
+});
+
+test("mobile paints 16 strips with no compositing buffers or repeated sprite baking", () => {
+  let allocations = 0;
+  const calls = [];
+  const context = () => ({
+    clearRect() {}, fillRect() {}, save() {}, restore() {}, translate() {}, scale() {}, rotate() {},
+    createRadialGradient() { return { addColorStop() {} }; }, drawImage() {},
+  });
+  const previous = globalThis.document;
+  globalThis.document = { createElement: () => { allocations++; return { getContext: context }; } };
+  try {
+    const ctx = context();
+    ctx.drawImage = (...args) => calls.push(args);
+    const logo = {};
+    drawWordmarkMobile(ctx, logo, 0);
+    assert.equal(allocations, 0, "no initialization behind the intro curtain");
+    drawWordmarkMobile(ctx, logo, DURATION);
+    assert.equal(calls.length, 33, "one cached shadow and two passes of sixteen strips");
+    assert.equal(allocations, 34, "source, 32 sprites and a small shadow only");
+    const first = [...calls];
+    calls.length = 0;
+    drawWordmarkMobile(ctx, logo, 7.5);
+    assert.deepEqual(calls, first, "final pose remains stable");
+    assert.equal(allocations, 34, "steady frames allocate no new canvases");
+  } finally {
+    if (previous === undefined) delete globalThis.document;
+    else globalThis.document = previous;
+  }
 });

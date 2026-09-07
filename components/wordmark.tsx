@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import Image from "@/components/site-image";
 import { INTRO_DURATION } from "@/lib/intro";
-import { drawWordmark, WIDTH, HEIGHT, DURATION } from "@/public/brand/wordmark-motion.mjs";
+import { drawWordmark, drawWordmarkMobile, WIDTH, HEIGHT, DURATION } from "@/public/brand/wordmark-motion.mjs";
 
 const source = { src: "/brand/siamo-wordmark-black.png", width: WIDTH, height: HEIGHT };
 
@@ -19,6 +19,7 @@ export function Wordmark() {
     const ctx = surface?.getContext("2d");
     if (!element || !surface || !button || !ctx) return;
     const preference = matchMedia("(prefers-reduced-motion: reduce)");
+    const mobile = matchMedia("(max-width: 767px), (pointer: coarse) and (max-width: 1020px)");
     const logo = new window.Image();
     let disposed = false;
     let ready = false;
@@ -26,6 +27,7 @@ export function Wordmark() {
     let frame = 0;
     let start = performance.now() + (document.documentElement.dataset.intro === "play" ? INTRO_DURATION : 0);
     let last = 0;
+    let lastPaint = 0;
     let pulseStart = -Infinity;
     const pointer = { x: -9999, y: -9999, strength: 0 };
     const pulse = { x: WIDTH / 2, y: HEIGHT / 2, age: 99 };
@@ -37,12 +39,16 @@ export function Wordmark() {
     function paint(now: number) {
       frame = 0;
       if (!ctx || !element) return;
+      // Keep animation time continuous while limiting phone raster work to 30fps.
+      if (mobile.matches && lastPaint && now - lastPaint < 1000 / 30 - 1) { schedule(); return; }
+      lastPaint = now;
       const dt = Math.min((now - (last || now)) / 1000, 0.05);
       last = now;
       pointer.strength += (targetStrength - pointer.strength) * (1 - Math.exp(-dt * 12));
       pulse.age = (now - pulseStart) / 1000;
       const time = Math.max(0, (now - start) / 1000);
-      drawWordmark(ctx, logo, time, pointer, pulse);
+      const render = mobile.matches ? drawWordmarkMobile : drawWordmark;
+      render(ctx, logo, time, pointer, pulse);
       element.dataset.motion = "ready";
       if (time < DURATION || pulse.age < 1.6 || Math.abs(targetStrength - pointer.strength) > 0.001) schedule();
     }
@@ -50,12 +56,13 @@ export function Wordmark() {
       if (!surface || !element || !ctx) return;
       const box = element.getBoundingClientRect();
       const scale = Math.min(box.width / WIDTH, box.height / HEIGHT);
-      const density = Math.min(devicePixelRatio || 1, 2);
+      const density = Math.min(devicePixelRatio || 1, mobile.matches ? 1.25 : 2);
       surface.width = Math.max(1, Math.round(WIDTH * scale * density));
       surface.height = Math.max(1, Math.round(HEIGHT * scale * density));
       surface.style.width = `${WIDTH * scale}px`;
       surface.style.height = `${HEIGHT * scale}px`;
       ctx.setTransform(surface.width / WIDTH, 0, 0, surface.height / HEIGHT, 0, 0);
+      lastPaint = 0;
       schedule();
     }
     function locate(event: PointerEvent) {
@@ -103,6 +110,7 @@ export function Wordmark() {
     button.addEventListener("click", activate);
     document.addEventListener("visibilitychange", schedule);
     preference.addEventListener("change", motionPreference);
+    mobile.addEventListener("change", resize);
     return () => {
       disposed = true;
       cancelAnimationFrame(frame);
@@ -118,6 +126,7 @@ export function Wordmark() {
       button.removeEventListener("click", activate);
       document.removeEventListener("visibilitychange", schedule);
       preference.removeEventListener("change", motionPreference);
+      mobile.removeEventListener("change", resize);
     };
   }, []);
 
