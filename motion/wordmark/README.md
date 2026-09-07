@@ -54,3 +54,22 @@ stacked dark strips at overlaps. Offscreen frame buffers are reused.
 Verified in browser at 1100px and 390px canvas widths: assembly, final hold,
 pointer displacement and tap-wave frames. The CLI export limitation above
 still applies; browser verification uses the shared renderer directly.
+
+## Rendering budget
+
+Frame buffers now follow the output canvas pixel dimensions, capped at the
+2200 × 546 composition size. Reflection and shadow buffers only cover the
+166-unit floor band. At a 390px CSS width and 2× density (780 × 194 canvas),
+the three frame buffers use 243,360 pixels instead of 3,603,600 (93.2% fewer).
+At full composition resolution they use 1,931,600 pixels (46.4% fewer).
+These figures describe frame-buffer storage/coverage, not an FPS improvement
+or total memory, which also includes cached sprites.
+
+Buffers and their fade gradient are reused until the output size changes.
+Completely transparent tiles skip both paint passes; frame zero skips sprite
+baking entirely. Each tile's front texture is also shared between the bake
+and the front-face pass. Geometry, timing, interactions and full-resolution
+HyperFrames output are unchanged.
+
+Focused geometry and buffer-size tests pass. The browser timing comparison
+was interrupted, so no measured frame-time improvement is claimed.

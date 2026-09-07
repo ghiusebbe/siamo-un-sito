@@ -30,6 +30,8 @@ export function tilePose(column, row, time, pointer = { x: -9999, y: -9999, stre
 const STAGE = { x: 58, y: 16, sx: 0.94, sy: 0.72, floor: 432 };
 const sprites = new WeakMap();
 const frames = new WeakMap();
+const FLOOR_TOP = 380;
+const FLOOR_HEIGHT = HEIGHT - FLOOR_TOP;
 
 function surface(width, height) {
   const canvas = document.createElement('canvas');
@@ -72,16 +74,48 @@ function volumeTiles(logo) {
       c.drawImage(side, depth * 0.65, depth);
     }
     c.drawImage(ink('#858580'), 0, 1.8);
-    c.drawImage(ink('#101010'), 0, 0);
-    result.push({ col, row, body, face: ink('#101010'), pad });
+    const front = ink('#101010');
+    c.drawImage(front, 0, 0);
+    result.push({ col, row, body, face: front, pad });
   }
   sprites.set(logo, result);
   return result;
 }
 
+/** Internal raster size follows the output canvas, never the CSS viewport alone. */
+export function frameResolution(width = WIDTH, height = HEIGHT) {
+  const scale = Math.min(1, Math.max(1, width) / WIDTH, Math.max(1, height) / HEIGHT);
+  return { width: Math.max(1, Math.ceil(WIDTH * scale)), height: Math.max(1, Math.ceil(HEIGHT * scale)),
+    floorHeight: Math.max(1, Math.ceil(FLOOR_HEIGHT * scale)), scale };
+}
+
+function frameBuffers(ctx) {
+  const size = frameResolution(ctx.canvas?.width, ctx.canvas?.height);
+  let buffers = frames.get(ctx);
+  if (buffers && buffers.width === size.width && buffers.height === size.height) return buffers;
+  buffers = { ...size,
+    scene: surface(size.width, size.height),
+    reflection: surface(size.width, size.floorHeight),
+    shadow: surface(size.width, size.floorHeight),
+  };
+  buffers.scene.getContext('2d').setTransform(size.scale, 0, 0, size.scale, 0, 0);
+  for (const layer of [buffers.reflection, buffers.shadow]) {
+    layer.getContext('2d').setTransform(size.scale, 0, 0, size.scale, 0, -FLOOR_TOP * size.scale);
+  }
+  const fade = buffers.reflection.getContext('2d').createLinearGradient(0, STAGE.floor, 0, HEIGHT - 12);
+  fade.addColorStop(0, 'rgba(0,0,0,0.17)');
+  fade.addColorStop(0.6, 'rgba(0,0,0,0.045)');
+  fade.addColorStop(1, 'rgba(0,0,0,0)');
+  buffers.fade = fade;
+  frames.set(ctx, buffers);
+  return buffers;
+}
+
 /** Shared deterministic Canvas extrusion for the website and HyperFrames. */
 export function drawWordmark(ctx, logo, time, pointer, pulse) {
   ctx.clearRect(0, 0, WIDTH, HEIGHT);
+  // Nothing is visible yet; defer sprite baking until the first visible frame.
+  if (time <= 0) return;
   const w = WIDTH / 32, h = HEIGHT / 4;
   // The input arrives in canvas coordinates; interaction follows the visible face.
   const localPointer = pointer && { ...pointer,
@@ -95,11 +129,7 @@ export function drawWordmark(ctx, logo, time, pointer, pulse) {
       x: STAGE.x + ((tile.col + 0.5) * w + pose.x) * STAGE.sx,
       y: STAGE.y + ((tile.row + 0.5) * h + pose.y) * STAGE.sy - lift };
   });
-  let buffers = frames.get(ctx);
-  if (!buffers) {
-    buffers = { scene: surface(WIDTH, HEIGHT), reflection: surface(WIDTH, HEIGHT), shadow: surface(WIDTH, HEIGHT) };
-    frames.set(ctx, buffers);
-  }
+  const buffers = frameBuffers(ctx);
   const scene = buffers.scene.getContext('2d');
   scene.clearRect(0, 0, WIDTH, HEIGHT);
   // All blocks occupy the same face plane. Finish the complete back volume
@@ -108,6 +138,7 @@ export function drawWordmark(ctx, logo, time, pointer, pulse) {
   for (const layer of ['body', 'face']) {
     for (const tile of tiles) {
       const { pose, x, y, pad } = tile;
+      if (pose.alpha === 0) continue;
       scene.save();
       scene.globalAlpha = pose.alpha;
       scene.translate(x, y);
@@ -120,11 +151,11 @@ export function drawWordmark(ctx, logo, time, pointer, pulse) {
   // Project the assembled silhouette once. Per-tile alpha/blur used to stack
   // at overlaps, and rotating after floor compression produced dark stripes.
   const shadow = buffers.shadow.getContext('2d');
-  shadow.clearRect(0, 0, WIDTH, HEIGHT);
+  shadow.clearRect(0, FLOOR_TOP, WIDTH, FLOOR_HEIGHT);
   shadow.save();
   shadow.translate(14, STAGE.floor - STAGE.floor * 0.07);
   shadow.scale(1, 0.07);
-  shadow.drawImage(buffers.scene, 0, 0);
+  shadow.drawImage(buffers.scene, 0, 0, buffers.width, buffers.height, 0, 0, buffers.width / buffers.scale, buffers.height / buffers.scale);
   shadow.restore();
   shadow.save();
   shadow.globalCompositeOperation = 'source-in';
@@ -133,27 +164,23 @@ export function drawWordmark(ctx, logo, time, pointer, pulse) {
   shadow.restore();
 
   const reflection = buffers.reflection.getContext('2d');
-  reflection.clearRect(0, 0, WIDTH, HEIGHT);
+  reflection.clearRect(0, FLOOR_TOP, WIDTH, FLOOR_HEIGHT);
   reflection.save();
   reflection.translate(0, STAGE.floor * 1.2);
   reflection.scale(1, -0.2);
-  reflection.drawImage(buffers.scene, 0, 0);
+  reflection.drawImage(buffers.scene, 0, 0, buffers.width, buffers.height, 0, 0, buffers.width / buffers.scale, buffers.height / buffers.scale);
   reflection.restore();
   reflection.save();
   reflection.globalCompositeOperation = 'destination-in';
-  const fade = reflection.createLinearGradient(0, STAGE.floor, 0, HEIGHT - 12);
-  fade.addColorStop(0, 'rgba(0,0,0,0.17)');
-  fade.addColorStop(0.6, 'rgba(0,0,0,0.045)');
-  fade.addColorStop(1, 'rgba(0,0,0,0)');
-  reflection.fillStyle = fade;
+  reflection.fillStyle = buffers.fade;
   reflection.fillRect(0, 0, WIDTH, HEIGHT);
   reflection.restore();
 
   ctx.save();
-  ctx.drawImage(buffers.reflection, 0, 0);
+  ctx.drawImage(buffers.reflection, 0, FLOOR_TOP, buffers.width / buffers.scale, buffers.floorHeight / buffers.scale);
   ctx.globalAlpha = 0.16;
   ctx.filter = 'blur(5px)';
-  ctx.drawImage(buffers.shadow, 0, 0);
+  ctx.drawImage(buffers.shadow, 0, FLOOR_TOP, buffers.width / buffers.scale, buffers.floorHeight / buffers.scale);
   ctx.restore();
-  ctx.drawImage(buffers.scene, 0, 0);
+  ctx.drawImage(buffers.scene, 0, 0, buffers.width / buffers.scale, buffers.height / buffers.scale);
 }
