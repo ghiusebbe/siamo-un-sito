@@ -54,3 +54,37 @@ stacked dark strips at overlaps. Offscreen frame buffers are reused.
 Verified in browser at 1100px and 390px canvas widths: assembly, final hold,
 pointer displacement and tap-wave frames. The CLI export limitation above
 still applies; browser verification uses the shared renderer directly.
+
+## Rendering budget
+
+Frame buffers now follow the output canvas pixel dimensions, capped at the
+2200 × 546 composition size. Reflection and shadow buffers only cover the
+166-unit floor band. At a 390px CSS width and 2× density (780 × 194 canvas),
+the three frame buffers use 243,360 pixels instead of 3,603,600 (93.2% fewer).
+At full composition resolution they use 1,931,600 pixels (46.4% fewer).
+These figures describe frame-buffer storage/coverage, not an FPS improvement
+or total memory, which also includes cached sprites.
+
+Buffers and their fade gradient are reused until the output size changes.
+Completely transparent tiles skip both paint passes; frame zero skips sprite
+baking entirely. Each tile's front texture is also shared between the bake
+and the front-face pass. Geometry, timing, interactions and full-resolution
+HyperFrames output are unchanged.
+
+Focused geometry and buffer-size tests pass. The browser timing comparison
+was interrupted, so no measured frame-time improvement is claimed.
+
+## Mobile-only quality profile
+
+The website selects `drawWordmarkMobile` below 768px, or on coarse-pointer
+screens up to 1020px (including phone landscape). Desktop and HyperFrames keep
+`drawWordmark` and the full composition. Media-query changes resize and redraw
+without restarting the entrance.
+
+Mobile uses 20 full-height strips, half-resolution cached face/side sprites,
+a cached contact shadow, and no animated reflection or full-frame compositing
+buffers. A settled frame needs 41 draw calls instead of the desktop renderer’s
+256 fragment draws plus composition passes. Output density is capped at 1.25×
+and drawing at 30fps, with movement still driven by elapsed time. Tap/keyboard
+impulses, reduced motion, offscreen suspension and the stable final size remain.
+No FPS claim is made for physical phones; this bounds the work per frame.
