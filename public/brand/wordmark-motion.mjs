@@ -28,10 +28,6 @@ export function tilePose(column, row, time, pointer = { x: -9999, y: -9999, stre
 /** @param {CanvasRenderingContext2D} ctx @param {CanvasImageSource} logo */
 export function drawWordmark(ctx, logo, time, pointer, pulse) {
   ctx.clearRect(0, 0, WIDTH, HEIGHT);
-  if (time >= DURATION && (!pointer || pointer.strength < 0.001) && (!pulse || pulse.age >= 1.6)) {
-    ctx.drawImage(logo, 0, 0, WIDTH, HEIGHT);
-    return;
-  }
   const w = WIDTH / 32;
   const h = HEIGHT / 4;
   for (let col = 0; col < 32; col++) {

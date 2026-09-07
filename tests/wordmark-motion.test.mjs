@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { tilePose, DURATION } from "../public/brand/wordmark-motion.mjs";
+import { drawWordmark, tilePose, DURATION } from "../public/brand/wordmark-motion.mjs";
 
 test("all fragments return to the original logo without drift", () => {
   for (let col = 0; col < 32; col++) for (let row = 0; row < 4; row++) {
@@ -20,4 +20,15 @@ test("seeking backwards reproduces the same frame geometry", () => {
   const first = tilePose(12, 2, 0.8);
   tilePose(12, 2, 4);
   assert.deepEqual(tilePose(12, 2, 0.8), first);
+});
+
+test("the final frame keeps the fragment geometry instead of swapping render mode", () => {
+  const calls = [];
+  const context = {
+    clearRect() {}, save() {}, restore() {}, translate() {}, rotate() {}, scale() {},
+    set globalAlpha(value) {},
+    drawImage(...args) { calls.push(args); },
+  };
+  drawWordmark(context, {}, DURATION);
+  assert.equal(calls.length, 32 * 4);
 });
