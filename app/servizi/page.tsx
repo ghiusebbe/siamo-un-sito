@@ -1,8 +1,10 @@
+import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import Image from "@/components/site-image";
 import Link from "next/link";
 import { PageHero } from "@/components/page-hero";
 import { getServices } from "@/lib/content";
+import { longestWordLength } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Servizi" };
 
@@ -27,7 +29,7 @@ export default async function ServicesPage() {
                 />
               ) : null}
               <span className="service-number">{String(index + 1).padStart(2, "0")}</span>
-              <div><h2>{service.title}</h2><p>{service.tagline}</p></div>
+              <div><h2 style={{ "--title-chars": longestWordLength(service.title) } as CSSProperties}>{service.title}</h2><p>{service.tagline}</p></div>
               <span className="row-arrow">↗</span>
             </Link>
           );

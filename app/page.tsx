@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import Link from "next/link";
 import Image from "@/components/site-image";
 import { Wordmark } from "@/components/wordmark";
@@ -12,7 +13,7 @@ import {
   getSiteSettings,
   getTimeline,
 } from "@/lib/content";
-import { formatDate } from "@/lib/format";
+import { formatDate, longestWordLength } from "@/lib/format";
 import { instagramAssets } from "@/lib/instagram-assets";
 import { newsletterConfigured } from "@/lib/sanity";
 
@@ -257,7 +258,7 @@ export default async function HomePage() {
                   />
                 ) : null}
                 <span>{String(index + 1).padStart(2, "0")}</span>
-                <h3>{service.title}</h3>
+                <h3 style={{ "--title-chars": longestWordLength(service.title) } as CSSProperties}>{service.title}</h3>
                 <p>{service.tagline}</p>
                 <strong aria-hidden="true">↗</strong>
               </Link>

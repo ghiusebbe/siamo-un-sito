@@ -1,9 +1,11 @@
+import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import Image from "@/components/site-image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { DynamicTitle } from "@/components/dynamic-title";
 import { getService, getServices } from "@/lib/content";
+import { longestWordLength } from "@/lib/format";
 import { coverProps } from "@/lib/media";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -24,7 +26,7 @@ export default async function ServiceDetailPage({ params }: Props) {
       <header className="service-detail-hero shell">
         <Link className="back-link" href="/servizi">← Tutti i servizi</Link>
         <span className="eyebrow">SIAMO Studio</span>
-        <h1>{service.title}</h1>
+        <h1 style={{ "--title-chars": longestWordLength(service.title) } as CSSProperties}>{service.title}</h1>
         <p className="service-tagline">{service.tagline}</p>
         <p className="service-intro">{service.intro}</p>
       </header>
