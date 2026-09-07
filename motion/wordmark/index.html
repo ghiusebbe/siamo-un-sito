@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=2200, height=546" />
+  <title>SIAMO — campo tipografico</title>
+  <script src="assets/gsap.min.js"></script>
+  <style>
+    body { margin: 0; background: #f5f5f2; }
+    #wordmark { position: relative; width: 2200px; height: 546px; overflow: hidden; }
+    canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  </style>
+</head>
+<body>
+  <div id="wordmark" data-composition-id="siamo-wordmark" data-start="0" data-duration="7.5" data-width="2200" data-height="546">
+    <canvas id="ink" class="clip" data-start="0" data-duration="7.5" data-track-index="0" width="2200" height="546" aria-label="SIAMO" role="img"></canvas>
+  </div>
+  <script type="module">
+    import { drawWordmark } from './assets/wordmark-motion.mjs';
+    const ctx = document.getElementById('ink').getContext('2d');
+    const logo = new Image();
+    const clock = { time: 0 };
+    function render(time) {
+      if (!logo.complete || !logo.naturalWidth) return;
+      // A deterministic demonstration of the website's live pointer and tap.
+      const phase = Math.max(0, Math.min(1, (time - 3.1) / 1.7));
+      const strength = time >= 3.1 && time <= 5.1 ? Math.min(1, (time - 3.1) * 5, (5.1 - time) * 5) : 0;
+      drawWordmark(ctx, logo, time,
+        { x: 350 + phase * 1500, y: 340, strength },
+        { x: 1100, y: 273, age: time >= 5.4 ? time - 5.4 : 99 });
+    }
+    const timeline = gsap.timeline({ paused: true });
+    timeline.to(clock, { time: 7.5, duration: 7.5, ease: 'none', onUpdate: () => render(clock.time) }, 0);
+    window.__timelines = window.__timelines || {};
+    window.__timelines['siamo-wordmark'] = timeline;
+    window.addEventListener('hf-seek', event => render(event.detail.time));
+    logo.onload = () => render(clock.time);
+    logo.src = './assets/siamo-wordmark-black.png';
+  </script>
+</body>
+</html>
