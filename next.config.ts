@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    // Media is committed in public/media and should be served directly by Sites.
+    // SiteImage keeps local assets direct and resizes remote media at Sanity.
     unoptimized: true,
     formats: ["image/avif", "image/webp"],
     qualities: [75],
@@ -13,7 +13,6 @@ const nextConfig: NextConfig = {
         hostname: "cdn.sanity.io",
         port: "",
         pathname: "/images/**",
-        search: "",
       },
     ],
   },

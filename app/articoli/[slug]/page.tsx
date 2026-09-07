@@ -1,3 +1,5 @@
+import { StructuredData } from "@/components/structured-data";
+import { articleMetadata, articleStructuredData } from "@/lib/seo";
 import type { Metadata } from "next";
 import Image from "@/components/site-image";
 import Link from "next/link";
@@ -25,7 +27,8 @@ function adSlot(placement: AdPlacement) {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const article = await getArticle(slug);
-  return article ? { title: article.title, description: article.excerpt } : {};
+  if (!article) notFound();
+  return articleMetadata(article);
 }
 
 export default async function ArticlePage({ params }: Props) {
@@ -37,6 +40,7 @@ export default async function ArticlePage({ params }: Props) {
 
   return (
     <article className="editorial-page shell">
+      <StructuredData data={articleStructuredData(article)} />
       <header className="editorial-header">
         <Link className="back-link" href="/articoli">← Tutti gli articoli</Link>
         <span className="eyebrow">{article.category}</span>
@@ -50,7 +54,7 @@ export default async function ArticlePage({ params }: Props) {
       <Image
         className="editorial-cover"
         src={article.cover}
-        alt={`Copertina: ${article.title}`}
+        alt={article.coverAlt || `Copertina: ${article.title}`}
         {...coverProps(article.cover, { width: 1600, height: 1000 })}
         sizes="(max-width: 1220px) 100vw, 1180px"
         priority

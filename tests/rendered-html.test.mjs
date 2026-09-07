@@ -39,7 +39,7 @@ test("renders the accessible responsive site shell", async () => {
   assert.match(html, /aria-controls="mobile-menu"/i);
   assert.match(html, /class="home-feed"/i);
   assert.match(html, /aria-label="Esplora SIAMO"/i);
-  assert.match(html, /<h1 class="wordmark">[\s\S]*?alt="SIAMO"/i);
+  assert.match(html, /<h1 class="wordmark">[\s\S]*?SIAMO — magazine di musica e cultura emergente/i);
   assert.match(html, /class="dynamic-title[^"']*"[^>]*aria-label="Dal feed\."/i);
   assert.doesNotMatch(html, /class="article-ad(?:\s|"|-)/i);
   // Placeholder figures are gone from the fallback content.
@@ -134,7 +134,7 @@ test("fills the article ad spaces only for a configured account", async () => {
 test("keeps an accessible image fallback and keyboard control for the wordmark", async () => {
   const { html } = await render("/");
 
-  assert.equal(html.match(/alt="SIAMO"/g)?.length, 1);
+  assert.match(html, /<span class="sr-only">SIAMO — magazine di musica e cultura emergente<\/span>/);
   assert.match(html, /<canvas[^>]*aria-hidden="true"/);
   assert.match(html, /<button[^>]*type="button"[^>]*aria-label="Anima il logo"/);
 });
@@ -163,8 +163,8 @@ test("links the icon relative to whatever host serves the page", async () => {
   assert.doesNotMatch(html, /rel="icon"[^>]*href="https?:\/\//i);
 });
 
-test("falls back to the deployment host for robots and the sitemap", async () => {
-  // Vercel always exposes the hostname; SITE_URL stays authoritative when set.
+test("keeps the editorial domain for robots and the sitemap on other deployments", async () => {
+  // Deployment hostnames must never enter public discovery URLs.
   process.env.VERCEL_PROJECT_PRODUCTION_URL = "siamo.example";
   const worker = await loadWorker();
   const fetchText = async (pathname) => {
@@ -178,8 +178,8 @@ test("falls back to the deployment host for robots and the sitemap", async () =>
 
   try {
     // Without SITE_URL both files used to advertise http://localhost:3000.
-    assert.match(await fetchText("/robots.txt"), /Sitemap: https:\/\/siamo\.example\/sitemap\.xml/);
-    assert.match(await fetchText("/sitemap.xml"), /<loc>https:\/\/siamo\.example\/servizi<\/loc>/);
+    assert.match(await fetchText("/robots.txt"), /Sitemap: https:\/\/siamounmagazine\.com\/sitemap\.xml/);
+    assert.match(await fetchText("/sitemap.xml"), /<loc>https:\/\/siamounmagazine\.com\/servizi<\/loc>/);
   } finally {
     delete process.env.VERCEL_PROJECT_PRODUCTION_URL;
   }

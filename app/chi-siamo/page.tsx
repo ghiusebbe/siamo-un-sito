@@ -1,9 +1,10 @@
+import { pageMetadata } from "@/lib/seo";
 import type { Metadata } from "next";
 import Image from "@/components/site-image";
 import Link from "next/link";
 import { DynamicTitle } from "@/components/dynamic-title";
 
-export const metadata: Metadata = { title: "Chi siamo" };
+export const metadata: Metadata = pageMetadata("/chi-siamo", "Chi siamo", "Conosci SIAMO, progetto editoriale indipendente dedicato alla musica e alla cultura emergente italiana: dalla rivista cartacea agli eventi e alla community.");
 
 export default function AboutPage() {
   return (

@@ -1,3 +1,4 @@
+import { homeTitle, pageMetadata, siteDescription } from "@/lib/seo";
 import type { CSSProperties } from "react";
 import Link from "next/link";
 import Image from "@/components/site-image";
@@ -16,6 +17,8 @@ import {
 import { formatDate, longestWordLength } from "@/lib/format";
 import { instagramAssets } from "@/lib/instagram-assets";
 import { newsletterConfigured } from "@/lib/sanity";
+
+export const metadata = { ...pageMetadata("/", homeTitle, siteDescription), title: { absolute: homeTitle } };
 
 export default async function HomePage() {
   const [articles, events, magazines, services, settings, timeline] = await Promise.all([
@@ -71,7 +74,7 @@ export default async function HomePage() {
           <Link className="bento-card bento-wide bento-feature media-card" href={leadArticle ? `/articoli/${leadArticle.slug}` : "/articoli"}>
             <Image
               src={leadArticle?.cover || "/media/home-magazine.jpg"}
-              alt=""
+              alt={leadArticle ? leadArticle.coverAlt || `Copertina: ${leadArticle.title}` : ""}
               width={1600}
               height={1000}
               sizes="(max-width: 620px) 100vw, (max-width: 900px) 100vw, 75vw"
@@ -148,7 +151,7 @@ export default async function HomePage() {
           <div className="shell latest-grid">
             {latestArticles.map((article) => (
               <Link className="latest-card" href={`/articoli/${article.slug}`} key={article.id}>
-                <Image src={article.cover} alt="" width={900} height={830} sizes="(max-width: 900px) 76vw, 33vw" />
+                <Image src={article.cover} alt={article.coverAlt || `Copertina: ${article.title}`} width={900} height={830} sizes="(max-width: 900px) 76vw, 33vw" />
                 <span className="eyebrow">{article.category} · {formatDate(article.publishedAt)}</span>
                 <h3>{article.title}</h3>
                 {article.excerpt ? <p>{article.excerpt}</p> : null}

@@ -7,6 +7,8 @@ import { SiteChrome } from "@/components/site-chrome";
 import { SiteIntro } from "@/components/site-intro";
 import { adsenseAccount } from "@/lib/advertising";
 import { INTRO_STORAGE_KEY } from "@/lib/intro";
+import { StructuredData } from "@/components/structured-data";
+import { homeTitle, siteDescription, siteStructuredData } from "@/lib/seo";
 import { siteUrl } from "@/lib/site-url";
 
 // Runs before first paint: decides whether the entry animation plays this session.
@@ -15,17 +17,11 @@ const introScript = `try{document.documentElement.dataset.intro=sessionStorage.g
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "SIAMO — musica e cultura emergente",
+    default: homeTitle,
     template: "%s — SIAMO",
   },
-  description:
-    "Progetto editoriale indipendente che racconta la scena musicale e culturale italiana emergente.",
-  openGraph: {
-    title: "SIAMO",
-    description: "Musica, cultura emergente, carta ed eventi.",
-    locale: "it_IT",
-    type: "website",
-  },
+  description: siteDescription,
+  twitter: { card: "summary_large_image" },
 };
 
 const fontPreloadOptions = { as: "font", type: "font/woff2", crossOrigin: "anonymous" } as const;
@@ -41,6 +37,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="it" suppressHydrationWarning>
       <body>
+        <StructuredData data={siteStructuredData} />
         {/* The icon lives in public/ and is linked directly: as an app/icon.png
             file convention (or a metadata.icons entry) Next resolves it against
             metadataBase, which shipped an absolute href pointing at another

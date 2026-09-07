@@ -1,13 +1,11 @@
+import { pageMetadata } from "@/lib/seo";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ConsentLink } from "@/components/consent-link";
 import { PageHero } from "@/components/page-hero";
 import { getSiteSettings } from "@/lib/content";
 
-export const metadata: Metadata = {
-  title: "Privacy e cookie",
-  description: "Come SIAMO tratta i dati personali di chi visita il sito e si iscrive alla newsletter.",
-};
+export const metadata: Metadata = pageMetadata("/privacy", "Privacy e cookie", "Come SIAMO tratta i dati personali di chi visita il sito e si iscrive alla newsletter.");
 
 const UPDATED_AT = "settembre 2026";
 

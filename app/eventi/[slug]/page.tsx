@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/seo";
 import type { Metadata } from "next";
 import Image from "@/components/site-image";
 import Link from "next/link";
@@ -12,7 +13,8 @@ type Props = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const event = await getEvent((await params).slug);
-  return event ? { title: event.title, description: event.lineup.join(", ") } : {};
+  if (!event) notFound();
+  return pageMetadata(`/eventi/${event.slug}`, event.title, [event.title, event.venue, event.city, event.lineup.join(", ")].filter(Boolean).join(" · "), event.cover);
 }
 
 export default async function EventDetailPage({ params }: Props) {

@@ -1,3 +1,4 @@
+import { pageMetadata } from "@/lib/seo";
 import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import Image from "@/components/site-image";
@@ -6,7 +7,7 @@ import { PageHero } from "@/components/page-hero";
 import { getServices } from "@/lib/content";
 import { longestWordLength } from "@/lib/format";
 
-export const metadata: Metadata = { title: "Servizi" };
+export const metadata: Metadata = pageMetadata("/servizi", "Servizi", "SIAMO Studio affianca artisti, brand ed etichette con contenuti, identità visive, eventi, partnership, masterclass e progetti di serigrafia.");
 
 export default async function ServicesPage() {
   const services = await getServices();

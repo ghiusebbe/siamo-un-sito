@@ -10,7 +10,7 @@ export default defineType({
     defineField({ name: "category", title: "Categoria", type: "string", validation: (rule) => rule.required() }),
     defineField({ name: "subtitle", title: "Sottotitolo", type: "string" }),
     defineField({ name: "excerpt", title: "Anteprima", type: "text", rows: 3, validation: (rule) => rule.max(240) }),
-    defineField({ name: "coverImage", title: "Copertina", type: "image", options: { hotspot: true }, validation: (rule) => rule.required() }),
+    defineField({ name: "coverImage", title: "Copertina", type: "image", fields: [defineField({ name: "alt", title: "Testo alternativo", type: "string", description: "Descrivi il soggetto della foto; non il nome del file." })], options: { hotspot: true }, validation: (rule) => rule.required() }),
     defineField({ name: "author", title: "Autore", type: "string", validation: (rule) => rule.required() }),
     defineField({ name: "publishedAt", title: "Data di pubblicazione", type: "datetime", validation: (rule) => rule.required() }),
     defineField({ name: "featured", title: "In evidenza", type: "boolean", initialValue: false }),
