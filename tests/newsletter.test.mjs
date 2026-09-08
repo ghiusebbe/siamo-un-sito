@@ -11,13 +11,13 @@ async function loadWorker() {
   return worker;
 }
 
-/** Sostituisce beehiiv con una risposta finta e registra la richiesta in uscita. */
-function stubBeehiiv(reply) {
+/** Sostituisce Brevo con una risposta finta e registra la richiesta in uscita. */
+function stubBrevo(reply) {
   const calls = [];
   const original = globalThis.fetch;
   globalThis.fetch = async (input, init) => {
     const url = typeof input === "string" ? input : input.url;
-    if (!url.startsWith("https://api.beehiiv.com/")) return original(input, init);
+    if (!url.startsWith("https://api.brevo.com/")) return original(input, init);
     calls.push({ url, init });
     return reply();
   };
@@ -53,37 +53,37 @@ async function subscribe(body, env = {}) {
 }
 
 const configured = {
-  BEEHIIV_API_KEY: "test-key",
-  BEEHIIV_PUBLICATION_ID: "0f7940ed-115a-5e63-a038-fa6facf9be63",
+  BREVO_API_KEY: "test-key",
+  BREVO_LIST_ID: "42",
 };
 
-test("rifiuta email non valide senza contattare beehiiv", async () => {
-  const beehiiv = stubBeehiiv(() => new Response("{}", { status: 201 }));
+test("rifiuta email non valide senza contattare Brevo", async () => {
+  const brevo = stubBrevo(() => new Response("{}", { status: 201 }));
   try {
     const { response, payload } = await subscribe({ email: "non-una-email", consent: true }, configured);
     assert.equal(response.status, 400);
     assert.match(payload.message, /email valida/i);
-    assert.equal(beehiiv.calls.length, 0);
+    assert.equal(brevo.calls.length, 0);
   } finally {
-    beehiiv.restore();
+    brevo.restore();
   }
 });
 
 test("rifiuta l'iscrizione senza consenso esplicito", async () => {
-  const beehiiv = stubBeehiiv(() => new Response("{}", { status: 201 }));
+  const brevo = stubBrevo(() => new Response("{}", { status: 201 }));
   try {
     const { response, payload } = await subscribe({ email: "lettrice@example.com" }, configured);
     assert.equal(response.status, 400);
     assert.match(payload.message, /consenso/i);
-    assert.equal(beehiiv.calls.length, 0);
+    assert.equal(brevo.calls.length, 0);
   } finally {
-    beehiiv.restore();
+    brevo.restore();
   }
 });
 
-test("crea l'iscrizione su beehiiv", async () => {
-  const beehiiv = stubBeehiiv(() =>
-    new Response(JSON.stringify({ data: { id: "sub_1", email: "lettrice@example.com", status: "active" } }), {
+test("crea l'iscrizione su Brevo", async () => {
+  const brevo = stubBrevo(() =>
+    new Response(JSON.stringify({ id: 21 }), {
       status: 201,
       headers: { "content-type": "application/json" },
     }),
@@ -95,41 +95,37 @@ test("crea l'iscrizione su beehiiv", async () => {
     assert.equal(response.status, 200);
     assert.deepEqual(payload, { ok: true });
 
-    assert.equal(beehiiv.calls.length, 1);
-    const [call] = beehiiv.calls;
-    // L'id senza prefisso viene normalizzato nella forma pub_… richiesta da beehiiv.
-    assert.equal(call.url, `https://api.beehiiv.com/v2/publications/pub_${configured.BEEHIIV_PUBLICATION_ID}/subscriptions`);
+    assert.equal(brevo.calls.length, 1);
+    const [call] = brevo.calls;
+    assert.equal(call.url, "https://api.brevo.com/v3/contacts");
     assert.equal(call.init.method, "POST");
-    assert.equal(call.init.headers.authorization, "Bearer test-key");
-
+    assert.equal(call.init.headers["api-key"], "test-key");
+    assert.equal(call.init.cache, "no-store");
     const sent = JSON.parse(call.init.body);
     assert.equal(sent.email, "lettrice@example.com");
-    assert.equal(sent.reactivate_existing, true);
-    assert.equal(sent.referring_site, "https://siamounmagazine.com/");
+    assert.deepEqual(sent.listIds, [42]);
+    assert.equal(sent.updateEnabled, true);
+    assert.equal(Object.hasOwn(sent, "emailBlacklisted"), false);
+    assert.equal(Object.hasOwn(sent, "forceMerge"), false);
+    assert.ok(Number.isFinite(Date.parse(sent.attributes.SIAMO_CONSENT_AT)));
+    assert.equal(sent.attributes.SIAMO_CONSENT_VERSION, "2026-09-08");
+    assert.equal(sent.attributes.SIAMO_CONSENT_SOURCE, "https://siamounmagazine.com/#newsletter");
   } finally {
-    beehiiv.restore();
+    brevo.restore();
   }
 });
 
-test("l'iscrizione è immediata qualunque stato restituisca beehiiv", async () => {
-  const beehiiv = stubBeehiiv(() =>
-    new Response(JSON.stringify({ data: { status: "validating" } }), {
-      status: 201,
-      headers: { "content-type": "application/json" },
-    }),
-  );
+test("un contatto esistente può restituire 204 senza corpo", async () => {
+  const brevo = stubBrevo(() => new Response(null, { status: 204 }));
   try {
     const { response, payload } = await subscribe({ email: "lettrice@example.com", consent: true }, configured);
     assert.equal(response.status, 200);
-    // Nessuna conferma via email: al browser non arriva nessuno stato intermedio.
     assert.deepEqual(payload, { ok: true });
-  } finally {
-    beehiiv.restore();
-  }
+  } finally { brevo.restore(); }
 });
 
-test("non espone gli errori di beehiiv a chi si iscrive", async () => {
-  const beehiiv = stubBeehiiv(() =>
+test("non espone gli errori di Brevo a chi si iscrive", async () => {
+  const brevo = stubBrevo(() =>
     new Response(JSON.stringify({ errors: [{ message: "Invalid API key" }] }), {
       status: 401,
       headers: { "content-type": "application/json" },
@@ -140,26 +136,26 @@ test("non espone gli errori di beehiiv a chi si iscrive", async () => {
     assert.equal(response.status, 502);
     assert.doesNotMatch(payload.message, /api key/i);
   } finally {
-    beehiiv.restore();
+    brevo.restore();
   }
 });
 
-test("senza credenziali beehiiv la newsletter risponde 503", async () => {
-  const beehiiv = stubBeehiiv(() => new Response("{}", { status: 201 }));
+test("senza credenziali Brevo la newsletter risponde 503", async () => {
+  const brevo = stubBrevo(() => new Response("{}", { status: 201 }));
   try {
     const { response, payload } = await subscribe(
       { email: "lettrice@example.com", consent: true },
-      { BEEHIIV_API_KEY: undefined, BEEHIIV_PUBLICATION_ID: undefined },
+      { BREVO_API_KEY: undefined, BREVO_LIST_ID: undefined },
     );
     assert.equal(response.status, 503);
     assert.match(payload.message, /non è ancora attiva/i);
-    assert.equal(beehiiv.calls.length, 0);
+    assert.equal(brevo.calls.length, 0);
   } finally {
-    beehiiv.restore();
+    brevo.restore();
   }
 });
 
-test("la home mostra il form solo quando beehiiv è configurato", async () => {
+test("la home mostra il form solo quando Brevo è configurato", async () => {
   async function renderHome(env) {
     const previous = {};
     for (const [key, value] of Object.entries(env)) {
@@ -183,38 +179,42 @@ test("la home mostra il form solo quando beehiiv è configurato", async () => {
     }
   }
 
-  const withoutBeehiiv = await renderHome({ BEEHIIV_API_KEY: undefined, BEEHIIV_PUBLICATION_ID: undefined });
-  assert.doesNotMatch(withoutBeehiiv, /newsletter-section/);
+  const withoutBrevo = await renderHome({ BREVO_API_KEY: undefined, BREVO_LIST_ID: undefined });
+  assert.doesNotMatch(withoutBrevo, /newsletter-section/);
 
-  const withBeehiiv = await renderHome(configured);
-  assert.match(withBeehiiv, /class="newsletter-section/);
-  assert.match(withBeehiiv, /id="newsletter-email"/);
-  // Il dominio beehiiv serve solo a inviare le email: dal sito non ci si linka.
-  assert.doesNotMatch(withBeehiiv, /staff\.siamounmagazine\.com/);
+  const withBrevo = await renderHome(configured);
+  assert.match(withBrevo, /class="newsletter-section/);
+  assert.match(withBrevo, /id="newsletter-email"/);
+  assert.match(withBrevo, /rel="alternate"[^>]*type="application\/rss\+xml"[^>]*href="\/feed.xml"/);
+  assert.doesNotMatch(withBrevo, /test-key|api.brevo.com|beehiiv/);
+  // Nessun link al precedente sottodominio newsletter.
+  assert.doesNotMatch(withBrevo, /staff\.siamounmagazine\.com/);
 });
 
-test("registra nei log lo stato restituito da beehiiv", async () => {
-  const beehiiv = stubBeehiiv(() =>
-    new Response(JSON.stringify({ data: { id: "sub_42", status: "active" } }), {
-      status: 201,
-      headers: { "content-type": "application/json" },
-    }),
-  );
-  const lines = [];
-  const log = console.log;
-  console.log = (...args) => lines.push(args.join(" "));
-
+test("rifiuta ID lista non validi senza contattare Brevo", async () => {
+  const brevo = stubBrevo(() => new Response(null, { status: 204 }));
   try {
-    const { response } = await subscribe({ email: "lettrice@example.com", consent: true }, configured);
-    assert.equal(response.status, 200);
-    const line = lines.find((entry) => entry.includes("[newsletter]"));
-    assert.ok(line, "manca la riga di log dell'iscrizione");
-    assert.match(line, /id=sub_42/);
-    assert.match(line, /stato=active/);
-    // L'indirizzo non finisce nei log: per risalire all'iscritto basta l'id beehiiv.
-    assert.doesNotMatch(line, /lettrice@example\.com/);
-  } finally {
-    console.log = log;
-    beehiiv.restore();
+    for (const id of ["", "0", "-1", "1.2", "1e2", "abc", "9007199254740992"]) {
+      const { response } = await subscribe({ email: "lettrice@example.com", consent: true }, { ...configured, BREVO_LIST_ID: id });
+      assert.equal(response.status, 503, id);
+    }
+    assert.equal(brevo.calls.length, 0);
+  } finally { brevo.restore(); }
+});
+
+test("gestisce rate limit e errori di rete senza esporre dati", async () => {
+  for (const [reply, status] of [
+    [() => new Response("private contact data", { status: 429 }), 429],
+    [() => { throw new Error("test-key lettrice@example.com"); }, 502],
+  ]) {
+    const brevo = stubBrevo(reply);
+    const lines = [];
+    const original = console.error;
+    console.error = (...args) => lines.push(args.join(" "));
+    try {
+      const { response, payload } = await subscribe({ email: "lettrice@example.com", consent: true }, configured);
+      assert.equal(response.status, status);
+      assert.doesNotMatch(JSON.stringify(payload) + lines.join(" "), /private contact|test-key|lettrice@example/);
+    } finally { console.error = original; brevo.restore(); }
   }
 });

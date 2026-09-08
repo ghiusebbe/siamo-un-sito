@@ -34,24 +34,16 @@ Le immagini in `public/media` sono servite così come sono committate (l'ottimiz
 
 Il sito usa due tagli di Helvetica in WOFF2 (`public/fonts`): Regular e Bold. Il corsivo è sintetizzato dal Regular (`font-synthesis: style`), perché il file Oblique originale era danneggiato e i browser lo scartavano.
 
-## Newsletter (beehiiv)
+## Newsletter automatica (Brevo Free)
 
-Le iscrizioni vanno su **beehiiv**, non più su Sanity. Il form resta quello del sito
-(`components/newsletter-form.tsx`): invia a `/api/newsletter`, che chiama l'API v2 di beehiiv lato server.
-La chiave non raggiunge mai il browser e non c'è nessun iframe di terze parti.
+Il form invia le iscrizioni a Brevo tramite `/api/newsletter`, con chiave API solo lato server.
+Il feed `/feed.xml` espone gli ultimi 50 articoli pubblicati su Sanity, con copertina,
+anteprima e link. Brevo controlla il feed e gestisce gli invii tramite **RSS Campaign**.
 
-1. In beehiiv apri **Settings → Integrations → API** e crea una chiave: è `BEEHIIV_API_KEY`.
-2. Nella stessa pagina copia il **publication id** (`pub_…`): è `BEEHIIV_PUBLICATION_ID`.
-3. Tieni **disattivo il double opt-in** in beehiiv (Settings → Publication → Subscribe flow): l'iscrizione
-   dal form è immediata e non manda nessuna email di conferma. Il consenso resta registrato dalla
-   checkbox obbligatoria del form. Se lo riattivi in beehiiv, l'utente riceve la conferma ma il sito
-   continua a dirgli «Sei dentro»: i due comportamenti vanno tenuti allineati a mano.
-
-Finché `BEEHIIV_API_KEY` e `BEEHIIV_PUBLICATION_ID` non sono valorizzate la sezione newsletter della home
-non viene renderizzata, così il form non può produrre solo errori.
-
-Gli iscritti raccolti prima della migrazione restano nei documenti `subscriber` di Sanity, ora in sola
-lettura: vanno esportati e importati in beehiiv, dopodiché il tipo si può rimuovere dallo schema.
+Imposta `BREVO_API_KEY` e `BREVO_LIST_ID`, poi configura la campagna RSS nell'account.
+Il form rimane nascosto finché entrambe le variabili non sono valide.
+L'automazione non si attiva con il solo deploy: segui [la guida Brevo](docs/newsletter-brevo.md).
+Non sono necessari webhook Sanity, cron del sito o un account Gmail.
 
 ## Contenuti gestibili
 
@@ -61,7 +53,7 @@ lettura: vanno esportati e importati in beehiiv, dopodiché il tipo si può rimu
 - Timeline
 - Volumi digitali
 - Impostazioni generali e statistiche
-- Iscritti alla newsletter (archivio pre-beehiiv, sola lettura)
+- Iscritti alla newsletter (archivio storico, sola lettura)
 
 ## URL migrati
 
@@ -69,7 +61,7 @@ I vecchi URL `/articoli-cms/*` e `/eventi-cms/*` effettuano redirect permanenti 
 
 ## Architettura dati e cache
 
-Sanity è l'unica source of truth applicativa per i contenuti: articoli, eventi, servizi, timeline, magazine e impostazioni sono gestiti dal Content Lake. Gli iscritti alla newsletter vivono invece su beehiiv. Il progetto non richiede un database D1/Drizzle parallelo.
+Sanity è l'unica source of truth applicativa per i contenuti: articoli, eventi, servizi, timeline, magazine e impostazioni sono gestiti dal Content Lake. Gli iscritti alla newsletter vivono invece su Brevo. Il progetto non richiede un database D1/Drizzle parallelo.
 
 Le letture pubbliche usano il CDN di Sanity e una cache applicativa con TTL differenziati:
 

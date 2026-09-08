@@ -1,8 +1,8 @@
 import { defineField, defineType } from "sanity";
 
 export default defineType({
-  name: "subscriber", title: "Iscritto newsletter (archivio pre-beehiiv)", type: "document",
-  description: "Sola lettura: le nuove iscrizioni vanno su beehiiv. Qui restano solo quelle raccolte prima della migrazione, da importare in beehiiv e poi eliminare.",
+  name: "subscriber", title: "Iscritto newsletter (archivio storico)", type: "document",
+  description: "Sola lettura: le nuove iscrizioni vanno su Brevo. Qui restano quelle raccolte prima della migrazione; nessuna importazione o cancellazione automatica.",
   fields: [
     defineField({ name: "email", title: "Email", type: "string", readOnly: true }),
     defineField({ name: "subscribedAt", title: "Data iscrizione", type: "datetime", readOnly: true }),

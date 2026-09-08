@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { subscribeToNewsletter } from "@/lib/beehiiv";
+import { subscribeToNewsletter } from "@/lib/brevo";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -9,7 +9,7 @@ export async function POST(request: Request) {
   if (!emailPattern.test(email) || email.length > 254) return NextResponse.json({ message: "Inserisci un’email valida." }, { status: 400 });
   if (body?.consent !== true) return NextResponse.json({ message: "Serve il consenso per iscriverti." }, { status: 400 });
 
-  const outcome = await subscribeToNewsletter(email, request.headers.get("referer") ?? undefined);
+  const outcome = await subscribeToNewsletter(email);
   if (!outcome.ok) return NextResponse.json({ message: outcome.message }, { status: outcome.status });
 
   return NextResponse.json({ ok: true });
