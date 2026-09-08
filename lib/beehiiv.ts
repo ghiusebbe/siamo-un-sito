@@ -57,10 +57,16 @@ export async function subscribeToNewsletter(email: string, referrer?: string): P
     return { ok: false, status: 502, message: generic };
   }
 
-  // L'iscrizione è immediata: il double opt-in va tenuto disattivo su beehiiv.
-  if (response.ok) return { ok: true };
+  const payload = (await response.json().catch(() => null)) as { data?: { id?: string; status?: string } } | null;
 
-  const payload = await response.json().catch(() => null);
+  // L'iscrizione è immediata: il double opt-in va tenuto disattivo su beehiiv.
+  // Lo stato finisce nei log perché beehiiv risponde 2xx anche quando l'indirizzo
+  // era già iscritto — caso in cui non manda nessuna welcome email.
+  if (response.ok) {
+    console.log(`[newsletter] beehiiv ha accettato l'iscrizione: id=${payload?.data?.id ?? "?"} stato=${payload?.data?.status ?? "?"}`);
+    return { ok: true };
+  }
+
   console.error(`[newsletter] beehiiv ha risposto ${response.status}`, payload);
 
   // 401/403 sono errori di configurazione nostri: all'utente non diciamo altro.

@@ -192,3 +192,29 @@ test("la home mostra il form solo quando beehiiv è configurato", async () => {
   // Il dominio beehiiv serve solo a inviare le email: dal sito non ci si linka.
   assert.doesNotMatch(withBeehiiv, /staff\.siamounmagazine\.com/);
 });
+
+test("registra nei log lo stato restituito da beehiiv", async () => {
+  const beehiiv = stubBeehiiv(() =>
+    new Response(JSON.stringify({ data: { id: "sub_42", status: "active" } }), {
+      status: 201,
+      headers: { "content-type": "application/json" },
+    }),
+  );
+  const lines = [];
+  const log = console.log;
+  console.log = (...args) => lines.push(args.join(" "));
+
+  try {
+    const { response } = await subscribe({ email: "lettrice@example.com", consent: true }, configured);
+    assert.equal(response.status, 200);
+    const line = lines.find((entry) => entry.includes("[newsletter]"));
+    assert.ok(line, "manca la riga di log dell'iscrizione");
+    assert.match(line, /id=sub_42/);
+    assert.match(line, /stato=active/);
+    // L'indirizzo non finisce nei log: per risalire all'iscritto basta l'id beehiiv.
+    assert.doesNotMatch(line, /lettrice@example\.com/);
+  } finally {
+    console.log = log;
+    beehiiv.restore();
+  }
+});
