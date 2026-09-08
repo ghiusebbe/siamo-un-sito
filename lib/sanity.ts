@@ -11,9 +11,6 @@ export const sanityDataset =
 
 export const sanityConfigured = Boolean(sanityProjectId);
 
-/** The newsletter needs a write token: without it the form would only produce errors. */
-export const newsletterConfigured = Boolean(sanityProjectId && process.env.SANITY_API_WRITE_TOKEN);
-
 export const sanityClient = sanityProjectId
   ? createClient({
       projectId: sanityProjectId,
@@ -25,15 +22,3 @@ export const sanityClient = sanityProjectId
     })
   : null;
 
-export function getSanityWriteClient() {
-  const token = process.env.SANITY_API_WRITE_TOKEN;
-  if (!sanityProjectId || !token) return null;
-
-  return createClient({
-    projectId: sanityProjectId,
-    dataset: sanityDataset,
-    apiVersion: "2026-08-01",
-    useCdn: false,
-    token,
-  });
-}

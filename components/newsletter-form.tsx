@@ -22,7 +22,12 @@ export function NewsletterForm() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || "Iscrizione non riuscita");
       setState("success");
-      setMessage("Sei dentro. Ci leggiamo presto.");
+      // Con il double opt-in attivo su beehiiv l'iscrizione si chiude solo dopo la conferma.
+      setMessage(
+        data.pendingConfirmation
+          ? "Ci siamo quasi: apri l’email di conferma per completare l’iscrizione."
+          : "Sei dentro. Ci leggiamo presto.",
+      );
       form.reset();
     } catch (error) {
       setState("error");
@@ -40,9 +45,9 @@ export function NewsletterForm() {
       <label className="newsletter-consent">
         <input name="consent" type="checkbox" required />
         <span>
-          Acconsento a ricevere la newsletter di SIAMO. L’indirizzo viene usato solo per questo invio e
-          posso cancellarmi in qualsiasi momento scrivendo a{" "}
-          <a href="mailto:siamounmagazine@gmail.com">siamounmagazine@gmail.com</a>.
+          Acconsento a ricevere la newsletter di SIAMO, inviata tramite beehiiv. L’indirizzo viene usato solo
+          per questo invio e posso cancellarmi in qualsiasi momento dal link in fondo a ogni numero o
+          scrivendo a <a href="mailto:siamounmagazine@gmail.com">siamounmagazine@gmail.com</a>.
         </span>
       </label>
       {message ? <p className={`form-message ${state}`} role="status">{message}</p> : null}
