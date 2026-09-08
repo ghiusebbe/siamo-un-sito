@@ -22,7 +22,7 @@ export function NewsletterForm() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || "Iscrizione non riuscita");
       setState("success");
-      setMessage("Richiesta ricevuta. Grazie!");
+      setMessage("Sei dentro. Ci leggiamo presto.");
       form.reset();
     } catch (error) {
       setState("error");
