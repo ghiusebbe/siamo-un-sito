@@ -1418,6 +1418,9 @@ html { scroll-padding-top: calc(var(--header-height) + 24px); }
 
 .newsletter-consent { grid-column: 1 / -1; display: flex; align-items: flex-start; gap: 10px; text-align: left; color: #c9c9c5; font-size: 14px; line-height: 1.4; }
 .newsletter-consent input { flex: 0 0 auto; width: 18px; height: 18px; margin: 2px 0 0; accent-color: var(--acid); }
+.newsletter-archive { margin: 22px 0 0; font-size: 14px; color: #c9c9c5; }
+.newsletter-archive a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+.newsletter-archive a:hover, .newsletter-archive a:focus-visible { color: var(--acid); }
 
 .footer-nav { display: grid; gap: 8px; }
 .footer-nav a { font-size: 16px; }
