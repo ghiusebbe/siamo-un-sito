@@ -38,8 +38,8 @@ export default async function PrivacyPage() {
           il consenso stesso. Servono solo a inviarti la newsletter di SIAMO: la base giuridica è il tuo consenso
           (art. 6.1.a GDPR), che puoi revocare in qualsiasi momento dal link di cancellazione presente in fondo a
           ogni numero o scrivendo all’indirizzo qui sopra. L’elenco degli iscritti e le statistiche di apertura sono
-          gestiti da <strong>beehiiv</strong>, la piattaforma con cui inviamo la newsletter. Conserviamo i dati
-          finché resti iscritto; alla revoca vengono cancellati.
+          gestiti da <strong>Brevo</strong>, la piattaforma con cui inviamo la newsletter. Conserviamo i dati
+          finché resti iscritto; dopo la disiscrizione resta registrato lo stato di esclusione dagli invii.
         </p>
         <h3>Navigazione</h3>
         <p>
@@ -66,7 +66,7 @@ export default async function PrivacyPage() {
 
         <h2>A chi comunichiamo i dati</h2>
         <p>
-          Ci appoggiamo a fornitori che trattano i dati per nostro conto: <strong>beehiiv</strong> (invio e gestione
+          Ci appoggiamo a fornitori che trattano i dati per nostro conto: <strong>Brevo</strong> (invio e gestione
           della newsletter), <strong>Sanity</strong> (gestione dei contenuti), il fornitore di{" "}
           <strong>hosting</strong> del sito e <strong>Google</strong> per la pubblicità. Gli acquisti del cartaceo avvengono sulla piattaforma di
           pagamento esterna collegata dai pulsanti d’acquisto, che tratta i dati come titolare autonomo. Alcuni
