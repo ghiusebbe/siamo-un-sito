@@ -1,8 +1,10 @@
 import type { NextConfig } from "next";
+import { PHASE_DEVELOPMENT_SERVER, PHASE_PRODUCTION_BUILD } from "next/constants";
+import { prepareImages } from "./scripts/prepare-images.mjs";
 
 const nextConfig: NextConfig = {
   images: {
-    // SiteImage keeps local assets direct and resizes remote media at Sanity.
+    // SiteImage uses prebuilt local WebP variants and resizes remote media at Sanity.
     unoptimized: true,
     formats: ["image/avif", "image/webp"],
     qualities: [75],
@@ -39,4 +41,9 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default async function config(phase: string): Promise<NextConfig> {
+  if (phase === PHASE_DEVELOPMENT_SERVER || phase === PHASE_PRODUCTION_BUILD) {
+    await prepareImages();
+  }
+  return nextConfig;
+}

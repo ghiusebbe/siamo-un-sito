@@ -2,6 +2,7 @@ import vinext from "vinext";
 import { defineConfig } from "vite";
 import hostingConfig from "./.openai/hosting.json";
 import { sites } from "./build/sites-vite-plugin";
+import { prepareImages } from "./scripts/prepare-images.mjs";
 
 const { r2 } = hostingConfig;
 
@@ -22,6 +23,7 @@ const localBindingConfig = {
 };
 
 export default defineConfig(async () => {
+  await prepareImages();
   process.env.WRANGLER_WRITE_LOGS ??= "false";
   process.env.WRANGLER_LOG_PATH ??= ".wrangler/logs";
   process.env.MINIFLARE_REGISTRY_PATH ??= ".wrangler/registry";
