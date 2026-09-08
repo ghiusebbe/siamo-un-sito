@@ -16,7 +16,7 @@ import {
 } from "@/lib/content";
 import { formatDate, longestWordLength } from "@/lib/format";
 import { instagramAssets } from "@/lib/instagram-assets";
-import { newsletterConfigured, newsletterHomeUrl } from "@/lib/beehiiv";
+import { newsletterConfigured } from "@/lib/beehiiv";
 
 export const metadata = { ...pageMetadata("/", homeTitle, siteDescription), title: { absolute: homeTitle } };
 
@@ -320,9 +320,6 @@ export default async function HomePage() {
             <span className="eyebrow">La nostra newsletter</span>
             <DynamicTitle lines={["Le cose giuste,", "prima che diventino ovvie."]} />
             <NewsletterForm />
-            <p className="newsletter-archive">
-              <a href={newsletterHomeUrl} target="_blank" rel="noreferrer">Sfoglia i numeri usciti ↗<NewTabNote /></a>
-            </p>
           </div>
         </section>
       ) : null}

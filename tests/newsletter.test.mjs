@@ -81,9 +81,9 @@ test("rifiuta l'iscrizione senza consenso esplicito", async () => {
   }
 });
 
-test("crea l'iscrizione su beehiiv e segnala la conferma in sospeso", async () => {
+test("crea l'iscrizione su beehiiv", async () => {
   const beehiiv = stubBeehiiv(() =>
-    new Response(JSON.stringify({ data: { id: "sub_1", email: "lettrice@example.com", status: "validating" } }), {
+    new Response(JSON.stringify({ data: { id: "sub_1", email: "lettrice@example.com", status: "active" } }), {
       status: 201,
       headers: { "content-type": "application/json" },
     }),
@@ -93,7 +93,7 @@ test("crea l'iscrizione su beehiiv e segnala la conferma in sospeso", async () =
     const { response, payload } = await subscribe({ email: "  Lettrice@Example.com ", consent: true }, configured);
 
     assert.equal(response.status, 200);
-    assert.deepEqual(payload, { ok: true, pendingConfirmation: true });
+    assert.deepEqual(payload, { ok: true });
 
     assert.equal(beehiiv.calls.length, 1);
     const [call] = beehiiv.calls;
@@ -111,9 +111,9 @@ test("crea l'iscrizione su beehiiv e segnala la conferma in sospeso", async () =
   }
 });
 
-test("con double opt-in disattivo l'iscrizione è immediata", async () => {
+test("l'iscrizione è immediata qualunque stato restituisca beehiiv", async () => {
   const beehiiv = stubBeehiiv(() =>
-    new Response(JSON.stringify({ data: { status: "active" } }), {
+    new Response(JSON.stringify({ data: { status: "validating" } }), {
       status: 201,
       headers: { "content-type": "application/json" },
     }),
@@ -121,7 +121,8 @@ test("con double opt-in disattivo l'iscrizione è immediata", async () => {
   try {
     const { response, payload } = await subscribe({ email: "lettrice@example.com", consent: true }, configured);
     assert.equal(response.status, 200);
-    assert.deepEqual(payload, { ok: true, pendingConfirmation: false });
+    // Nessuna conferma via email: al browser non arriva nessuno stato intermedio.
+    assert.deepEqual(payload, { ok: true });
   } finally {
     beehiiv.restore();
   }
@@ -158,7 +159,7 @@ test("senza credenziali beehiiv la newsletter risponde 503", async () => {
   }
 });
 
-test("la home mostra il form e il link all'archivio solo quando beehiiv è configurato", async () => {
+test("la home mostra il form solo quando beehiiv è configurato", async () => {
   async function renderHome(env) {
     const previous = {};
     for (const [key, value] of Object.entries(env)) {
@@ -185,10 +186,9 @@ test("la home mostra il form e il link all'archivio solo quando beehiiv è confi
   const withoutBeehiiv = await renderHome({ BEEHIIV_API_KEY: undefined, BEEHIIV_PUBLICATION_ID: undefined });
   assert.doesNotMatch(withoutBeehiiv, /newsletter-section/);
 
-  const withBeehiiv = await renderHome({ ...configured, BEEHIIV_PUBLICATION_URL: "https://staff.siamounmagazine.com" });
+  const withBeehiiv = await renderHome(configured);
   assert.match(withBeehiiv, /class="newsletter-section/);
   assert.match(withBeehiiv, /id="newsletter-email"/);
-  assert.match(withBeehiiv, /href="https:\/\/staff\.siamounmagazine\.com"/);
-  // Il link esterno porta la nota per gli screen reader, come gli altri del sito.
-  assert.match(withBeehiiv, /Sfoglia i numeri usciti[\s\S]{0,120}si apre in una nuova scheda/);
+  // Il dominio beehiiv serve solo a inviare le email: dal sito non ci si linka.
+  assert.doesNotMatch(withBeehiiv, /staff\.siamounmagazine\.com/);
 });
