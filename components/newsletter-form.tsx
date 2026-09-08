@@ -22,12 +22,7 @@ export function NewsletterForm() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || "Iscrizione non riuscita");
       setState("success");
-      // Con il double opt-in attivo su beehiiv l'iscrizione si chiude solo dopo la conferma.
-      setMessage(
-        data.pendingConfirmation
-          ? "Ci siamo quasi: apri l’email di conferma per completare l’iscrizione."
-          : "Sei dentro. Ci leggiamo presto.",
-      );
+      setMessage("Sei dentro. Ci leggiamo presto.");
       form.reset();
     } catch (error) {
       setState("error");

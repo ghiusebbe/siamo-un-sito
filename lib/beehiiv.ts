@@ -18,16 +18,11 @@ function normalisePublicationId(raw: string): string {
 
 export const beehiivPublicationId = normalisePublicationId(process.env.BEEHIIV_PUBLICATION_ID || "");
 
-/** Il dominio beehiiv della testata: archivio dei numeri e gestione dell'iscrizione. */
-export const newsletterHomeUrl = (
-  process.env.BEEHIIV_PUBLICATION_URL || "https://staff.siamounmagazine.com"
-).replace(/\/+$/, "");
-
 /** Senza chiave e publication id il form produrrebbe solo errori: la sezione resta nascosta. */
 export const newsletterConfigured = Boolean(beehiivPublicationId && process.env.BEEHIIV_API_KEY);
 
 export type SubscribeOutcome =
-  | { ok: true; pendingConfirmation: boolean }
+  | { ok: true }
   | { ok: false; status: number; message: string };
 
 const unavailable = "La newsletter non è ancora attiva. Riprova tra qualche giorno.";
@@ -62,14 +57,10 @@ export async function subscribeToNewsletter(email: string, referrer?: string): P
     return { ok: false, status: 502, message: generic };
   }
 
-  const payload = (await response.json().catch(() => null)) as { data?: { status?: string } } | null;
+  // L'iscrizione è immediata: il double opt-in va tenuto disattivo su beehiiv.
+  if (response.ok) return { ok: true };
 
-  if (response.ok) {
-    // Con il double opt-in attivo beehiiv lascia l'iscritto in attesa di conferma.
-    const status = payload?.data?.status ?? "";
-    return { ok: true, pendingConfirmation: status === "validating" || status === "pending" };
-  }
-
+  const payload = await response.json().catch(() => null);
   console.error(`[newsletter] beehiiv ha risposto ${response.status}`, payload);
 
   // 401/403 sono errori di configurazione nostri: all'utente non diciamo altro.

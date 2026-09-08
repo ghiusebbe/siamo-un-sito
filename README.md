@@ -42,10 +42,10 @@ La chiave non raggiunge mai il browser e non c'è nessun iframe di terze parti.
 
 1. In beehiiv apri **Settings → Integrations → API** e crea una chiave: è `BEEHIIV_API_KEY`.
 2. Nella stessa pagina copia il **publication id** (`pub_…`): è `BEEHIIV_PUBLICATION_ID`.
-3. `BEEHIIV_PUBLICATION_URL` è il dominio della testata su beehiiv (`https://staff.siamounmagazine.com`),
-   usato per il link «Sfoglia i numeri usciti» sotto il form.
-4. Tieni attivo il **double opt-in** in beehiiv: è la conferma del consenso richiesta dal GDPR. Quando è
-   attivo l'API risponde con stato `validating` e il form mostra «apri l'email di conferma».
+3. Tieni **disattivo il double opt-in** in beehiiv (Settings → Publication → Subscribe flow): l'iscrizione
+   dal form è immediata e non manda nessuna email di conferma. Il consenso resta registrato dalla
+   checkbox obbligatoria del form. Se lo riattivi in beehiiv, l'utente riceve la conferma ma il sito
+   continua a dirgli «Sei dentro»: i due comportamenti vanno tenuti allineati a mano.
 
 Finché `BEEHIIV_API_KEY` e `BEEHIIV_PUBLICATION_ID` non sono valorizzate la sezione newsletter della home
 non viene renderizzata, così il form non può produrre solo errori.

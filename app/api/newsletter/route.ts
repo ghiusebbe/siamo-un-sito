@@ -12,5 +12,5 @@ export async function POST(request: Request) {
   const outcome = await subscribeToNewsletter(email, request.headers.get("referer") ?? undefined);
   if (!outcome.ok) return NextResponse.json({ message: outcome.message }, { status: outcome.status });
 
-  return NextResponse.json({ ok: true, pendingConfirmation: outcome.pendingConfirmation });
+  return NextResponse.json({ ok: true });
 }
