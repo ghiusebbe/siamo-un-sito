@@ -21,14 +21,15 @@ export default async function PrivacyPage() {
       />
       <div className="editorial-body prose">
         <p className="policy-note">
-          Da completare prima della pubblicazione: ragione sociale, sede legale e partita IVA del titolare del
-          trattamento, e l’elenco definitivo dei cookie rilasciato dal fornitore del messaggio di consenso.
+          Da completare prima della pubblicazione: l’elenco definitivo dei cookie rilasciato dal fornitore del
+          messaggio di consenso.
         </p>
 
         <h2>Titolare del trattamento</h2>
         <p>
-          Il titolare è <strong>SIAMO</strong> — <em>[ragione sociale, sede legale e partita IVA]</em>. Per qualsiasi
-          richiesta relativa ai tuoi dati scrivi a <a href={`mailto:${settings.email}`}>{settings.email}</a>.
+          Il titolare è <strong>SIAMO</strong>, associazione non riconosciuta con sede in Via Michele Schina 7,
+          10143 Torino (TO), codice fiscale 97928370010, in persona del legale rappresentante pro tempore. Per
+          qualsiasi richiesta relativa ai tuoi dati scrivi a <a href={`mailto:${settings.email}`}>{settings.email}</a>.
         </p>
 
         <h2>Dati raccolti</h2>
