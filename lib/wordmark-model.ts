@@ -53,7 +53,7 @@ export function createWordmarkGeometry() {
     offset += block.count;
     return block;
   });
-  // One draw for all 35 pieces. The GPU moves each block around its own centre.
+  // One draw for all 60 pieces. The GPU moves each block around its own centre.
   const animated = mergeGeometries(parts)!;
   parts.forEach(part => part.dispose());
   animated.computeBoundingBox(); animated.computeBoundingSphere();

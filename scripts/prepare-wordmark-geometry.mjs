@@ -170,10 +170,10 @@ function measure(bounds) {
   return { bounds, count, extent: [minX, minY, maxX, maxY] };
 }
 
-// Split occupied regions along their longest dimension: 35 actual blocks,
+// Split occupied regions along their longest dimension: 60 actual blocks,
 // including the stars, rather than full-height strips or empty grid cells.
 const leaves = [measure([0, 0, width, height])];
-while (leaves.length < 35) {
+while (leaves.length < 60) {
   leaves.sort((a, b) => b.count - a.count);
   const { bounds: [l, t, r, b], extent: [x0, y0, x1, y1] } = leaves.shift();
   const horizontal = x1 - x0 >= y1 - y0;

@@ -8,9 +8,9 @@ import {
   renderBudget, waveAmount, wavePose,
 } from '../lib/wordmark-model.ts';
 
-test('the original silhouette and all 35 blocks have closed front, back and side surfaces', () => {
+test('the original silhouette and all 60 blocks have closed front, back and side surfaces', () => {
   const model = createWordmarkGeometry();
-  assert.equal(model.blocks.length, 35);
+  assert.equal(model.blocks.length, 60);
   const surfaces = [{ geometry: model.solid, start: 0, count: model.solid.attributes.position.count },
     ...model.blocks.map(block => ({ ...block, geometry: model.animated }))];
   for (const { geometry, start, count } of surfaces) {
@@ -57,7 +57,7 @@ test('the original silhouette and all 35 blocks have closed front, back and side
     assert.ok(z.some(n => Math.abs(n) < 0.01), 'side walls');
   }
   assert.equal(model.animated.groups.length, 0, 'all blocks use a single draw/material');
-  assert.ok(model.animated.attributes.position.count / 3 < 4000, 'animation triangle budget');
+  assert.ok(model.animated.attributes.position.count / 3 < 4500, 'animation triangle budget');
   for (const { x, y, start, count } of model.blocks) {
     const centers = model.animated.attributes.blockCenter;
     for (let i = start; i < start + count; i++) {

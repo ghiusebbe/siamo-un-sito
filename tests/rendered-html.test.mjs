@@ -136,6 +136,8 @@ test("keeps an accessible image fallback and keyboard control for the wordmark",
 
   assert.match(html, /<span class="sr-only" id="wordmark-title">SIAMO — magazine di musica e cultura emergente<\/span>/);
   assert.match(html, /<canvas[^>]*aria-hidden="true"/);
+  assert.match(html, /<h1[^>]*class="wordmark"[^>]*data-motion="loading"/);
+  assert.ok(html.indexOf('root.dataset.js=') < html.indexOf('<h1 class="wordmark"'), 'loading bootstrap precedes the logo');
   assert.match(html, /<button[^>]*type="button"[^>]*aria-label="Ruota il logo SIAMO"[^>]*aria-describedby="wordmark-instructions"/);
 });
 

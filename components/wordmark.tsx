@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import Image from "@/components/site-image";
 import { homeTitle } from "@/lib/seo";
-import { INTRO_DURATION } from "@/lib/intro";
+import { INTRO_FINISHED_EVENT, INTRO_LOAD_TIMEOUT, WORDMARK_READY_EVENT } from "@/lib/intro";
 
 const source = { src: "/brand/siamo-wordmark-black.png", width: 1600, height: 397 };
 
@@ -15,62 +15,111 @@ export function Wordmark() {
   useEffect(() => {
     const element = heading.current, surface = canvas.current, button = control.current;
     if (!element || !surface || !button) return;
+    const root = document.documentElement;
     const preference = matchMedia("(prefers-reduced-motion: reduce)");
-    const introEnds = performance.now() + (document.documentElement.dataset.intro === "play" ? INTRO_DURATION : 0);
-    let disposed = false, loading = false, visible = false;
-    let scene: { dispose: () => void } | undefined;
-    let idle: number | undefined, timer: ReturnType<typeof setTimeout> | undefined;
-    const fallback = () => { delete element.dataset.motion; };
+    const bounds = element.getBoundingClientRect();
+    let visible = root.dataset.intro === "play" || (bounds.bottom > 0 && bounds.top < innerHeight);
+    let disposed = false, loading = false, entranceStarted = false, revision = 0;
+    let abandoned = root.dataset.wordmark === "fallback" && !preference.matches;
+    let scene: { dispose: () => void; playEntrance: () => void } | undefined;
+    let deadline: ReturnType<typeof setTimeout> | undefined;
 
+    const signalReady = () => window.dispatchEvent(new Event(WORDMARK_READY_EVENT));
+    function clearDeadline() { if (deadline !== undefined) { clearTimeout(deadline); deadline = undefined; } }
+    function fallback() {
+      clearDeadline();
+      element!.dataset.motion = "fallback";
+      element!.removeAttribute("aria-busy");
+      root.dataset.wordmark = "fallback";
+      signalReady();
+    }
+    function abandon() {
+      if (disposed) return;
+      abandoned = true; revision++;
+      fallback();
+      // Shader errors can arrive from inside renderer.render(). Dispose after that call returns.
+      queueMicrotask(() => { if (abandoned) { scene?.dispose(); scene = undefined; } });
+    }
+    function loadingExpired() {
+      if (document.hidden) deadline = setTimeout(loadingExpired, 1000);
+      else abandon();
+    }
+    function startEntrance() {
+      if (disposed || abandoned || entranceStarted || preference.matches || root.dataset.intro !== "skip") return;
+      if (element!.dataset.motion === "ready" && scene) { entranceStarted = true; scene.playEntrance(); }
+    }
+    function fallbackRequested() {
+      if (root.dataset.wordmark === "fallback" && element!.dataset.motion === "loading") abandon();
+    }
     async function load() {
-      idle = undefined; timer = undefined;
-      if (disposed || loading || scene || preference.matches || !visible || document.hidden) return;
+      if (disposed || abandoned || loading || scene || preference.matches || !visible || document.hidden) return;
       loading = true;
+      const attempt = revision;
+      element!.dataset.motion = "loading";
+      element!.setAttribute("aria-busy", "true");
+      root.dataset.wordmark = "loading";
+      deadline = setTimeout(loadingExpired, INTRO_LOAD_TIMEOUT);
       try {
-        // The engine and vector data stay outside the initial page bundle.
+        // Start fetching immediately while the intro is visible; no idle delay or second intro timer.
         const { createWordmarkScene } = await import("@/lib/wordmark-scene");
-        if (disposed || preference.matches || !visible || document.hidden) return;
+        if (disposed || abandoned || attempt !== revision || preference.matches) return;
         scene = createWordmarkScene({
           canvas: surface!, container: element!, interaction: button!,
-          introDelay: Math.max(0, introEnds - performance.now()),
-          onReady: () => { if (!disposed) element!.dataset.motion = "ready"; },
-          onError: fallback,
+          onReady: () => {
+            if (disposed || abandoned || attempt !== revision || preference.matches) return;
+            clearDeadline();
+            element!.dataset.motion = "ready";
+            element!.removeAttribute("aria-busy");
+            root.dataset.wordmark = "ready";
+            signalReady();
+            startEntrance();
+          },
+          onError: abandon,
         });
-      } catch {
-        // The original, accessible logo remains visible if WebGL cannot start.
-        fallback();
-      } finally { loading = false; }
+      } catch { if (!disposed && attempt === revision) abandon(); }
+      finally {
+        loading = false;
+        if (!disposed && !abandoned && attempt !== revision) void load();
+      }
     }
-    function schedule() {
-      if (disposed || scene || loading || idle !== undefined || timer !== undefined || preference.matches || !visible || document.hidden) return;
-      if ("requestIdleCallback" in window) idle = window.requestIdleCallback(load, { timeout: 1800 });
-      else timer = setTimeout(load, 100);
-    }
+    function schedule() { void load(); }
     function motionChanged() {
-      if (preference.matches) { scene?.dispose(); scene = undefined; fallback(); }
-      else schedule();
+      revision++; clearDeadline(); scene?.dispose(); scene = undefined; entranceStarted = false;
+      if (preference.matches) { abandoned = true; fallback(); }
+      else { abandoned = false; schedule(); }
     }
-    const observer = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; if (visible) schedule(); });
+    const observer = new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting || root.dataset.intro === "play";
+      if (visible) schedule();
+    });
     observer.observe(element);
     preference.addEventListener("change", motionChanged);
     document.addEventListener("visibilitychange", schedule);
+    window.addEventListener(INTRO_FINISHED_EVENT, startEntrance);
+    window.addEventListener(WORDMARK_READY_EVENT, fallbackRequested);
+    if (preference.matches || abandoned) fallback(); else schedule();
     return () => {
-      disposed = true;
-      if (idle !== undefined) window.cancelIdleCallback(idle);
-      if (timer !== undefined) clearTimeout(timer);
+      disposed = true; revision++; clearDeadline();
       observer.disconnect();
       preference.removeEventListener("change", motionChanged);
       document.removeEventListener("visibilitychange", schedule);
-      scene?.dispose(); fallback();
+      window.removeEventListener(INTRO_FINISHED_EVENT, startEntrance);
+      window.removeEventListener(WORDMARK_READY_EVENT, fallbackRequested);
+      scene?.dispose();
+      // Navigation must release a waiting curtain; StrictMode cleanup keeps the mounted node.
+      if (!element.isConnected && root.dataset.wordmark === "loading") {
+        root.dataset.wordmark = "fallback"; signalReady();
+      }
     };
   }, []);
 
   return (
-    <h1 className="wordmark" ref={heading} aria-labelledby="wordmark-title">
+    <h1 className="wordmark" ref={heading} aria-labelledby="wordmark-title" data-motion="loading">
       <span className="sr-only" id="wordmark-title">{homeTitle}</span>
       <span className="wordmark-stack">
         <Image alt="" className="wordmark-face" {...source} sizes="100vw" priority />
         <canvas className="wordmark-canvas" ref={canvas} aria-hidden="true" />
+        <span className="wordmark-loading" aria-hidden="true">Caricamento…</span>
         <button
           className="wordmark-interaction" ref={control} type="button"
           aria-label="Ruota il logo SIAMO" aria-describedby="wordmark-instructions"

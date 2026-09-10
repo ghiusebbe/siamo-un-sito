@@ -14,7 +14,7 @@ active animation.
   contour into blocks, so their exterior matches the solid exactly. Run
   `npm run wordmark:prepare` after replacing the source PNG. The generated JSON
   records its SHA-256 and simplification tolerance.
-- `lib/wordmark-geometry.json` contains the complete outline and 35 occupied blocks.
+- `lib/wordmark-geometry.json` contains the complete outline and 60 occupied blocks.
   Longest-axis subdivision produces blocks instead of full-height columns.
 - `lib/wordmark-model.ts` creates actual `THREE.ExtrudeGeometry` objects, with
   0.72 units of depth for a 16-unit-wide logo, then merges the blocks into one
@@ -23,9 +23,19 @@ active animation.
   shades the caps and walls in one material. The travelling radial wave uses the
   earlier composition's speed, wavelength, width and decay, with added depth.
 - `lib/wordmark-scene.ts` owns the camera, interactions and GPU resource lifecycle.
-- `components/wordmark.tsx` imports the engine after the visible hero has mounted
-  and the browser has an idle slot. The original image stays visible until the
-  first successful render, with no change to the hero's dimensions.
+- `components/wordmark.tsx` imports the engine immediately when the hero mounts.
+  The original image is reserved for reduced motion, unavailable WebGL, or a
+  failed load. It is hidden before first paint while enhanced loading is pending.
+- `lib/intro.ts` and `components/site-intro.tsx` hold the entry curtain until the
+  scene has actually rendered both the animated and settled geometry. The wave
+  starts on curtain exit, after shaders and buffers are ready. Initial home loads,
+  including return visits, cannot expose the bitmap before the 3D canvas.
+
+The loader has an eight-second fallback, including an inline pre-hydration guard
+if the client bundle fails to arrive. Timed-out imports cannot replace the fallback
+later. Without JavaScript the original image is visible immediately. Other routes
+do not wait for a wordmark; client navigation to the home uses a local loading label
+until its canvas is ready. Neither path changes the hero's dimensions.
 
 ## Interaction
 
@@ -41,7 +51,7 @@ the original static logo and skips loading Three.js.
 
 ## Rendering budget
 
-The same 35 solid blocks are used on desktop and phones. One mesh draws them all;
+The same 60 solid blocks are used on desktop and phones. One mesh draws them all;
 only the wave age and origin change, with no per-block JavaScript transforms.
 When settled, the mesh uses the complete outline to hide subdivision seams.
 Camera size is independent of animation time.
@@ -50,12 +60,11 @@ Compared with the first Three.js version (`5f0cd28`):
 
 | Measure | Before | Now |
 | --- | ---: | ---: |
-| Animated triangles | 18,488 | 3,716 |
+| Animated triangles | 18,488 | 4,068 |
 | Settled triangles | 18,202 | 3,160 |
 | Logo draws per animated frame, before extra scene passes | 70 | 1 |
-| Geometry JSON, bytes | 98,626 | 21,776 |
-| Geometry JSON, gzip bytes | 19,376 | 4,260 |
-| Deferred scene chunk including Three.js, gzip bytes (Vinext) | 167,043 | 147,764 |
+| Geometry JSON, bytes | 98,626 | 24,991 |
+| Geometry JSON, gzip bytes | 19,376 | 4,933 |
 
 There are no environment bakes, shadow maps, reflection render targets or extra
 camera passes. Desktop adds only a two-triangle soft contact patch: two draws
@@ -63,26 +72,34 @@ total; phones use one. Desktop density is capped at 1.5, mobile at 1, and the
 drawing buffer is capped at 1.2 million pixels. Animation is limited to 60fps
 desktop / 30fps mobile. These are rendering limits, not measured frame rates.
 
-Rendering stops when settled, outside the viewport or in a hidden tab. A timer
-waits out the entry curtain without rendering frames behind it. Merely moving
-the pointer over the logo does not start a render loop. Geometry, materials,
-observers, timers and listeners are disposed on cleanup. WebGL failures retain
-the static fallback.
+Increasing the blocks from 35 to 60 adds only 352 triangles (9.5%) to the optimized
+animation, with the same single logo draw and unchanged mobile pixel/frame limits.
+
+At startup two settled renders warm the geometry and shader behind the curtain,
+then rendering stops until it exits. After entry, rendering stops when settled,
+outside the viewport or in a hidden tab. Merely moving the pointer over the logo
+does not start a render loop. Geometry, materials, observers, timers and listeners
+are disposed on cleanup. WebGL failures retain the static fallback.
 
 ## Verification
 
-`node --test tests/wordmark-three.test.mjs tests/rendered-html.test.mjs` passes
-16 checks: closed surfaces, positive volume, all 35 blocks and their GPU pivots,
+`node --test tests/wordmark-three.test.mjs tests/wordmark-loading.test.mjs tests/rendered-html.test.mjs`
+covers closed surfaces, positive volume, all 60 blocks and their GPU pivots,
 triangle and pixel budgets, travelling-wave behaviour, exact settled poses,
 source-silhouette overlap, and unclipped desktop/phone framing during the wave
-and full horizontal rotation. HTML checks cover the fallback and keyboard control.
-TypeScript, Vinext and Next.js production builds also pass.
+and full horizontal rotation. Nine loader checks cover slow/cached loads, early
+readiness, interrupted CSS, missing JavaScript, WebGL failure, reduced motion,
+other routes, Studio navigation, private storage and background tabs. HTML checks cover the bootstrap
+order, initially hidden enhanced logo, fallback and keyboard control. TypeScript,
+Vinext and Next.js production builds also pass.
 
-The actual wave shaders were compiled, linked and rendered offline with OpenGL ES
+The unchanged wave shaders were compiled, linked and rendered offline with OpenGL ES
 3.2 using the Three.js geometry and camera matrices. Six frames rendered without
 GL errors, and the two settled frames matched exactly. The authoring cloud browser
 has WebGL disabled, so this is not an end-to-end WebGL browser or gesture test.
-No physical-phone frame-rate measurement is claimed.
+The user confirmed the optimized 35-block version was fluid on mobile. The 60-block
+revision retains its rendering limits; no new physical-phone frame-rate measurement
+is claimed.
 
 ## Previous HyperFrames composition
 

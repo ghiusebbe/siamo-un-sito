@@ -1437,8 +1437,8 @@ html { scroll-padding-top: calc(var(--header-height) + 24px); }
   .related-nav { margin-top: 44px; }
 }
 
-/* Entry animation: symbol on black for ~1.5s, then the curtain lifts and the
-   home wordmark is revealed. Plays once per session (see components/site-intro.tsx). */
+/* The entry animation covers real loading. Only a ready frame releases the curtain. */
+html[data-intro="play"], html[data-intro="reveal"] { overflow: hidden; }
 .site-intro {
   position: fixed;
   inset: 0;
@@ -1447,14 +1447,14 @@ html { scroll-padding-top: calc(var(--header-height) + 24px); }
   place-items: center;
   background: var(--black);
   clip-path: inset(0 0 0 0);
-  animation: intro-curtain .5s cubic-bezier(.76, 0, .24, 1) 1.1s both;
-  pointer-events: none;
+  pointer-events: auto;
 }
-html[data-intro="play"] .site-intro { display: grid; }
+html[data-intro="play"] .site-intro, html[data-intro="reveal"] .site-intro { display: grid; }
+html[data-intro="reveal"] .site-intro { animation: intro-curtain .5s cubic-bezier(.76, 0, .24, 1) both; }
 .site-intro img {
   width: clamp(96px, 24vw, 200px);
   height: auto;
-  animation: intro-mark 1.6s var(--ease-out) both;
+  animation: intro-mark .6s var(--ease-out) both;
 }
 .site-intro::after {
   content: "";
@@ -1466,8 +1466,9 @@ html[data-intro="play"] .site-intro { display: grid; }
   background: var(--acid);
   transform-origin: left center;
   translate: -50% 0;
-  animation: intro-line 1.1s cubic-bezier(.4, 0, .2, 1) .15s both;
+  animation: intro-line 1.1s ease-in-out infinite alternate;
 }
+html[data-intro="reveal"] .site-intro::after { animation: none; transform: scaleX(1); }
 @keyframes intro-mark {
   0% { opacity: 0; transform: scale(.55) rotate(-10deg); }
   30% { opacity: 1; transform: scale(1.04) rotate(0); }
@@ -1475,8 +1476,8 @@ html[data-intro="play"] .site-intro { display: grid; }
   100% { transform: scale(1.06); }
 }
 @keyframes intro-line {
-  from { transform: scaleX(0); }
-  to { transform: scaleX(1); }
+  from { transform: scaleX(.12); opacity: .45; }
+  to { transform: scaleX(.8); opacity: 1; }
 }
 @keyframes intro-curtain {
   to { clip-path: inset(0 0 100% 0); }
@@ -1490,6 +1491,14 @@ html[data-intro="play"] .site-intro { display: grid; }
 }
 .wordmark[data-motion="ready"] .wordmark-face { opacity: 0; }
 .wordmark[data-motion="ready"] .wordmark-canvas { opacity: 1; }
+html[data-js="true"] .wordmark[data-motion="loading"] .wordmark-face { opacity: 0; }
+.wordmark-loading { display: none; }
+html[data-js="true"] .wordmark[data-motion="loading"] .wordmark-loading {
+  display: grid; position: absolute; inset: 0; place-items: center;
+  font-size: 11px; font-weight: 400; letter-spacing: .12em; color: #696964;
+}
+html[data-wordmark="fallback"] .wordmark[data-motion="loading"] .wordmark-face { opacity: 1; }
+html[data-wordmark="fallback"] .wordmark[data-motion="loading"] .wordmark-loading { display: none; }
 .wordmark-interaction {
   display: none; position: absolute; inset: 0; width: 100%; height: 100%;
   padding: 0; border: 0; background: transparent; color: inherit;
@@ -1500,8 +1509,9 @@ html[data-intro="play"] .site-intro { display: grid; }
 .wordmark-interaction:focus-visible { outline: 2px solid var(--black); outline-offset: 4px; }
 @media (prefers-reduced-motion: reduce) {
   .site-intro { display: none !important; }
-  .wordmark .wordmark-face { opacity: 1; }
-  .wordmark-canvas, .wordmark .wordmark-interaction { display: none; }
+  html .wordmark .wordmark-face { opacity: 1 !important; }
+  html .wordmark .wordmark-loading, .wordmark-canvas, .wordmark .wordmark-interaction { display: none !important; }
+  html[data-intro="play"], html[data-intro="reveal"] { overflow: visible; }
 }
 
 /* Timeline entries can point somewhere (CMS field "Collegamento"). */

@@ -12,12 +12,11 @@ type Options = {
   canvas: HTMLCanvasElement;
   container: HTMLElement;
   interaction: HTMLButtonElement;
-  introDelay: number;
   onReady: () => void;
   onError: () => void;
 };
 
-export function createWordmarkScene({ canvas, container, interaction, introDelay, onReady, onError }: Options) {
+export function createWordmarkScene({ canvas, container, interaction, onReady, onError }: Options) {
   const mobile = matchMedia("(max-width: 767px), (pointer: coarse) and (max-width: 1020px)");
   const renderer = new WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: "low-power" });
   renderer.outputColorSpace = SRGBColorSpace;
@@ -57,36 +56,29 @@ export function createWordmarkScene({ canvas, container, interaction, introDelay
 
   let disposed = false, failed = false, visible = true, ready = false;
   let frame = 0, last = 0, lastPaint = 0;
-  let introTimer: ReturnType<typeof setTimeout> | undefined;
-  const availableAt = performance.now() + introDelay;
-  let waveStart = Infinity, interval = 1000 / 60;
+  let waveStart = -Infinity, interval = 1000 / 60;
   const target = { ...REST_ROTATION };
   let drag: { id: number; x: number; y: number; angleX: number; angleY: number; moved: boolean } | null = null;
   let ignoreClick = false;
 
   function stop() {
     cancelAnimationFrame(frame); frame = 0; last = 0;
-    if (introTimer !== undefined) { clearTimeout(introTimer); introTimer = undefined; }
   }
   function schedule() {
-    if (disposed || failed || !visible || document.hidden || frame || introTimer !== undefined) return;
-    const delay = availableAt - performance.now();
-    if (delay > 0) {
-      introTimer = setTimeout(() => { introTimer = undefined; schedule(); }, delay);
-    } else frame = requestAnimationFrame(paint);
+    if (disposed || failed || (!visible && ready) || document.hidden || frame) return;
+    frame = requestAnimationFrame(paint);
   }
   function paint(now: number) {
     frame = 0;
-    if (disposed || failed || !visible || document.hidden) return;
+    if (disposed || failed || (!visible && ready) || document.hidden) return;
     if (lastPaint && now - lastPaint < interval - 1) { schedule(); return; }
     lastPaint = now;
     const dt = Math.min((now - (last || now - interval)) / 1000, 0.05);
     last = now;
-    if (waveStart === Infinity) waveStart = now;
     const age = (now - waveStart) / 1000;
     const waving = age < WAVE.duration;
     material.uniforms.waveAge.value = waving ? age : WAVE.duration;
-    mark.geometry = waving ? geometry.animated : geometry.solid;
+    mark.geometry = waving || !ready ? geometry.animated : geometry.solid;
     logo.rotation.x = MathUtils.damp(logo.rotation.x, target.x, 12, dt);
     logo.rotation.y = MathUtils.damp(logo.rotation.y, target.y, 12, dt);
     const settling = Math.abs(logo.rotation.x - target.x) + Math.abs(logo.rotation.y - target.y) > 0.0001;
@@ -95,7 +87,13 @@ export function createWordmarkScene({ canvas, container, interaction, introDelay
     try {
       renderer.render(scene, camera);
       if (failed) return;
-      if (!ready) { ready = true; onReady(); }
+      // Upload both poses and compile the real shader before revealing the canvas.
+      if (!ready) {
+        mark.geometry = geometry.solid;
+        renderer.render(scene, camera);
+        if (failed) return;
+        ready = true; onReady();
+      }
     } catch { failed = true; stop(); onError(); return; }
     if (waving || settling) schedule();
     else last = 0;
@@ -181,14 +179,14 @@ export function createWordmarkScene({ canvas, container, interaction, introDelay
     event.preventDefault(); failed = true; stop(); onError();
   }
   function contextRestored() {
-    failed = false; ready = false; waveStart = Infinity; resize();
+    failed = false; ready = false; waveStart = -Infinity; resize();
   }
   renderer.debug.onShaderError = () => { failed = true; stop(); onError(); };
   const observer = new ResizeObserver(resize);
   observer.observe(container);
   const intersection = new IntersectionObserver(([entry]) => {
     visible = entry.isIntersecting;
-    if (visible) schedule(); else { release(); stop(); }
+    if (visible || !ready) schedule(); else { release(); stop(); }
   });
   intersection.observe(container);
   interaction.addEventListener("pointerdown", down);
@@ -208,6 +206,11 @@ export function createWordmarkScene({ canvas, container, interaction, introDelay
   resize();
 
   return {
+    playEntrance() {
+      if (disposed || failed || !ready) return;
+      material.uniforms.waveOrigin.value.set(-8.4, 0);
+      waveStart = performance.now(); schedule();
+    },
     dispose() {
       disposed = true; stop(); release(); observer.disconnect(); intersection.disconnect();
       interaction.removeEventListener("pointerdown", down);
