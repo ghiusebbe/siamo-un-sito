@@ -1,90 +1,109 @@
-# SIAMO — campo tipografico in rilievo
+# SIAMO — Three.js wordmark
 
-128 fragments of the original transparent logo assemble along a fan-shaped field.
-The website adds local pointer displacement and a tap/keyboard impulse. The
-HyperFrames composition demonstrates those same interactions deterministically.
-Both use `public/brand/wordmark-motion.mjs`; no video is loaded by the website.
+The homepage uses Three.js 0.186.0 and a WebGL2 renderer. The wordmark is a
+triangulated, extruded solid with front and back caps and side walls, including
+the holes in the letters. It is built from the alpha outline of the original
+`public/brand/siamo-wordmark-black.png`; the bitmap is only the accessible fallback.
+No font substitution, image planes, Canvas2D extrusion or video is used by the
+active animation.
 
-The shared Canvas renderer now bakes a 32-unit silhouette extrusion with charcoal
-sides and a narrow bevel. It thickens the original bitmap mask before slicing,
-retaining the custom wordmark rather than replacing it with a font. The moving
-blocks share a soft floor shadow and a compressed, subdued reflection. This is a
-Canvas 2.5D extrusion, not a WebGL mesh or a freely orbitable 3D model.
+## Source
 
-The fixed stage leaves space below for the floor at every timestamp. Source
-pixels are normalized before slicing, and the same draw path is used during the
-entrance and final hold, preventing a final-frame size jump. Cached per-block
-surfaces avoid rebuilding the extrusion in the animation loop.
+- `scripts/prepare-wordmark-geometry.mjs` traces the original silhouette with a
+  one-source-pixel tolerance, retaining the holes and stars. It clips this shared
+  contour into blocks, so their exterior matches the solid exactly. Run
+  `npm run wordmark:prepare` after replacing the source PNG. The generated JSON
+  records its SHA-256 and simplification tolerance.
+- `lib/wordmark-geometry.json` contains the complete outline and 60 occupied blocks.
+  Longest-axis subdivision produces blocks instead of full-height columns.
+- `lib/wordmark-model.ts` creates actual `THREE.ExtrudeGeometry` objects, with
+  0.72 units of depth for a 16-unit-wide logo, then merges the blocks into one
+  geometry with a centre attribute for each block.
+- `lib/wordmark-material.ts` moves the blocks rigidly in its vertex shader and
+  shades the caps and walls in one material. The travelling radial wave uses the
+  earlier composition's speed, wavelength, width and decay, with added depth.
+- `lib/wordmark-scene.ts` owns the camera, interactions and GPU resource lifecycle.
+- `components/wordmark.tsx` imports the engine immediately when the hero mounts.
+  The original image is reserved for reduced motion, unavailable WebGL, or a
+  failed load. It is hidden before first paint while enhanced loading is pending.
+- `lib/intro.ts` and `components/site-intro.tsx` hold the entry curtain until the
+  scene has actually rendered both the animated and settled geometry. The wave
+  starts on curtain exit, after shaders and buffers are ready. Initial home loads,
+  including return visits, cannot expose the bitmap before the 3D canvas.
 
-Run `node scripts/prepare-wordmark-motion.mjs` from the repository root after
-changing the shared renderer, then from `motion/wordmark`:
+The loader has an eight-second fallback, including an inline pre-hydration guard
+if the client bundle fails to arrive. Timed-out imports cannot replace the fallback
+later. Without JavaScript the original image is visible immediately. Other routes
+do not wait for a wordmark; client navigation to the home uses a local loading label
+until its canvas is ready. Neither path changes the hero's dimensions.
 
-```sh
-npx --yes hyperframes@0.8.30 lint
-npx --yes hyperframes@0.8.30 check --snapshots
-npx --yes hyperframes@0.8.30 render --fps 60 --quality high --output wordmark.mp4
-```
+## Interaction
 
-The fixed 2200 × 546 composition lasts 7.5 seconds. The website entrance lasts
-2.8 seconds, waits for the entry curtain, and preserves the existing responsive
-hero dimensions. Canvas resolution is capped at 2× device density. Animation
-stops when settled or outside the viewport. Reduced motion and JavaScript/image
-loading failures keep the original accessible image visible.
+An entrance wave crosses the assembled logo after the intro curtain. Click or
+tap sends a radial ripple from that point; Enter or Space sends one from the
+centre. Blocks lift and roll locally, then return to the original silhouette.
+There is no scattered assembly, global burst or hover tilt.
 
-`preview.html` is a standalone interactive preview generated from the same source;
-open it in a browser, move the pointer over the logo, click/tap, or use Enter/Space.
-It is not the HyperFrames render. The HyperFrames CLI installation was blocked
-by a canceled network approval in the authoring environment, so CLI rendering
-and browser snapshot validation have not been completed here.
-
-GSAP 3.15.0 is included only for the authoring composition; its license notice is
-preserved in `assets/gsap.min.js`. It is not bundled into the website component.
-
-## Occlusion and floor rendering
-
-Side volumes are painted in a separate pass before all front faces. Sorting
-whole block sprites by screen Y was incorrect for this coplanar extrusion and
-made the internal cutting grid show through neighbouring faces.
-
-Shadow and reflection are projected from the completed scene, once per frame.
-The reflection uses one common floor transform and a continuous alpha gradient.
-The shadow is blurred after projection, with opacity applied once, preventing
-stacked dark strips at overlaps. Offscreen frame buffers are reused.
-
-Verified in browser at 1100px and 390px canvas widths: assembly, final hold,
-pointer displacement and tap-wave frames. The CLI export limitation above
-still applies; browser verification uses the shared renderer directly.
+Drag horizontally to rotate through 360 degrees; vertical rotation is limited.
+Arrow keys rotate; Escape, R or a double-click return to the initial view and stop
+the wave. Touch scrolling and pinch zoom remain available. Reduced motion uses
+the original static logo and skips loading Three.js.
 
 ## Rendering budget
 
-Frame buffers now follow the output canvas pixel dimensions, capped at the
-2200 × 546 composition size. Reflection and shadow buffers only cover the
-166-unit floor band. At a 390px CSS width and 2× density (780 × 194 canvas),
-the three frame buffers use 243,360 pixels instead of 3,603,600 (93.2% fewer).
-At full composition resolution they use 1,931,600 pixels (46.4% fewer).
-These figures describe frame-buffer storage/coverage, not an FPS improvement
-or total memory, which also includes cached sprites.
+The same 60 solid blocks are used on desktop and phones. One mesh draws them all;
+only the wave age and origin change, with no per-block JavaScript transforms.
+When settled, the mesh uses the complete outline to hide subdivision seams.
+Camera size is independent of animation time.
 
-Buffers and their fade gradient are reused until the output size changes.
-Completely transparent tiles skip both paint passes; frame zero skips sprite
-baking entirely. Each tile's front texture is also shared between the bake
-and the front-face pass. Geometry, timing, interactions and full-resolution
-HyperFrames output are unchanged.
+Compared with the first Three.js version (`5f0cd28`):
 
-Focused geometry and buffer-size tests pass. The browser timing comparison
-was interrupted, so no measured frame-time improvement is claimed.
+| Measure | Before | Now |
+| --- | ---: | ---: |
+| Animated triangles | 18,488 | 4,068 |
+| Settled triangles | 18,202 | 3,160 |
+| Logo draws per animated frame, before extra scene passes | 70 | 1 |
+| Geometry JSON, bytes | 98,626 | 24,991 |
+| Geometry JSON, gzip bytes | 19,376 | 4,933 |
 
-## Mobile-only quality profile
+There are no environment bakes, shadow maps, reflection render targets or extra
+camera passes. Desktop adds only a two-triangle soft contact patch: two draws
+total; phones use one. Desktop density is capped at 1.5, mobile at 1, and the
+drawing buffer is capped at 1.2 million pixels. Animation is limited to 60fps
+desktop / 30fps mobile. These are rendering limits, not measured frame rates.
 
-The website selects `drawWordmarkMobile` below 768px, or on coarse-pointer
-screens up to 1020px (including phone landscape). Desktop and HyperFrames keep
-`drawWordmark` and the full composition. Media-query changes resize and redraw
-without restarting the entrance.
+Increasing the blocks from 35 to 60 adds only 352 triangles (9.5%) to the optimized
+animation, with the same single logo draw and unchanged mobile pixel/frame limits.
 
-Mobile uses 20 full-height strips, half-resolution cached face/side sprites,
-a cached contact shadow, and no animated reflection or full-frame compositing
-buffers. A settled frame needs 41 draw calls instead of the desktop renderer’s
-256 fragment draws plus composition passes. Output density is capped at 1.25×
-and drawing at 30fps, with movement still driven by elapsed time. Tap/keyboard
-impulses, reduced motion, offscreen suspension and the stable final size remain.
-No FPS claim is made for physical phones; this bounds the work per frame.
+At startup two settled renders warm the geometry and shader behind the curtain,
+then rendering stops until it exits. After entry, rendering stops when settled,
+outside the viewport or in a hidden tab. Merely moving the pointer over the logo
+does not start a render loop. Geometry, materials, observers, timers and listeners
+are disposed on cleanup. WebGL failures retain the static fallback.
+
+## Verification
+
+`node --test tests/wordmark-three.test.mjs tests/wordmark-loading.test.mjs tests/rendered-html.test.mjs`
+covers closed surfaces, positive volume, all 60 blocks and their GPU pivots,
+triangle and pixel budgets, travelling-wave behaviour, exact settled poses,
+source-silhouette overlap, and unclipped desktop/phone framing during the wave
+and full horizontal rotation. Nine loader checks cover slow/cached loads, early
+readiness, interrupted CSS, missing JavaScript, WebGL failure, reduced motion,
+other routes, Studio navigation, private storage and background tabs. HTML checks cover the bootstrap
+order, initially hidden enhanced logo, fallback and keyboard control. TypeScript,
+Vinext and Next.js production builds also pass.
+
+The unchanged wave shaders were compiled, linked and rendered offline with OpenGL ES
+3.2 using the Three.js geometry and camera matrices. Six frames rendered without
+GL errors, and the two settled frames matched exactly. The authoring cloud browser
+has WebGL disabled, so this is not an end-to-end WebGL browser or gesture test.
+The user confirmed the optimized 35-block version was fluid on mobile. The 60-block
+revision retains its rendering limits; no new physical-phone frame-rate measurement
+is claimed.
+
+## Previous HyperFrames composition
+
+`public/brand/wordmark-motion.mjs`, `assets/`, `index.html`, `preview.html` and
+`scripts/prepare-wordmark-motion.mjs` remain as the earlier Canvas2D/HyperFrames
+composition. They are not imported by the homepage. Its old tests describe that
+archived renderer; they do not validate the new Three.js scene.

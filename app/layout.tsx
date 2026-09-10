@@ -6,13 +6,10 @@ import { Header } from "@/components/header";
 import { SiteChrome } from "@/components/site-chrome";
 import { SiteIntro } from "@/components/site-intro";
 import { adsenseAccount } from "@/lib/advertising";
-import { INTRO_STORAGE_KEY } from "@/lib/intro";
+import { INTRO_SCRIPT } from "@/lib/intro";
 import { StructuredData } from "@/components/structured-data";
 import { homeTitle, siteDescription, siteStructuredData } from "@/lib/seo";
 import { siteUrl } from "@/lib/site-url";
-
-// Runs before first paint: decides whether the entry animation plays this session.
-const introScript = `try{document.documentElement.dataset.intro=sessionStorage.getItem(${JSON.stringify(INTRO_STORAGE_KEY)})?"skip":"play"}catch(e){document.documentElement.dataset.intro="play"}`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -52,7 +49,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsense.clientId}`}
           />
         ) : null}
-        <script dangerouslySetInnerHTML={{ __html: introScript }} />
+        <script dangerouslySetInnerHTML={{ __html: INTRO_SCRIPT }} />
         <SiteChrome>
           <SiteIntro />
           <a className="skip-link" href="#contenuto">Vai al contenuto</a>
