@@ -1482,20 +1482,20 @@ html[data-intro="play"] .site-intro { display: grid; }
   to { clip-path: inset(0 0 100% 0); }
 }
 
-/* The canvas shares the image's contain sizing, so interaction coordinates
-   remain correct even in the compact mobile hero. */
+/* One fixed stage for the whole Three.js scene, including rotation and floor.
+   Camera framing adapts to this box without changing the layout mid-animation. */
 .wordmark-canvas {
-  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-  width: 100%; height: auto; max-height: 100%; aspect-ratio: 2200 / 546;
-  object-fit: contain; pointer-events: none; opacity: 0;
+  position: absolute; inset: 0; display: block;
+  width: 100%; height: 100%; pointer-events: none; opacity: 0;
 }
 .wordmark[data-motion="ready"] .wordmark-face { opacity: 0; }
 .wordmark[data-motion="ready"] .wordmark-canvas { opacity: 1; }
 .wordmark-interaction {
   display: none; position: absolute; inset: 0; width: 100%; height: 100%;
   padding: 0; border: 0; background: transparent; color: inherit;
-  cursor: crosshair; touch-action: pan-y; border-radius: 4px;
+  cursor: grab; touch-action: pan-y pinch-zoom; border-radius: 4px;
 }
+.wordmark-interaction[data-dragging="true"] { cursor: grabbing; }
 .wordmark[data-motion="ready"] .wordmark-interaction { display: block; }
 .wordmark-interaction:focus-visible { outline: 2px solid var(--black); outline-offset: 4px; }
 @media (prefers-reduced-motion: reduce) {

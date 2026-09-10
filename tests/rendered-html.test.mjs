@@ -39,7 +39,7 @@ test("renders the accessible responsive site shell", async () => {
   assert.match(html, /aria-controls="mobile-menu"/i);
   assert.match(html, /class="home-feed"/i);
   assert.match(html, /aria-label="Esplora SIAMO"/i);
-  assert.match(html, /<h1 class="wordmark">[\s\S]*?SIAMO — magazine di musica e cultura emergente/i);
+  assert.match(html, /<h1 class="wordmark"[^>]*aria-labelledby="wordmark-title"[\s\S]*?SIAMO — magazine di musica e cultura emergente/i);
   assert.match(html, /class="dynamic-title[^"']*"[^>]*aria-label="Dal feed\."/i);
   assert.doesNotMatch(html, /class="article-ad(?:\s|"|-)/i);
   // Placeholder figures are gone from the fallback content.
@@ -134,9 +134,9 @@ test("fills the article ad spaces only for a configured account", async () => {
 test("keeps an accessible image fallback and keyboard control for the wordmark", async () => {
   const { html } = await render("/");
 
-  assert.match(html, /<span class="sr-only">SIAMO — magazine di musica e cultura emergente<\/span>/);
+  assert.match(html, /<span class="sr-only" id="wordmark-title">SIAMO — magazine di musica e cultura emergente<\/span>/);
   assert.match(html, /<canvas[^>]*aria-hidden="true"/);
-  assert.match(html, /<button[^>]*type="button"[^>]*aria-label="Anima il logo"/);
+  assert.match(html, /<button[^>]*type="button"[^>]*aria-label="Ruota il logo SIAMO"[^>]*aria-describedby="wordmark-instructions"/);
 });
 
 test("caps editorial titles to what their container can hold", async () => {
