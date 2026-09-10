@@ -19,8 +19,8 @@ export const INTRO_SCRIPT = `(function(){
   root.dataset.intro=reduce||studio||(!home&&seen)?"skip":"play";
   if(home)root.dataset.wordmark=reduce?"fallback":"loading";
   if(root.dataset.intro==="play")setTimeout(function expire(){
-    if(document.hidden){setTimeout(expire,1000);return}
     if(root.dataset.intro==="skip")return;
+    if(document.hidden){setTimeout(expire,1000);return}
     if(root.dataset.wordmark==="loading")root.dataset.wordmark="fallback";
     root.dataset.intro="skip";
     window.dispatchEvent(new Event(${JSON.stringify(WORDMARK_READY_EVENT)}));

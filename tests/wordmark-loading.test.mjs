@@ -27,6 +27,7 @@ function browser({ seen = false, reduce = false, pathname = '/', storageError = 
   return {
     win, document, preference, overlay, data: document.documentElement.dataset,
     finished: () => finished,
+    pendingTimers: () => timers.size,
     connect: () => connectIntro(win),
     ready(status = 'ready') { document.documentElement.dataset.wordmark = status; win.dispatchEvent(new Event(WORDMARK_READY_EVENT)); },
     end(animationName = 'intro-curtain') {
@@ -58,9 +59,11 @@ test('slow loading keeps the curtain closed until the real 3D frame is ready', (
   b.end();
   assert.equal(b.data.intro, 'skip');
   assert.equal(b.finished(), 1, 'the wave starts only when the curtain has exited');
+  b.document.hidden = true;
   b.advance(INTRO_LOAD_TIMEOUT);
   assert.equal(b.data.wordmark, 'ready');
   assert.equal(b.finished(), 1);
+  assert.equal(b.pendingTimers(), 0, 'a completed loader must not poll in a background tab');
   disconnect();
 });
 
