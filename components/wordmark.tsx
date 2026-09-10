@@ -74,11 +74,12 @@ export function Wordmark() {
         <button
           className="wordmark-interaction" ref={control} type="button"
           aria-label="Ruota il logo SIAMO" aria-describedby="wordmark-instructions"
-          title="Trascina per ruotare. Tocca per animare."
+          title="Tocca per creare un’onda. Trascina per ruotare."
         />
         <span id="wordmark-instructions" className="sr-only">
           Trascina in orizzontale o usa i tasti freccia per ruotare il logo.
-          Invio o spazio animano i blocchi. Esc riporta il logo alla vista iniziale.
+          Tocca il logo oppure premi invio o spazio per creare un’onda.
+          Esc riporta il logo alla vista iniziale.
         </span>
       </span>
     </h1>

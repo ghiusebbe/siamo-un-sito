@@ -2,12 +2,15 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import sharp from 'sharp';
+import { ShapeUtils, Vector2 } from 'three';
 
 const source = new URL('../public/brand/siamo-wordmark-black.png', import.meta.url);
 const bytes = await readFile(source);
 const { data, info: { width, height } } = await sharp(bytes).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
 const mask = Uint8Array.from({ length: width * height }, (_, i) => Number(data[i * 4 + 3] >= 128));
 const filled = (x, y) => x >= 0 && y >= 0 && x < width && y < height && mask[y * width + x];
+// One source pixel removes the raster staircase, below a display pixel even on desktop.
+const tolerance = 1;
 const area = points => points.reduce((sum, [x, y], i) => {
   const [nx, ny] = points[(i + 1) % points.length];
   return sum + x * ny - nx * y;
@@ -24,7 +27,7 @@ function simplify(points) {
     const d = (x - ax - t * dx) ** 2 + (y - ay - t * dy) ** 2;
     if (d > distance) { distance = d; farthest = i; }
   }
-  return distance > 0.55 ** 2
+  return distance > tolerance ** 2
     ? [...simplify(points.slice(0, farthest + 1)).slice(0, -1), ...simplify(points.slice(farthest))]
     : [points[0], points.at(-1)];
 }
@@ -36,6 +39,17 @@ function contains(ring, [x, y]) {
     if ((b > y) !== (d > y) && x < (c - a) * (y - b) / (d - b) + a) inside = !inside;
   }
   return inside;
+}
+
+function groupRings(rings) {
+  const shapes = rings.filter(ring => area(ring) > 0).map(outer => ({ outer, holes: [] }));
+  for (const hole of rings.filter(ring => area(ring) < 0)) {
+    const parent = shapes.filter(shape => contains(shape.outer, hole[0]))
+      .sort((a, b) => area(a.outer) - area(b.outer))[0];
+    if (!parent) throw new Error('Unattached silhouette hole');
+    parent.holes.push(hole);
+  }
+  return shapes;
 }
 
 function trace([left, top, right, bottom]) {
@@ -75,14 +89,75 @@ function trace([left, top, right, bottom]) {
     const reduced = simplify([...points, points[0]]).slice(0, -1);
     if (reduced.length >= 3 && Math.abs(area(reduced)) >= 2) rings.push(reduced);
   }
-  const shapes = rings.filter(ring => area(ring) > 0).map(outer => ({ outer, holes: [] }));
-  for (const hole of rings.filter(ring => area(ring) < 0)) {
-    const parent = shapes.filter(shape => contains(shape.outer, hole[0]))
-      .sort((a, b) => area(a.outer) - area(b.outer))[0];
-    if (!parent) throw new Error('Unattached silhouette hole');
-    parent.holes.push(hole);
+  return groupRings(rings);
+}
+
+// Clip the already-simplified silhouette, so every block shares the exact same
+// exterior contour as the solid. Retracing each block would simplify it differently.
+function clipTriangles(triangles, [left, top, right, bottom]) {
+  const edges = new Map();
+  const key = point => point.map(n => Number(n.toFixed(6))).join(',');
+  for (const triangle of triangles) {
+    let polygon = triangle;
+    for (const [axis, limit, sign] of [[0, left, 1], [0, right, -1], [1, top, 1], [1, bottom, -1]]) {
+      const clipped = [];
+      for (let i = 0; i < polygon.length; i++) {
+        const a = polygon[i], b = polygon[(i + 1) % polygon.length];
+        const aIn = (a[axis] - limit) * sign >= 0, bIn = (b[axis] - limit) * sign >= 0;
+        if (aIn) clipped.push(a);
+        if (aIn !== bIn) {
+          const t = (limit - a[axis]) / (b[axis] - a[axis]);
+          const p = [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+          p[axis] = limit; clipped.push(p);
+        }
+      }
+      polygon = clipped;
+    }
+    if (polygon.length < 3 || Math.abs(area(polygon)) < 1e-8) continue;
+    if (area(polygon) < 0) polygon.reverse();
+    for (let i = 0; i < polygon.length; i++) {
+      const a = key(polygon[i]), b = key(polygon[(i + 1) % polygon.length]);
+      if (a === b) continue;
+      if (edges.has(`${b}|${a}`)) edges.delete(`${b}|${a}`);
+      else edges.set(`${a}|${b}`, [a, b]);
+    }
   }
-  return shapes;
+  const outgoing = new Map();
+  for (const [a, b] of edges.values()) {
+    if (!outgoing.has(a)) outgoing.set(a, []);
+    outgoing.get(a).push(b);
+  }
+  const point = key => key.split(',').map(Number);
+  const rings = [];
+  while (outgoing.size) {
+    const start = outgoing.keys().next().value;
+    let cursor = start, previous = null;
+    const ring = [];
+    do {
+      const p = point(cursor); ring.push(p);
+      const candidates = outgoing.get(cursor);
+      if (!candidates?.length) throw new Error('Open clipped contour');
+      if (previous && candidates.length > 1) {
+        const dx = p[0] - previous[0], dy = p[1] - previous[1];
+        const turn = candidate => {
+          const q = point(candidate), x = q[0] - p[0], y = q[1] - p[1];
+          return Math.atan2(dx * y - dy * x, dx * x + dy * y);
+        };
+        candidates.sort((a, b) => turn(b) - turn(a));
+      }
+      const next = candidates.shift();
+      if (!candidates.length) outgoing.delete(cursor);
+      previous = p; cursor = next;
+    } while (cursor !== start);
+    // Clipping introduces points on straight cut lines. Remove only collinear
+    // points; applying the raster tolerance again would change the silhouette.
+    const reduced = ring.filter((b, i) => {
+      const a = ring[(i + ring.length - 1) % ring.length], c = ring[(i + 1) % ring.length];
+      return Math.abs((b[0] - a[0]) * (c[1] - b[1]) - (b[1] - a[1]) * (c[0] - b[0])) > 1e-5;
+    });
+    if (reduced.length >= 3 && Math.abs(area(reduced)) > 1e-8) rings.push(reduced);
+  }
+  return groupRings(rings);
 }
 
 function measure(bounds) {
@@ -108,12 +183,19 @@ while (leaves.length < 35) {
   leaves.push(...children);
 }
 leaves.sort((a, b) => a.extent[0] - b.extent[0] || a.extent[1] - b.extent[1]);
+const outline = trace([0, 0, width, height]);
+const triangles = outline.flatMap(shape => {
+  const rings = [shape.outer, ...shape.holes].map(ring => ring.map(([x, y]) => new Vector2(x, y)));
+  const points = [shape.outer, ...shape.holes].flat();
+  return ShapeUtils.triangulateShape(rings[0], rings.slice(1)).map(face => face.map(i => points[i]));
+});
 const model = {
   source: 'siamo-wordmark-black.png',
   sourceSha256: createHash('sha256').update(bytes).digest('hex'),
+  tolerance,
   width, height,
-  outline: trace([0, 0, width, height]),
-  blocks: leaves.map(({ bounds, extent }) => ({ bounds: extent, shapes: trace(bounds) })),
+  outline,
+  blocks: leaves.map(({ bounds, extent }) => ({ bounds: extent, shapes: clipTriangles(triangles, bounds) })),
 };
 await writeFile(new URL('../lib/wordmark-geometry.json', import.meta.url), `${JSON.stringify(model)}\n`);
 console.log(`Traced ${model.outline.length} shapes, ${model.outline.reduce((sum, shape) => sum + shape.holes.length, 0)} holes and ${model.blocks.length} solid blocks from ${width}×${height} alpha pixels.`);
