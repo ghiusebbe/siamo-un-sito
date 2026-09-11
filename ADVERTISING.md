@@ -58,7 +58,7 @@ Ricorda di riportare in `ads.txt` tutte le righe che Google elenca per l'account
 
 Gli annunci in Italia richiedono un CMP certificato IAB TCF. Usiamo *Privacy e messaggi* (Funding Choices) di Ad Manager: crea un messaggio GDPR, associa il dominio e pubblicalo. Non serve aggiungere script — Google Publisher Tag carica il CMP da sé sulle pagine che hanno uno spazio configurato, e trattiene le richieste di annuncio finché non arriva il segnale TCF, quindi nessun annuncio parte prima della scelta dell'utente.
 
-Il footer mostra "Gestisci il consenso" (`components/consent-link.tsx`) appena il CMP si annuncia: riapre il messaggio per revocare o modificare la scelta, come richiede il GDPR. Finché la pubblicità è spenta il pulsante non compare.
+Il footer mostra "Gestisci il consenso" (`components/consent-link.tsx`) quando il CMP ha registrato una scelta da riaprire: riapre il messaggio per revocarla o modificarla, come richiede il GDPR. Non basta che esista `showRevocationMessage`, perché il tag AdSense porta Funding Choices su ogni pagina, anche dove il messaggio non è mai comparso, e lì il pulsante non farebbe nulla. Finché la pubblicità è spenta il pulsante non compare.
 
 Resta da scrivere la pagina privacy e cookie policy, a cui il messaggio di consenso deve puntare: oggi il sito non ne ha una.
 
