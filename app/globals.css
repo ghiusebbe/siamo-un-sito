@@ -118,6 +118,9 @@ button, input { font: inherit; }
 .magazine-card > div:last-child { padding: 18px 2px 0; }
 .magazine-card h3 { margin: 4px 0 18px; font-size: 22px; letter-spacing: -.035em; }
 .magazine-card span { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
+.magazine-status { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 0; }
+.magazine-status strong { display: inline-flex; align-items: center; min-height: 44px; padding: 0 17px; border: 1px solid var(--acid); border-radius: 999px; color: var(--acid); font-weight: 800; }
+.magazine-card .magazine-countdown, .magazine-card .magazine-countdown span { color: var(--white); font-variant-numeric: tabular-nums; }
 .acid-button { display: inline-flex; align-items: center; background: var(--acid); color: var(--black); border-radius: 999px; padding: 10px 17px; font-weight: 800; transition: transform .2s ease, box-shadow .2s ease; }
 .acid-button:hover { transform: translateY(-2px); box-shadow: 0 0 28px rgba(69,255,22,.25); }
 
@@ -161,6 +164,8 @@ button, input { font: inherit; }
 .form-message { grid-column: 1 / -1; margin: 8px 0 0; color: #c9c9c5; }
 .form-message.error { color: #ff8d8d; }
 .form-message.success { color: var(--acid); }
+/* Anti-bot field: out of layout and out of sight, unlike .sr-only it is also hidden from screen readers via aria-hidden. */
+.newsletter-trap { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
 .page-hero { min-height: 420px; padding: 95px 0 70px; display: flex; flex-direction: column; justify-content: flex-end; }
 .page-hero h1 { margin: 20px 0 0; font-size: clamp(72px, 14vw, 172px); letter-spacing: -.09em; line-height: .75; }

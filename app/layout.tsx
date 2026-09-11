@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { preload } from "react-dom";
 import "./globals.css";
+import { AdsenseScript } from "@/components/adsense-script";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import { SiteChrome } from "@/components/site-chrome";
@@ -27,8 +28,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   // Both cuts sit on the critical path of every heading: fetch them with the HTML.
   preload("/fonts/Helvetica-Regular.woff2", fontPreloadOptions);
   preload("/fonts/Helvetica-Bold.woff2", fontPreloadOptions);
-  // AdSense verifies ownership and serves through this tag on every page; the
-  // consent message still gates what it may request. React hoists it to head.
+  // AdSense verifies ownership and serves through this tag on every public
+  // page, never in the Studio; the consent message still gates what it may request.
   const adsense = adsenseAccount();
 
   return (
@@ -42,13 +43,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             a preview build. Root-relative is right on whatever host serves it. */}
         <link rel="alternate" type="application/rss+xml" title="SIAMO — articoli" href="/feed.xml" />
         <link rel="icon" href="/icon.png" type="image/png" sizes="512x512" />
-        {adsense ? (
-          <script
-            async
-            crossOrigin="anonymous"
-            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsense.clientId}`}
-          />
-        ) : null}
+        {adsense ? <AdsenseScript clientId={adsense.clientId} /> : null}
         <script dangerouslySetInnerHTML={{ __html: INTRO_SCRIPT }} />
         <SiteChrome>
           <SiteIntro />

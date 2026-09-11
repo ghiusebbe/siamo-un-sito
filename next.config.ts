@@ -2,6 +2,16 @@ import type { NextConfig } from "next";
 import { PHASE_DEVELOPMENT_SERVER, PHASE_PRODUCTION_BUILD } from "next/constants";
 import { prepareImages } from "./scripts/prepare-images.mjs";
 
+const securityHeaders = [
+  // Nothing here is meant to be framed. Above all the Studio, whose Publish and
+  // Delete buttons must not be clickable through someone else's page.
+  { key: "Content-Security-Policy", value: "frame-ancestors 'none'; object-src 'none'; base-uri 'self'" },
+  { key: "X-Frame-Options", value: "DENY" },
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=(), usb=()" },
+];
+
 const nextConfig: NextConfig = {
   images: {
     // SiteImage uses prebuilt local WebP variants and resizes remote media at Sanity.
@@ -17,6 +27,17 @@ const nextConfig: NextConfig = {
         pathname: "/images/**",
       },
     ],
+  },
+  async headers() {
+    return [
+      { source: "/:path*", headers: securityHeaders },
+      // Content-hashed file names: a new image always gets a new URL.
+      { source: "/optimized-media/:path*", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] },
+      // Stable names that could be replaced in place: long, but not forever.
+      { source: "/fonts/:path*", headers: [{ key: "Cache-Control", value: "public, max-age=2592000, stale-while-revalidate=86400" }] },
+      { source: "/brand/:path*", headers: [{ key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }] },
+      { source: "/media/:path*", headers: [{ key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }] },
+    ];
   },
   async redirects() {
     return [

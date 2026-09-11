@@ -3,6 +3,7 @@
 ## Cosa fa il progetto
 
 - `POST /api/newsletter` registra l'indirizzo nella lista Brevo dopo email valida e consenso esplicito. Nessun invio di email da Sanity o dal sito.
+- L'endpoint accetta solo JSON e rifiuta le richieste con `Origin` di altri siti (403). Un campo nascosto nel form ferma i bot più semplici senza contattare Brevo. Un limite di 5 tentativi ogni 10 minuti per IP frena gli invii a raffica, ma vale per singola istanza serverless: per un limite reale configura una regola di rate limiting su `/api/newsletter` nel firewall di Vercel.
 - `GET /feed.xml` pubblica fino a 50 articoli Sanity: titolo, copertina, anteprima, autore, data e link. Esclude bozze, date future e documenti incompleti. Se Sanity non risponde restituisce 503; non usa i contenuti dimostrativi del sito.
 - L'identificatore RSS deriva dall'ID Sanity; la data è `publishedAt`, mai `_updatedAt`. Per correggere un articolo senza riproporlo nella newsletter, conserva la data di pubblicazione. Non cancellare e ricreare il documento.
 - Brevo legge il feed e decide quando spedire. Non serve un webhook, un cron a pagamento o Gmail.
@@ -20,7 +21,14 @@
 
    `42` è un esempio. Usa lo stesso ID anche come lista destinatari RSS. La chiave va nei segreti dell'hosting, mai nel repository o in variabili `NEXT_PUBLIC_*`.
 4. Assicurati che `SANITY_PROJECT_ID` e `SANITY_DATASET` siano configurati con il dataset pubblico del sito. Pubblica la nuova versione per rendere disponibile il feed.
-5. Prova il form con un tuo indirizzo e verifica lista e attributi in Brevo. Questa integrazione mantiene l'iscrizione con checkbox, senza email di conferma e senza double opt-in. I contatti già presenti vengono aggiornati senza forzare la riattivazione di chi si è disiscritto.
+5. **Double opt-in (consigliato).** In Brevo crea un template di conferma dal modello *Double opt-in*: deve contenere il pulsante con il link `{{ doubleoptin }}`. Imposta sul server l'ID numerico del template:
+
+   ```dotenv
+   BREVO_DOI_TEMPLATE_ID=7
+   ```
+
+   Con il template attivo l'indirizzo entra nella lista solo dopo il clic sul link di conferma, poi Brevo riporta alla home del sito. Nessuno può iscrivere l'email di un altro, e il consenso resta dimostrabile. Senza questa variabile il sito torna all'iscrizione diretta con checkbox, senza email di conferma. In quel caso i contatti già presenti vengono aggiornati senza forzare la riattivazione di chi si è disiscritto.
+6. Prova il form con un tuo indirizzo e verifica lista e attributi in Brevo.
 
 Le vecchie variabili `BEEHIIV_*` non vengono più usate. Gli iscritti già in beehiiv e nell'archivio Sanity non vengono trasferiti né cancellati automaticamente. Se li importi in Brevo, preserva consenso ed esclusioni dagli invii.
 

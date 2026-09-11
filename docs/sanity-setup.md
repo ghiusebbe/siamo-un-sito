@@ -110,7 +110,7 @@ Poi invita la redazione: **Members → Invite** su sanity.io/manage. Ruolo **Edi
 | Evento | nome, data, venue, città, lineup, locandina, biglietti, stato | Passa a "Archivio" a evento concluso, altrimenti resta in "Prossimamente" e nella promo in home. |
 | Servizio | nome, ordine, tagline, intro, immagine principale, galleria, cosa facciamo, FAQ | L'ordine decide la sequenza nella pagina e in home. |
 | Timeline | titolo, anno, ordine nell'anno, immagine, collegamento | Il collegamento rende cliccabile la voce (es. `/eventi/ancora-kasino`). |
-| Cartaceo digitale | titolo, volume, copertina, link acquisto | Il link è il checkout Lemon Squeezy. |
+| Cartaceo digitale | titolo, volume, copertina, link acquisto, Coming Soon, uscita | Il link è il checkout Lemon Squeezy (live, non di test). Con **Coming Soon** attivo il sito mostra «Coming soon» e non pubblica il link. L'**uscita** facoltativa aggiunge un conto alla rovescia: alla scadenza compare da solo il pulsante Acquista, entro qualche minuto per la cache. Il seed non crea cartacei: vanno inseriti qui. |
 | Impostazioni sito | nome, descrizione, email, Instagram, numeri | Un solo documento. I numeri compaiono in home solo se inseriti. |
 
 ## 10. Passi successivi (opzionali)

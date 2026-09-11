@@ -85,6 +85,9 @@ test("carries the AdSense tag only once an account is configured", async () => {
     assert.match(head, /<script[^>]*src="https:\/\/pagead2\.googlesyndication\.com\/pagead\/js\/adsbygoogle\.js\?client=ca-pub-0000000000000000"/);
     assert.match(head, /<script[^>]*async[^>]*adsbygoogle/);
     assert.match(head, /<script[^>]*crossorigin="anonymous"[^>]*adsbygoogle/);
+    // The Studio keeps the editor's session on this origin: no third-party script beside it.
+    const { html: studio } = await render("/studio");
+    assert.doesNotMatch(studio, /adsbygoogle/);
   } finally {
     delete process.env.ADSENSE_PUBLISHER_ID;
   }

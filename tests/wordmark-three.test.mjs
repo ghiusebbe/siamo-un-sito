@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
 import { Euler, Group, Mesh, OrthographicCamera, Vector3 } from 'three';
 import {
@@ -133,7 +134,8 @@ test('desktop and phone camera frames contain the solid during complete horizont
 
 test('simplified silhouettes retain the original lettering, apertures and stars', async () => {
   const model = JSON.parse(await readFile(new URL('../lib/wordmark-geometry.json', import.meta.url), 'utf8'));
-  const original = await sharp(new URL('../public/brand/siamo-wordmark-black.png', import.meta.url).pathname).ensureAlpha().raw().toBuffer();
+  // fileURLToPath, not .pathname: on Windows the latter keeps a leading slash and %20 for spaces.
+  const original = await sharp(fileURLToPath(new URL('../public/brand/siamo-wordmark-black.png', import.meta.url))).ensureAlpha().raw().toBuffer();
   assert.equal(model.outline.reduce((sum, shape) => sum + shape.holes.length, 0), 4);
   const masks = [];
   for (const shapes of [model.outline, model.blocks.flatMap(block => block.shapes)]) {

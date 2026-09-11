@@ -17,12 +17,18 @@ export function NewsletterForm() {
       const response = await fetch("/api/newsletter", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: formData.get("email"), consent: formData.get("consent") === "on" }),
+        body: JSON.stringify({
+          email: formData.get("email"),
+          consent: formData.get("consent") === "on",
+          website: formData.get("website") ?? "",
+        }),
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || "Iscrizione non riuscita");
       setState("success");
-      setMessage("Sei dentro. Ci leggiamo presto.");
+      setMessage(data.pending
+        ? "Quasi fatto: conferma l’iscrizione dal link che ti abbiamo appena mandato via email."
+        : "Sei dentro. Ci leggiamo presto.");
       form.reset();
     } catch (error) {
       setState("error");
@@ -37,6 +43,11 @@ export function NewsletterForm() {
       <button type="submit" disabled={state === "loading"}>
         {state === "loading" ? "Invio…" : "Iscriviti ↗"}
       </button>
+      {/* Invisible to people and assistive technology; bots that fill every field give themselves away. */}
+      <div className="newsletter-trap" aria-hidden="true">
+        <label htmlFor="newsletter-website">Sito web</label>
+        <input id="newsletter-website" name="website" type="text" tabIndex={-1} autoComplete="off" />
+      </div>
       <label className="newsletter-consent">
         <input name="consent" type="checkbox" required />
         <span>

@@ -79,7 +79,11 @@ export type Magazine = {
   volume: number;
   title: string;
   cover: string;
-  checkoutUrl: string;
+  checkoutUrl?: string;
+  /** While set, the card says "Coming soon" and the purchase link stays off the page. */
+  comingSoon?: boolean;
+  /** Optional release time: shown as a countdown, and it ends coming soon when it passes. */
+  releaseAt?: string;
 };
 
 export type SiteSettings = {
