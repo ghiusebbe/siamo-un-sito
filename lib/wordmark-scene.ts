@@ -38,7 +38,7 @@ export function createWordmarkScene({ canvas, container, interaction, onReady, o
   logo.add(mark);
 
   // A tiny soft contact patch: no shadow map, environment bake or reflection target.
-  const shadowGeometry = new PlaneGeometry(17, 0.35);
+  const shadowGeometry = new PlaneGeometry(17, 0.5);
   const shadowMaterial = new ShaderMaterial({
     transparent: true, depthWrite: false,
     vertexShader: `varying vec2 vUv;
@@ -46,7 +46,7 @@ export function createWordmarkScene({ canvas, container, interaction, onReady, o
     fragmentShader: `varying vec2 vUv;
       void main() {
         float soft = max(0.0, 1.0 - length((vUv - 0.5) * 2.0));
-        gl_FragColor = vec4(0.0, 0.0, 0.0, soft * soft * 0.13);
+        gl_FragColor = vec4(0.0, 0.0, 0.0, soft * soft * 0.3);
       }`,
   });
   const shadow = new Mesh(shadowGeometry, shadowMaterial);
