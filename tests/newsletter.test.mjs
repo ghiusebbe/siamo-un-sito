@@ -24,7 +24,7 @@ function stubBrevo(reply) {
   return { calls, restore: () => { globalThis.fetch = original; } };
 }
 
-async function subscribe(body, env = {}) {
+async function subscribe(body, env = {}, headers = {}) {
   const previous = {};
   for (const [key, value] of Object.entries(env)) {
     previous[key] = process.env[key];
@@ -37,7 +37,7 @@ async function subscribe(body, env = {}) {
     const response = await worker.fetch(
       new Request("http://localhost/api/newsletter", {
         method: "POST",
-        headers: { "content-type": "application/json", referer: "https://siamounmagazine.com/" },
+        headers: { "content-type": "application/json", referer: "https://siamounmagazine.com/", ...headers },
         body: JSON.stringify(body),
       }),
       { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } },
@@ -199,6 +199,72 @@ test("rifiuta ID lista non validi senza contattare Brevo", async () => {
       assert.equal(response.status, 503, id);
     }
     assert.equal(brevo.calls.length, 0);
+  } finally { brevo.restore(); }
+});
+
+test("rifiuta richieste da altri siti e corpi non JSON senza contattare Brevo", async () => {
+  const brevo = stubBrevo(() => new Response(null, { status: 204 }));
+  const valid = { email: "lettrice@example.com", consent: true };
+  try {
+    for (const origin of ["https://evil.example", "null", "https://siamounmagazine.com.evil.example"]) {
+      const { response } = await subscribe(valid, configured, { origin });
+      assert.equal(response.status, 403, origin);
+    }
+    const { response: plain } = await subscribe(valid, configured, { "content-type": "text/plain" });
+    assert.equal(plain.status, 415);
+    assert.equal(brevo.calls.length, 0);
+
+    const { response: own } = await subscribe(valid, configured, { origin: "https://siamounmagazine.com" });
+    assert.equal(own.status, 200);
+    assert.equal(brevo.calls.length, 1);
+  } finally { brevo.restore(); }
+});
+
+test("il campo trappola ferma i bot senza rivelarlo", async () => {
+  const brevo = stubBrevo(() => new Response(null, { status: 204 }));
+  try {
+    const { response, payload } = await subscribe(
+      { email: "lettrice@example.com", consent: true, website: "https://spam.example" }, configured,
+    );
+    assert.equal(response.status, 200);
+    assert.deepEqual(payload, { ok: true });
+    assert.equal(brevo.calls.length, 0);
+  } finally { brevo.restore(); }
+});
+
+test("limita i tentativi ripetuti dallo stesso indirizzo IP", async () => {
+  const brevo = stubBrevo(() => new Response(null, { status: 204 }));
+  try {
+    const statuses = [];
+    for (let attempt = 0; attempt < 6; attempt++) {
+      const { response } = await subscribe(
+        { email: `lettrice${attempt}@example.com`, consent: true }, configured, { "x-forwarded-for": "203.0.113.7" },
+      );
+      statuses.push(response.status);
+    }
+    assert.deepEqual(statuses, [200, 200, 200, 200, 200, 429]);
+    assert.equal(brevo.calls.length, 5);
+  } finally { brevo.restore(); }
+});
+
+test("con il template di conferma usa il double opt-in di Brevo", async () => {
+  const brevo = stubBrevo(() => new Response(null, { status: 204 }));
+  try {
+    const { response, payload } = await subscribe(
+      { email: "lettrice@example.com", consent: true }, { ...configured, BREVO_DOI_TEMPLATE_ID: "7" },
+    );
+    assert.equal(response.status, 200);
+    assert.deepEqual(payload, { ok: true, pending: true });
+    const [call] = brevo.calls;
+    assert.equal(call.url, "https://api.brevo.com/v3/contacts/doubleOptinConfirmation");
+    const sent = JSON.parse(call.init.body);
+    assert.equal(sent.email, "lettrice@example.com");
+    assert.deepEqual(sent.includeListIds, [42]);
+    assert.equal(sent.templateId, 7);
+    assert.equal(sent.redirectionUrl, "https://siamounmagazine.com/");
+    // The list is joined only after the confirmation click, never directly.
+    assert.equal(Object.hasOwn(sent, "listIds"), false);
+    assert.equal(Object.hasOwn(sent, "updateEnabled"), false);
   } finally { brevo.restore(); }
 });
 

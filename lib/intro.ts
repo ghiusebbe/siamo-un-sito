@@ -2,21 +2,24 @@
 export const INTRO_STORAGE_KEY = "siamo-intro";
 export const INTRO_MIN_DURATION = 600;
 export const INTRO_EXIT_DURATION = 500;
-export const INTRO_LOAD_TIMEOUT = 8000;
+// Past this a slow connection gets the static logo: a black screen costs more than the 3D gains.
+export const INTRO_LOAD_TIMEOUT = 4000;
 export const WORDMARK_READY_EVENT = "siamo:wordmark-ready";
 export const INTRO_FINISHED_EVENT = "siamo:intro-finished";
 
-/** Before first paint: cover the home until its actual WebGL frame is ready. */
+/**
+ * Before first paint: cover the home until its actual WebGL frame is ready.
+ * Other pages, often a first visit from search or social, show content at once.
+ */
 export const INTRO_SCRIPT = `(function(){
   var root=document.documentElement,seen=false;
   try{seen=!!sessionStorage.getItem(${JSON.stringify(INTRO_STORAGE_KEY)})}catch(e){}
   var reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
   var home=location.pathname==="/";
-  var studio=location.pathname.indexOf("/studio")===0;
   root.dataset.js="true";
   root.dataset.introSeen=seen?"true":"false";
   root.dataset.introStarted=String(performance.now());
-  root.dataset.intro=reduce||studio||(!home&&seen)?"skip":"play";
+  root.dataset.intro=reduce||!home?"skip":"play";
   if(home)root.dataset.wordmark=reduce?"fallback":"loading";
   if(root.dataset.intro==="play")setTimeout(function expire(){
     if(root.dataset.intro==="skip")return;

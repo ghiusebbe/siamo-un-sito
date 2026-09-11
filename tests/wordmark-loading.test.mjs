@@ -116,15 +116,16 @@ test('reduced motion uses the original logo immediately and skips the curtain', 
   disconnect();
 });
 
-test('other routes and unavailable session storage never wait for a nonexistent wordmark', () => {
-  const b = browser({ pathname: '/articoli', storageError: true }), disconnect = b.connect();
-  assert.equal(b.data.wordmark, undefined);
-  b.advance(INTRO_MIN_DURATION);
-  assert.equal(b.data.intro, 'reveal');
-  b.end(); assert.equal(b.data.intro, 'skip');
-  disconnect();
-  const returning = browser({ pathname: '/articoli', seen: true });
-  assert.equal(returning.data.intro, 'skip');
+test('other routes show content at once, even on a first visit without session storage', () => {
+  for (const options of [{ storageError: true }, { seen: false }, { seen: true }]) {
+    const b = browser({ pathname: '/articoli', ...options }), disconnect = b.connect();
+    assert.equal(b.data.wordmark, undefined);
+    assert.equal(b.data.intro, 'skip');
+    b.advance(INTRO_LOAD_TIMEOUT);
+    assert.equal(b.data.intro, 'skip');
+    assert.equal(b.pendingTimers(), 0);
+    disconnect();
+  }
 });
 
 test('background tabs defer the emergency fallback until the page is visible', () => {

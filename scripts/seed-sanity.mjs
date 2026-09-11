@@ -175,9 +175,17 @@ const documents = [
   ].map(([id, year, order, title, image]) => ({ _id: id, _type: "timelineItem", year, order, title, image })),
 ];
 
-for (const document of documents) {
-  await client.createOrReplace(document);
-  console.log(`✓ ${document._type}: ${document.title || document._id}`);
+// By default only missing documents are created: edits made in Studio are never
+// overwritten. SEED_TYPES (e.g. "magazine,event") narrows the import to those
+// types; SEED_REPLACE=true restores the old behaviour of replacing everything.
+const onlyTypes = (process.env.SEED_TYPES || "").split(",").map((type) => type.trim()).filter(Boolean);
+const replace = process.env.SEED_REPLACE === "true";
+const selected = onlyTypes.length ? documents.filter((document) => onlyTypes.includes(document._type)) : documents;
+
+for (const document of selected) {
+  if (replace) await client.createOrReplace(document);
+  else await client.createIfNotExists(document);
+  console.log(`✓ ${document._type}: ${document.title || document._id}${replace ? " (sostituito)" : ""}`);
 }
 
-console.log(`\nImportazione completata: ${documents.length} documenti.`);
+console.log(`\nImportazione completata: ${selected.length} documenti ${replace ? "sostituiti" : "creati o già presenti"}.`);

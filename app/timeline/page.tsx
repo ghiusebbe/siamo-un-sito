@@ -2,6 +2,7 @@ import { pageMetadata } from "@/lib/seo";
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "@/components/site-image";
+import { NewTabNote } from "@/components/new-tab-note";
 import { PageHero } from "@/components/page-hero";
 import { getTimeline } from "@/lib/content";
 
@@ -21,7 +22,9 @@ export default async function TimelinePage() {
               <span className={firstOfYear ? "timeline-year" : "timeline-year timeline-year-repeat"}>{item.year}</span>
               <span className="timeline-index">{String(index + 1).padStart(2, "0")}</span>
               <div className="timeline-copy">
-                <h2>{item.link ? <Link href={item.link}>{item.title} ↗</Link> : item.title}</h2>
+                <h2>{!item.link ? item.title : /^https?:\/\//i.test(item.link)
+                  ? <a href={item.link} target="_blank" rel="noreferrer">{item.title} ↗<NewTabNote /></a>
+                  : <Link href={item.link}>{item.title} ↗</Link>}</h2>
                 {item.description ? <p>{item.description}</p> : null}
               </div>
               {item.image ? (

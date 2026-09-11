@@ -13,6 +13,14 @@ on:
         options:
           - production
           - staging
+      types:
+        description: "Tipi da importare, separati da virgola (vuoto = tutti)"
+        type: string
+        default: "magazine,event,siteSettings"
+      replace:
+        description: "Sovrascrivi i documenti esistenti (perde le modifiche fatte in Studio)"
+        type: boolean
+        default: false
 
 jobs:
   seed:
@@ -31,3 +39,5 @@ jobs:
           SANITY_PROJECT_ID: ${{ secrets.SANITY_PROJECT_ID }}
           SANITY_DATASET: ${{ inputs.dataset }}
           SANITY_API_WRITE_TOKEN: ${{ secrets.SANITY_API_WRITE_TOKEN }}
+          SEED_TYPES: ${{ inputs.types }}
+          SEED_REPLACE: ${{ inputs.replace }}
