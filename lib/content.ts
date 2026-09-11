@@ -68,7 +68,13 @@ const normalizeContent = {
     description: contentText(item.description),
     link: contentText(item.link),
   }),
-  magazine: (item: Magazine): Magazine => ({ ...item, cover: sanityImage(item.cover) }),
+  magazine: (item: Magazine): Magazine => ({
+    ...item,
+    cover: sanityImage(item.cover),
+    checkoutUrl: contentText(item.checkoutUrl),
+    comingSoon: item.comingSoon === true,
+    releaseAt: contentText(item.releaseAt),
+  }),
 };
 
 const CONTENT_TYPES = ["article", "event", "service", "timelineItem", "magazine", "siteSettings"];
@@ -197,7 +203,7 @@ export async function getTimeline(): Promise<TimelineItem[]> {
 }
 
 export async function getMagazines(): Promise<Magazine[]> {
-  const items = await queryOrFallback(`*[_type == "magazine"] | order(volume asc) { "id": _id, volume, title, "cover": coverImage.asset->url, checkoutUrl }`, fallbackMagazines, {}, { revalidate: CACHE.magazines, requestTag: "magazines" });
+  const items = await queryOrFallback(`*[_type == "magazine"] | order(volume asc) { "id": _id, volume, title, "cover": coverImage.asset->url, checkoutUrl, comingSoon, releaseAt }`, fallbackMagazines, {}, { revalidate: CACHE.magazines, requestTag: "magazines" });
   return items.map(normalizeContent.magazine);
 }
 

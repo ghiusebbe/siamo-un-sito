@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "@/components/site-image";
 import { Wordmark } from "@/components/wordmark";
 import { DynamicTitle } from "@/components/dynamic-title";
+import { MagazineCountdown } from "@/components/magazine-countdown";
 import { NewsletterForm } from "@/components/newsletter-form";
 import { NewTabNote } from "@/components/new-tab-note";
 import {
@@ -16,6 +17,7 @@ import {
 } from "@/lib/content";
 import { formatDate, longestWordLength } from "@/lib/format";
 import { instagramAssets } from "@/lib/instagram-assets";
+import { magazineOffer } from "@/lib/magazine";
 import { newsletterConfigured } from "@/lib/brevo";
 
 export const metadata = { ...pageMetadata("/", homeTitle, siteDescription), title: { absolute: homeTitle } };
@@ -212,26 +214,37 @@ export default async function HomePage() {
             <DynamicTitle lines={["Tre volumi.", "Una scena intera."]} />
           </div>
           <div className="magazine-grid">
-            {magazines.map((magazine) => (
-              <article className="magazine-card" key={magazine.id}>
-                <div className="magazine-cover">
-                  <Image
-                    src={magazine.cover}
-                    alt={`Copertina ${magazine.title}`}
-                    width={900}
-                    height={1200}
-                    sizes="(max-width: 620px) 78vw, (max-width: 900px) 46vw, 33vw"
-                  />
-                </div>
-                <div>
-                  <span>Volume {magazine.volume}</span>
-                  <h3>{magazine.title}</h3>
-                  <a className="acid-button" href={magazine.checkoutUrl} target="_blank" rel="noreferrer">
-                    Acquista ↗<span className="sr-only"> {magazine.title}</span><NewTabNote />
-                  </a>
-                </div>
-              </article>
-            ))}
+            {magazines.map((magazine) => {
+              const offer = magazineOffer(magazine);
+              return (
+                <article className="magazine-card" key={magazine.id}>
+                  <div className="magazine-cover">
+                    <Image
+                      src={magazine.cover}
+                      alt={`Copertina ${magazine.title}`}
+                      width={900}
+                      height={1200}
+                      sizes="(max-width: 620px) 78vw, (max-width: 900px) 46vw, 33vw"
+                    />
+                  </div>
+                  <div>
+                    <span>Volume {magazine.volume}</span>
+                    <h3>{magazine.title}</h3>
+                    {offer.kind === "buy" ? (
+                      <a className="acid-button" href={offer.url} target="_blank" rel="noreferrer">
+                        Acquista ↗<span className="sr-only"> {magazine.title}</span><NewTabNote />
+                      </a>
+                    ) : null}
+                    {offer.kind === "coming-soon" ? (
+                      <p className="magazine-status">
+                        <strong>Coming soon</strong>
+                        {offer.releaseAt ? <MagazineCountdown releaseAt={offer.releaseAt} /> : null}
+                      </p>
+                    ) : null}
+                  </div>
+                </article>
+              );
+            })}
           </div>
         </div>
       </section> : null}

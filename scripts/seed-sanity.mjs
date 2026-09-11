@@ -131,14 +131,8 @@ const documents = [
     // Add real figures from Studio when you have them: the home shows the block only if present.
     metrics: [],
   },
-  ...[
-    [1, assets.volume1, "3c06dd53-53ac-4034-af67-8961cf2f48d4"],
-    [2, assets.volume2, "062c8a4d-e020-49fb-b09d-6a83da586676"],
-    [3, assets.volume3, "0da0e8ce-95b3-428e-8d14-3c9126cc3e9e"],
-  ].map(([volume, coverImage, checkout]) => ({
-    _id: `magazine-${volume}`, _type: "magazine", volume, title: `SIAMO Cartaceo — Volume ${volume}`,
-    coverImage, checkoutUrl: `https://siamo.lemonsqueezy.com/checkout/buy/${checkout}`,
-  })),
+  // No magazines: their old checkout links were test products. Volumes are
+  // created in Studio with real links, or marked Coming Soon.
   {
     _id: "article-format", _type: "article", title: "Titolo format in generale", slug: slug("titolo-format-2026"),
     category: "News della settimana", subtitle: "Titolo format dettagliato",
@@ -176,7 +170,7 @@ const documents = [
 ];
 
 // By default only missing documents are created: edits made in Studio are never
-// overwritten. SEED_TYPES (e.g. "magazine,event") narrows the import to those
+// overwritten. SEED_TYPES (e.g. "event,siteSettings") narrows the import to those
 // types; SEED_REPLACE=true restores the old behaviour of replacing everything.
 const onlyTypes = (process.env.SEED_TYPES || "").split(",").map((type) => type.trim()).filter(Boolean);
 const replace = process.env.SEED_REPLACE === "true";

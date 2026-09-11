@@ -160,6 +160,22 @@ test("keeps populated content, links and formatting while removing blank entries
   assert.doesNotMatch(homeHtml, /<span>Vuoto<\/span>/);
 });
 
+test("keeps the purchase link of a coming-soon magazine off the page until its release", async () => {
+  const cover = "/media/volume-1.png";
+  const html = await render("/", { magazines: [
+    { id: "mag-soon", volume: 4, title: "Volume in arrivo", cover, checkoutUrl: "https://example.com/buy-4", comingSoon: true, releaseAt: "2999-01-01T10:00:00Z" },
+    { id: "mag-undated", volume: 5, title: "Volume senza data", cover, checkoutUrl: "https://example.com/buy-5", comingSoon: true },
+    { id: "mag-out", volume: 6, title: "Volume uscito", cover, checkoutUrl: "https://example.com/buy-6", comingSoon: true, releaseAt: "2020-01-01T10:00:00Z" },
+    { id: "mag-nolink", volume: 7, title: "Volume senza link", cover },
+  ] });
+  assert.match(html, /class="[^"]*magazine-section/);
+  assert.doesNotMatch(html, /buy-4|buy-5/);
+  assert.match(html, /href="https:\/\/example.com\/buy-6"/);
+  assert.equal(html.match(/Coming soon/g)?.length, 2);
+  assert.match(html, /<time[^>]*datetime="2999-01-01T10:00:00Z"/i);
+  assert.equal(html.match(/class="acid-button"[^>]*href="https:\/\/example.com/g)?.length, 1);
+});
+
 test("omits blank timeline text, links and images while keeping the entry", async () => {
   const html = await render("/timeline", { timeline: [{
     id: "timeline-test", year: 2026, title: "Progetto in archivio", description: " \t ", image: " ", link: " ",

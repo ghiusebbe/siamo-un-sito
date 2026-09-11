@@ -19,31 +19,12 @@ export const fallbackSettings: SiteSettings = {
   metrics: [],
 };
 
+// No purchase links: the old checkouts were test products. Real ones are set
+// per volume in Studio, where a volume can also be marked as coming soon.
 export const fallbackMagazines: Magazine[] = [
-  {
-    id: "volume-1",
-    volume: 1,
-    title: "SIAMO Cartaceo — Volume 1",
-    cover: "/media/volume-1.png",
-    checkoutUrl:
-      "https://siamo.lemonsqueezy.com/checkout/buy/3c06dd53-53ac-4034-af67-8961cf2f48d4",
-  },
-  {
-    id: "volume-2",
-    volume: 2,
-    title: "SIAMO Cartaceo — Volume 2",
-    cover: "/media/volume-2.png",
-    checkoutUrl:
-      "https://siamo.lemonsqueezy.com/checkout/buy/062c8a4d-e020-49fb-b09d-6a83da586676",
-  },
-  {
-    id: "volume-3",
-    volume: 3,
-    title: "SIAMO Cartaceo — Volume 3",
-    cover: "/media/volume-3.png",
-    checkoutUrl:
-      "https://siamo.lemonsqueezy.com/checkout/buy/0da0e8ce-95b3-428e-8d14-3c9126cc3e9e",
-  },
+  { id: "volume-1", volume: 1, title: "SIAMO Cartaceo — Volume 1", cover: "/media/volume-1.png" },
+  { id: "volume-2", volume: 2, title: "SIAMO Cartaceo — Volume 2", cover: "/media/volume-2.png" },
+  { id: "volume-3", volume: 3, title: "SIAMO Cartaceo — Volume 3", cover: "/media/volume-3.png" },
 ];
 
 export const fallbackArticles: Article[] = [

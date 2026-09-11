@@ -24,7 +24,8 @@ function stubBrevo(reply) {
   return { calls, restore: () => { globalThis.fetch = original; } };
 }
 
-async function subscribe(body, env = {}, headers = {}) {
+/** `instance` reuses an already loaded worker, i.e. one server keeping its memory between requests. */
+async function subscribe(body, env = {}, headers = {}, instance) {
   const previous = {};
   for (const [key, value] of Object.entries(env)) {
     previous[key] = process.env[key];
@@ -33,7 +34,7 @@ async function subscribe(body, env = {}, headers = {}) {
   }
 
   try {
-    const worker = await loadWorker();
+    const worker = instance ?? await loadWorker();
     const response = await worker.fetch(
       new Request("http://localhost/api/newsletter", {
         method: "POST",
@@ -234,17 +235,28 @@ test("il campo trappola ferma i bot senza rivelarlo", async () => {
 
 test("limita i tentativi ripetuti dallo stesso indirizzo IP", async () => {
   const brevo = stubBrevo(() => new Response(null, { status: 204 }));
+  const previous = Object.fromEntries(Object.keys(configured).map((key) => [key, process.env[key]]));
+  Object.assign(process.env, configured);
   try {
+    // The limit lives in the memory of one server instance: load it once.
+    const worker = await loadWorker();
     const statuses = [];
     for (let attempt = 0; attempt < 6; attempt++) {
       const { response } = await subscribe(
-        { email: `lettrice${attempt}@example.com`, consent: true }, configured, { "x-forwarded-for": "203.0.113.7" },
+        { email: `lettrice${attempt}@example.com`, consent: true }, configured,
+        { "x-forwarded-for": "203.0.113.7, 10.0.0.1" }, worker,
       );
       statuses.push(response.status);
     }
     assert.deepEqual(statuses, [200, 200, 200, 200, 200, 429]);
     assert.equal(brevo.calls.length, 5);
-  } finally { brevo.restore(); }
+  } finally {
+    for (const [key, value] of Object.entries(previous)) {
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+    }
+    brevo.restore();
+  }
 });
 
 test("con il template di conferma usa il double opt-in di Brevo", async () => {

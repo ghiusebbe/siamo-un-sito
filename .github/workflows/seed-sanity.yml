@@ -16,7 +16,7 @@ on:
       types:
         description: "Tipi da importare, separati da virgola (vuoto = tutti)"
         type: string
-        default: "magazine,event,siteSettings"
+        default: "event,siteSettings"
       replace:
         description: "Sovrascrivi i documenti esistenti (perde le modifiche fatte in Studio)"
         type: boolean

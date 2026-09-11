@@ -118,6 +118,9 @@ button, input { font: inherit; }
 .magazine-card > div:last-child { padding: 18px 2px 0; }
 .magazine-card h3 { margin: 4px 0 18px; font-size: 22px; letter-spacing: -.035em; }
 .magazine-card span { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
+.magazine-status { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 0; }
+.magazine-status strong { display: inline-flex; align-items: center; min-height: 44px; padding: 0 17px; border: 1px solid var(--acid); border-radius: 999px; color: var(--acid); font-weight: 800; }
+.magazine-card .magazine-countdown, .magazine-card .magazine-countdown span { color: var(--white); font-variant-numeric: tabular-nums; }
 .acid-button { display: inline-flex; align-items: center; background: var(--acid); color: var(--black); border-radius: 999px; padding: 10px 17px; font-weight: 800; transition: transform .2s ease, box-shadow .2s ease; }
 .acid-button:hover { transform: translateY(-2px); box-shadow: 0 0 28px rgba(69,255,22,.25); }
 
