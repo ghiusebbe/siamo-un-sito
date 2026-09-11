@@ -20,11 +20,6 @@ export default async function PrivacyPage() {
         intro="Quali dati raccoglie questo sito, perché, per quanto tempo e come puoi intervenire."
       />
       <div className="editorial-body prose">
-        <p className="policy-note">
-          Da completare prima della pubblicazione: l’elenco definitivo dei cookie rilasciato dal fornitore del
-          messaggio di consenso.
-        </p>
-
         <h2>Titolare del trattamento</h2>
         <p>
           Il titolare è <strong>SIAMO</strong>, associazione non riconosciuta con sede in Via Michele Schina 7,
