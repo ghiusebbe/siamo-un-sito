@@ -27,7 +27,7 @@ const CACHE = {
  */
 const IMAGE_PARAMS = "auto=format&fit=max&w=1600&q=78";
 
-export function sanityImage(url: string | null | undefined): string {
+function sanityImage(url: string | null | undefined): string {
   url = contentText(url);
   if (!url) return "";
   if (!url.includes("cdn.sanity.io") || url.includes("?")) return url;

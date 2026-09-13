@@ -5,7 +5,6 @@ import Image from "@/components/site-image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AdsenseAdSlot } from "@/components/adsense-ad-slot";
-import { ArticleAdSlot } from "@/components/article-ad-slot";
 import { RichTextContent } from "@/components/rich-text";
 import { articleAd, type AdPlacement } from "@/lib/advertising";
 import { getArticle, getArticles } from "@/lib/content";
@@ -17,11 +16,7 @@ type Props = { params: Promise<{ slug: string }> };
 // Account details stay server-side and reach the client slot as props.
 function adSlot(placement: AdPlacement) {
   const ad = articleAd(placement);
-  if (!ad) return null;
-
-  return ad.source === "adManager"
-    ? <ArticleAdSlot placement={placement} unitPath={ad.unitPath} />
-    : <AdsenseAdSlot clientId={ad.clientId} placement={placement} slotId={ad.slotId} />;
+  return ad && <AdsenseAdSlot clientId={ad.clientId} placement={placement} slotId={ad.slotId} />;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

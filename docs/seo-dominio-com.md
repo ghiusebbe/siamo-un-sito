@@ -15,7 +15,7 @@
 
 ## Verifiche eseguite
 
-- Build Vinext e build nativa `next build --webpack`, TypeScript e lint. Verifica del server di produzione Next.js con `node scripts/verify-next-seo.mjs` (dopo la build senza Sanity, con i contenuti di fallback): HTML, canonical, robots, sitemap, redirect con query e header distinti per dominio.
+- Build Vinext e build nativa `next build --webpack`, TypeScript e lint. Verifica del server di produzione con `tests/seo.test.mjs` (dopo la build senza Sanity, con i contenuti di fallback): HTML, canonical, robots, sitemap, redirect con query e header distinti per dominio.
 - 29 test automatici: pagine generate, contenuti Sanity vuoti, animazione, canonical per le pagine pubbliche, metadata e JSON-LD con fixture Sanity, date della sitemap, redirect con query string, esclusione preview e Studio. Test SEO con testo ostile per verificare l'escape JSON-LD.
 - Controllo browser della home a larghezza mobile 390 px (375 px utili con scrollbar): nessun overflow della pagina, immagini caricate e menu funzionante. La preview HTTP presenta un limite preesistente di Vinext (`crypto.subtle` non disponibile, navigazione con ricaricamento): non è una misura delle prestazioni del deploy HTTPS Next.js.
 - Animazione già limitata a 30 fps su mobile, densità canvas ridotta, arresto fuori viewport e supporto reduced-motion: comportamento conservato. Font WOFF2 con preload e `font-display: swap` già presenti, conservati.

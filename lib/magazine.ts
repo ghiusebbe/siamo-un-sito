@@ -1,6 +1,6 @@
 import type { Magazine } from "@/types/content";
 
-export type MagazineOffer =
+type MagazineOffer =
   | { kind: "buy"; url: string }
   | { kind: "coming-soon"; releaseAt?: string }
   | { kind: "none" };

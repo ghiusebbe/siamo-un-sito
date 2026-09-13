@@ -15,9 +15,9 @@ declare global {
 
 /**
  * Withdrawing consent has to be as easy as giving it. The consent message is
- * part of Google's Funding Choices, which Google Publisher Tag loads only on
- * pages carrying a configured ad slot, so the control appears once the CMP
- * announces itself and stays out of the way everywhere else.
+ * part of Google's Funding Choices, which the AdSense tag loads, so the control
+ * appears once the CMP announces itself and stays out of the way everywhere
+ * else.
  */
 export function ConsentLink() {
   const [available, setAvailable] = useState(false);

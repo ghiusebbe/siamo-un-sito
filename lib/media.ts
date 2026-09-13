@@ -9,9 +9,9 @@ import type { CSSProperties } from "react";
  */
 const DIMENSIONS = /-(\d{2,5})x(\d{2,5})\.(?:jpg|jpeg|png|webp|avif|gif)(?:$|\?)/i;
 
-export type ImageSize = { width: number; height: number };
+type ImageSize = { width: number; height: number };
 
-export function imageSize(url: string | undefined, fallback: ImageSize): ImageSize {
+function imageSize(url: string | undefined, fallback: ImageSize): ImageSize {
   const match = url?.match(DIMENSIONS);
   if (!match) return fallback;
 
