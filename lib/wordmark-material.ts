@@ -46,7 +46,7 @@ export function createWordmarkMaterial() {
       varying float vCap;
       void main() {
         vec3 n = normalize(vNormal);
-        vec3 key = normalize(vec3(-0.5, 0.8, 1.0));
+        vec3 key = normalize(vec3(-0.35, 1.15, 0.7));
         vec3 fill = normalize(vec3(0.7, 0.15, -0.6));
         float diffuse = 0.5 + max(dot(n, key), 0.0) * 0.75 + max(dot(n, fill), 0.0) * 0.35;
         vec3 halfVector = normalize(key + vec3(0.0, 0.0, 1.0));
