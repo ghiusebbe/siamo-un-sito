@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import type { Article } from "@/types/content";
 import { canonicalUrl, siteUrl } from "@/lib/site-url";
 
-export const siteName = "SIAMO";
+const siteName = "SIAMO";
 export const homeTitle = "SIAMO — magazine di musica e cultura emergente";
 export const siteDescription = "SIAMO è il magazine indipendente dedicato alla musica e alla cultura emergente italiana: interviste, approfondimenti, eventi e progetti editoriali.";
 const publisherId = `${siteUrl}/#organization`;

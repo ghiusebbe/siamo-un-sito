@@ -1,5 +1,5 @@
 /** Shared between the server layout (inline script) and the client intro component. */
-export const INTRO_STORAGE_KEY = "siamo-intro";
+const INTRO_STORAGE_KEY = "siamo-intro";
 export const INTRO_MIN_DURATION = 600;
 export const INTRO_EXIT_DURATION = 500;
 // Past this a slow connection gets the static logo: a black screen costs more than the 3D gains.

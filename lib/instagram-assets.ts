@@ -1,4 +1,4 @@
-export type InstagramAsset = {
+type InstagramAsset = {
   id: string;
   title: string;
   category: string;

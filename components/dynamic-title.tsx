@@ -3,16 +3,15 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 type DynamicTitleProps = {
-  as?: "h1" | "h2" | "h3";
+  as?: "h1" | "h2";
   lines: string[];
-  className?: string;
   eager?: boolean;
 };
 
 const TYPE_INTERVAL = 26;
 const LINE_PAUSE = 105;
 
-export function DynamicTitle({ as: Tag = "h2", lines, className = "", eager = false }: DynamicTitleProps) {
+export function DynamicTitle({ as: Tag = "h2", lines, eager = false }: DynamicTitleProps) {
   const titleRef = useRef<HTMLHeadingElement>(null);
   const key = useMemo(() => lines.join("\u0000"), [lines]);
   const [visibleLines, setVisibleLines] = useState(lines);
@@ -96,7 +95,7 @@ export function DynamicTitle({ as: Tag = "h2", lines, className = "", eager = fa
   return (
     <Tag
       ref={titleRef}
-      className={`dynamic-title ${isTyping ? "is-typing" : "is-complete"} ${className}`.trim()}
+      className={`dynamic-title ${isTyping ? "is-typing" : "is-complete"}`}
       aria-label={lines.join(" ")}
     >
       {lines.map((line, index) => (

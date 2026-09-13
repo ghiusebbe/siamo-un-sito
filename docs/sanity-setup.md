@@ -43,7 +43,7 @@ Compila `.env.local`:
 | `SANITY_DATASET` | `production` |
 | `SANITY_API_WRITE_TOKEN` | token con permessi **Editor** (passo 3) |
 
-Le due variabili `GAM_*` riguardano la pubblicità e possono restare vuote.
+Le variabili `ADSENSE_*` riguardano la pubblicità e possono restare vuote.
 
 ## 3. Token di scrittura
 

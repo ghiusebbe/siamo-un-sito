@@ -16,8 +16,7 @@ type AdsenseAdSlotProps = {
 };
 
 /**
- * The AdSense counterpart of the Ad Manager slot, used while the account has
- * no Ad Manager network. AdSense marks a unit it could not fill with
+ * AdSense marks a unit it could not fill with
  * `data-ad-status="unfilled"`, which is the cue to collapse the space instead
  * of leaving an empty frame in the middle of the article.
  */

@@ -9,7 +9,7 @@ const eslintConfig = defineConfig([
     ".next/**",
     "out/**",
     "build/**",
-    "motion/wordmark/assets/**",
+    ".claude/**",
     "next-env.d.ts",
   ]),
 ]);

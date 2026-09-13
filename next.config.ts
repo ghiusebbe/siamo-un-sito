@@ -10,26 +10,16 @@ const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=(), usb=()" },
+  { key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" },
 ];
 
 const nextConfig: NextConfig = {
-  images: {
-    // SiteImage uses prebuilt local WebP variants and resizes remote media at Sanity.
-    unoptimized: true,
-    formats: ["image/avif", "image/webp"],
-    qualities: [75],
-    minimumCacheTTL: 86400,
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "cdn.sanity.io",
-        port: "",
-        pathname: "/images/**",
-      },
-    ],
-  },
+  // SiteImage uses prebuilt local WebP variants and resizes remote media at
+  // Sanity, so the optimizer never runs and its settings would not apply.
+  images: { unoptimized: true },
   async headers() {
     return [
+      { source: "/", headers: securityHeaders },
       { source: "/:path*", headers: securityHeaders },
       // Content-hashed file names: a new image always gets a new URL.
       { source: "/optimized-media/:path*", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] },
@@ -41,6 +31,7 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      { source: "/favicon.ico", destination: "/icon.png", permanent: true },
       { source: "/articoli-cms", destination: "/articoli", permanent: true },
       {
         source: "/articoli-cms/titolo2026",

@@ -1,7 +1,7 @@
 export type PortableSpan = { _key?: string; _type?: string; text?: string; marks?: string[] };
 
 /** Annotations Studio attaches to a span; today the block editor only offers links. */
-export type PortableMarkDef = { _key: string; _type: string; href?: string };
+type PortableMarkDef = { _key: string; _type: string; href?: string };
 
 export type PortableBlock = {
   _key?: string;
@@ -47,7 +47,7 @@ export type EventItem = {
   status: "upcoming" | "archived";
 };
 
-export type FaqItem = { question: string; answer: string };
+type FaqItem = { question: string; answer: string };
 
 export type Service = {
   id: string;

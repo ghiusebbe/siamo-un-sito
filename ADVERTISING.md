@@ -7,29 +7,11 @@ Il sito prevede al massimo due spazi pubblicitari, esclusivamente nelle pagine d
 
 Non sono previsti annunci in home, negli archivi, nelle pagine eventi, nei servizi o nella timeline. Non vengono usati formati sticky, interstitial o popup.
 
-Gli spazi usano Google Ad Manager con formati responsive:
-
-- desktop: `970×90` e `728×90`;
-- mobile: `320×100` e `300×100`.
-
-Il caricamento è differito finché l’annuncio non si avvicina alla viewport. Uno spazio non configurato o non riempito scompare senza lasciare un riquadro vuoto.
+Gli spazi usano unità display AdSense in formato `horizontal`, responsive alla larghezza del contenitore. Uno spazio non configurato o non riempito scompare senza lasciare un riquadro vuoto.
 
 ## Configurazione
 
-Inserire i percorsi completi delle unità pubblicitarie nelle variabili:
-
-```env
-GAM_ARTICLE_INLINE_PATH=/NETWORK_ID/UNITA_INLINE
-GAM_ARTICLE_FOOTER_PATH=/NETWORK_ID/UNITA_FOOTER
-```
-
-Finché le variabili restano vuote non viene caricato Google Publisher Tag e non appare alcuno spazio pubblicitario. Prima dell’attivazione pubblica va collegata la gestione del consenso scelta per il sito.
-
-## AdSense
-
-AdSense non ha un tag proprio sul sito: l'account viene collegato ad Ad Manager come fonte di domanda, così gli annunci AdSense competono per gli stessi due spazi già serviti da Google Publisher Tag. In Ad Manager: *Amministrazione → Collegamenti account → AdSense*, poi abilita la domanda AdSense sulle due unità. Sul sito non cambia nulla: un solo script, nessun doppio conteggio.
-
-Il tag AdSense va comunque sul sito: serve a Google per verificare la proprietà del dominio e ad AdSense per servire. Viene reso nell'`head` di ogni pagina, esattamente come lo fornisce Google (`async`, `crossorigin="anonymous"`), a partire dall'ID account:
+Il tag AdSense viene reso nell'`head` di ogni pagina, esattamente come lo fornisce Google (`async`, `crossorigin="anonymous"`), a partire dall'ID account:
 
 ```env
 ADSENSE_PUBLISHER_ID=ca-pub-0000000000000000
@@ -37,18 +19,14 @@ ADSENSE_PUBLISHER_ID=ca-pub-0000000000000000
 
 La stessa variabile accetta anche la forma `pub-…` e compone la riga di `ads.txt`. Senza variabile il tag non viene emesso.
 
-### Senza Ad Manager
-
-Ad Manager richiede un account AdSense già approvato, quindi all'inizio può non essere disponibile. In quel caso i due spazi vengono serviti direttamente da AdSense: crea due unità display nel pannello AdSense e inserisci i loro ID numerici.
+Poi crea due unità display nel pannello AdSense e inserisci i loro ID numerici:
 
 ```env
 ADSENSE_ARTICLE_INLINE_SLOT=1234567890
 ADSENSE_ARTICLE_FOOTER_SLOT=0987654321
 ```
 
-Valgono solo finché i percorsi Ad Manager restano vuoti: appena `GAM_ARTICLE_*_PATH` è configurato, lo spazio torna a Google Publisher Tag, che può servire anche la domanda AdSense. Un'unità che AdSense non riesce a riempire viene richiusa senza lasciare un riquadro vuoto.
-
-Prima dell'approvazione del sito da parte di AdSense non viene servito alcun annuncio, per quanto la configurazione sia completa.
+Finché le variabili restano vuote non appare alcuno spazio pubblicitario. Prima dell'approvazione del sito da parte di AdSense non viene servito alcun annuncio, per quanto la configurazione sia completa.
 
 **Tieni gli annunci automatici disattivati** nel pannello AdSense: con Auto ads accesi il tag inserirebbe annunci ovunque, anche in home e negli archivi, contro la regola dei due soli spazi negli articoli.
 
@@ -56,11 +34,11 @@ Ricorda di riportare in `ads.txt` tutte le righe che Google elenca per l'account
 
 ## Consenso
 
-Gli annunci in Italia richiedono un CMP certificato IAB TCF. Usiamo *Privacy e messaggi* (Funding Choices) di Ad Manager: crea un messaggio GDPR, associa il dominio e pubblicalo. Non serve aggiungere script — Google Publisher Tag carica il CMP da sé sulle pagine che hanno uno spazio configurato, e trattiene le richieste di annuncio finché non arriva il segnale TCF, quindi nessun annuncio parte prima della scelta dell'utente.
+Gli annunci in Italia richiedono un CMP certificato IAB TCF. Usiamo *Privacy e messaggi* (Funding Choices) di AdSense: crea un messaggio GDPR, associa il dominio e pubblicalo. Non serve aggiungere script — il tag AdSense carica il CMP da sé e trattiene le richieste di annuncio finché non arriva il segnale TCF, quindi nessun annuncio parte prima della scelta dell'utente.
 
 Il footer mostra "Gestisci il consenso" (`components/consent-link.tsx`) quando il CMP ha registrato una scelta da riaprire: riapre il messaggio per revocarla o modificarla, come richiede il GDPR. Non basta che esista `showRevocationMessage`, perché il tag AdSense porta Funding Choices su ogni pagina, anche dove il messaggio non è mai comparso, e lì il pulsante non farebbe nulla. Finché la pubblicità è spenta il pulsante non compare.
 
-Resta da scrivere la pagina privacy e cookie policy, a cui il messaggio di consenso deve puntare: oggi il sito non ne ha una.
+Il messaggio di consenso deve puntare alla pagina privacy e cookie policy del sito (`/privacy`).
 
 ## ads.txt
 
