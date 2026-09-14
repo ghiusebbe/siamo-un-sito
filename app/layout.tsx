@@ -42,7 +42,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             origin — localhost when SITE_URL was unset, the production domain on
             a preview build. Root-relative is right on whatever host serves it. */}
         <link rel="alternate" type="application/rss+xml" title="SIAMO — articoli" href="/feed.xml" />
-        <link rel="icon" href="/icon.png" type="image/png" sizes="512x512" />
+        <link rel="icon" href="/icon.png?v=siamo-black-white-1" type="image/png" sizes="512x512" />
         {adsense ? <AdsenseScript clientId={adsense.clientId} /> : null}
         <script dangerouslySetInnerHTML={{ __html: INTRO_SCRIPT }} />
         <SiteChrome>
