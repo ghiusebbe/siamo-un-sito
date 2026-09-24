@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { preload } from "react-dom";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/next";
 import { AdsenseScript } from "@/components/adsense-script";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
@@ -54,6 +55,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <SiteChrome>
           <Footer />
         </SiteChrome>
+        <Analytics />
       </body>
     </html>
   );
