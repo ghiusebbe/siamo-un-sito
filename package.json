@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@sanity/client": "8.4.0",
+    "@vercel/analytics": "^2.0.1",
     "next": "16.2.6",
     "next-sanity": "13.3.3",
     "react": "19.2.6",
@@ -29,21 +30,21 @@
     "three": "0.186.0"
   },
   "devDependencies": {
-    "sharp": "0.34.5",
     "@cloudflare/vite-plugin": "1.37.1",
     "@types/node": "22.19.19",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
+    "@types/three": "0.185.4",
     "@vitejs/plugin-react": "6.0.2",
     "@vitejs/plugin-rsc": "0.5.26",
     "eslint": "9.39.4",
     "eslint-config-next": "16.2.6",
     "react-server-dom-webpack": "19.2.6",
+    "sharp": "0.34.5",
     "typescript": "5.9.3",
     "vinext": "0.0.50",
     "vite": "8.0.13",
-    "wrangler": "4.92.0",
-    "@types/three": "0.185.4"
+    "wrangler": "4.92.0"
   },
   "type": "module",
   "displayName": "SIAMO Magazine"
