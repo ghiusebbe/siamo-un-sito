@@ -67,7 +67,7 @@ test("launch defaults to shop, while published Sanity settings always win", () =
     else process.env.SIAMO_DEFAULT_SITE_MODE = previous;
   }
   assert.equal(isEditorialPath("/servizi/masterclass"), true);
-  for (const path of ["/shop", "/studio/desk", "/privacy", "/brand/siamo-wordmark-black.png", "/articolista"]) assert.equal(isEditorialPath(path), false);
+  for (const path of ["/shop", "/studio/desk", "/privacy", "/condizioni-vendita", "/brand/siamo-wordmark-black.png", "/articolista"]) assert.equal(isEditorialPath(path), false);
 });
 
 test("preorders include the last day in Rome, then change to purchase", () => {
@@ -145,8 +145,9 @@ test("editorial URLs temporarily redirect without caching or losing campaign par
 
 test("temporary discovery hides editorial sitemap entries and suspends RSS", async () => {
   const { html, queries } = await request("/sitemap.xml");
-  assert.equal((html.match(/<loc>/g) ?? []).length, 3);
+  assert.equal((html.match(/<loc>/g) ?? []).length, 4);
   assert.match(html, /\/shop<\/loc>/);
+  assert.match(html, /\/condizioni-vendita<\/loc>/);
   assert.doesNotMatch(html, /\/articoli|\/eventi|\/servizi|\/timeline|\/chi-siamo/);
   assert.equal(queries.some((url) => editorialTags.includes(url.searchParams.get("tag"))), false);
   const feed = await request("/feed.xml");
@@ -178,4 +179,27 @@ test("privacy and Studio remain accessible; 404 navigation has no editorial link
   const missing = await request("/nessuna-pagina");
   assert.equal(missing.response.status, 404);
   assert.doesNotMatch(missing.html, /href="\/(?:articoli|eventi|timeline|servizi|chi-siamo)"/);
+});
+
+test("sale terms and purchase privacy stay accessible and linked in both site modes", async () => {
+  for (const shopOnly of [true, false]) {
+    const { response, html } = await request("/condizioni-vendita", { settings: { shopOnly } });
+    assert.equal(response.status, 200);
+    assert.match(html, /97928370010/);
+    assert.match(html, /mailto:test@example.com/);
+    assert.match(html, /Stripe/);
+    assert.match(html, /art\. 59, comma 1, lettera l\)/);
+    assert.match(html, /non si estende agli abbonamenti/);
+    assert.match(html, /garanzia legale di conformità/);
+    assert.match(html, /href="\/privacy"/);
+    const footer = html.match(/<footer[\s\S]*?<\/footer>/)?.[0];
+    assert.match(footer, /href="\/condizioni-vendita"/);
+    assert.match(footer, /href="\/privacy"/);
+    if (shopOnly) assert.doesNotMatch(html, /href="\/(?:articoli|eventi|timeline|servizi|chi-siamo)"/);
+    const privacy = await request("/privacy", { settings: { shopOnly } });
+    assert.equal(privacy.response.status, 200);
+    assert.match(privacy.html, /indirizzo di\s*spedizione/);
+    assert.match(privacy.html, /https:\/\/stripe.com\/it\/privacy/);
+    assert.match(privacy.html, /href="\/condizioni-vendita"/);
+  }
 });

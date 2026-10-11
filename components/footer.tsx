@@ -19,7 +19,7 @@ export async function Footer({ settings: suppliedSettings, shopOnly = false }: {
   if (shopOnly) return (
     <footer className="shop-footer shell">
       <span>© {new Date().getFullYear()} {settings.title}</span>
-      <nav aria-label="Informazioni legali"><Link href="/privacy">Privacy e cookie</Link><ConsentLink /></nav>
+      <nav aria-label="Informazioni legali"><Link href="/condizioni-vendita">Condizioni di vendita</Link><Link href="/privacy">Privacy e cookie</Link><ConsentLink /></nav>
     </footer>
   );
 
@@ -29,6 +29,7 @@ export async function Footer({ settings: suppliedSettings, shopOnly = false }: {
         <span className="eyebrow">Esplora</span>
         <Link href="/shop">Shop</Link>
         {sections.map(([label, href]) => <Link href={href} key={href}>{label}</Link>)}
+        <Link href="/condizioni-vendita">Condizioni di vendita</Link>
         <Link href="/privacy">Privacy e cookie</Link>
         <ConsentLink />
       </nav>

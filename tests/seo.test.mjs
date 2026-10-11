@@ -48,7 +48,7 @@ function jsonLd(html) {
 }
 
 test("public pages each have one matching canonical, specific descriptions and large social cards", async () => {
-  for (const path of ["/", "/articoli", "/eventi", "/servizi", "/timeline", "/chi-siamo", "/privacy", "/articoli/titolo-format-2026", "/eventi/ancora-kasino", "/servizi/masterclass"]) {
+  for (const path of ["/", "/articoli", "/eventi", "/servizi", "/timeline", "/chi-siamo", "/privacy", "/condizioni-vendita", "/articoli/titolo-format-2026", "/eventi/ancora-kasino", "/servizi/masterclass"]) {
     const { response, html } = await render(path);
     assert.equal(response.status, 200, path);
     assert.equal(response.headers.get("x-robots-tag"), null, path);
