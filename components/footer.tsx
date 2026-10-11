@@ -3,6 +3,7 @@ import { getSiteSettings } from "@/lib/content";
 import Image from "@/components/site-image";
 import { ConsentLink } from "@/components/consent-link";
 import { NewTabNote } from "@/components/new-tab-note";
+import type { SiteSettings } from "@/types/content";
 
 const sections = [
   ["Articoli", "/articoli"],
@@ -12,13 +13,21 @@ const sections = [
   ["Chi siamo?", "/chi-siamo"],
 ] as const;
 
-export async function Footer() {
-  const settings = await getSiteSettings();
+export async function Footer({ settings: suppliedSettings, shopOnly = false }: { settings?: SiteSettings; shopOnly?: boolean }) {
+  const settings = suppliedSettings ?? await getSiteSettings();
+
+  if (shopOnly) return (
+    <footer className="shop-footer shell">
+      <span>© {new Date().getFullYear()} {settings.title}</span>
+      <nav aria-label="Informazioni legali"><Link href="/privacy">Privacy e cookie</Link><ConsentLink /></nav>
+    </footer>
+  );
 
   return (
     <footer className="footer shell">
       <nav className="footer-nav" aria-label="Sezioni del sito">
         <span className="eyebrow">Esplora</span>
+        <Link href="/shop">Shop</Link>
         {sections.map(([label, href]) => <Link href={href} key={href}>{label}</Link>)}
         <Link href="/privacy">Privacy e cookie</Link>
         <ConsentLink />

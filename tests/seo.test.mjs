@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+// Existing editorial behavior must still work when the temporary mode is off.
+process.env.SIAMO_DEFAULT_SITE_MODE = "editorial";
+
 const origin = "https://siamounmagazine.com";
 const cover = "https://cdn.sanity.io/images/seofixture/production/photo-1600x1000.jpg";
 const article = {
@@ -21,7 +24,7 @@ async function render(path, { host = origin, fixture = false } = {}) {
       const url = new URL(input instanceof Request ? input.url : input);
       assert.equal(url.hostname, "seofixture.apicdn.sanity.io");
       const tag = url.searchParams.get("tag");
-      const results = { "siamo.settings": { title: "SIAMO", email: "siamounmagazine@gmail.com", metrics: [] }, "siamo.dataset-state": 1, "siamo.article": article, "siamo.articles": [article], "siamo.events": [event], "siamo.services": [service] };
+      const results = { "siamo.settings": { shopOnly: false, title: "SIAMO", email: "siamounmagazine@gmail.com", metrics: [] }, "siamo.dataset-state": 1, "siamo.article": article, "siamo.articles": [article], "siamo.events": [event], "siamo.services": [service] };
       assert.ok(tag in results, `Unexpected Sanity request: ${tag}`);
       if (["siamo.article", "siamo.articles", "siamo.events", "siamo.services"].includes(tag)) assert.match(url.searchParams.get("query"), /_updatedAt/);
       return Response.json({ result: results[tag] });

@@ -14,7 +14,7 @@ const service = {
   id: "service-test", slug: "servizio-prova", title: "Servizio di prova",
   tagline: "Il progetto prende forma", intro: "Progetti editoriali e culturali.",
 };
-const settings = { title: "SIAMO", email: "redazione@example.com" };
+const settings = { shopOnly: false, title: "SIAMO", email: "redazione@example.com" };
 const blankBlock = { _type: "block", children: [{ _type: "span", text: " \n\t\u00a0 " }] };
 
 /** Exercise the built pages through the real Sanity client, with no live dataset. */

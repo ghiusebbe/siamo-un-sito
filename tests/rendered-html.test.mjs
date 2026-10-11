@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+// Existing editorial behavior must still work when the temporary mode is off.
+process.env.SIAMO_DEFAULT_SITE_MODE = "editorial";
+
 async function loadWorker() {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
   workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}-${Math.random()}`);
@@ -164,7 +167,7 @@ test("links the icon relative to whatever host serves the page", async () => {
   // Resolved against metadataBase, the icon used to ship as an absolute URL on
   // another origin: localhost when SITE_URL was unset, the production domain on
   // a preview deployment.
-  assert.match(html, /<link[^>]*rel="icon"[^>]*href="\/icon\.png"/i);
+  assert.match(html, /<link[^>]*rel="icon"[^>]*href="\/icon\.png(?:\?[^"\s]*)?"/i);
   assert.doesNotMatch(html, /rel="icon"[^>]*href="https?:\/\//i);
 });
 

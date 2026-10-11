@@ -1,8 +1,13 @@
 import { getRssFeed } from "@/lib/rss";
+import { getSiteSettings } from "@/lib/content";
+import { isShopOnly } from "@/lib/shop";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
+  if (isShopOnly(await getSiteSettings())) return new Response("Feed temporaneamente sospeso.", {
+    status: 503, headers: { "Cache-Control": "no-store", "Retry-After": "300" },
+  });
   try {
     return new Response(await getRssFeed(), {
       headers: {

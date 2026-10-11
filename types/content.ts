@@ -84,6 +84,11 @@ export type Magazine = {
   comingSoon?: boolean;
   /** Optional release time: shown as a countdown, and it ends coming soon when it passes. */
   releaseAt?: string;
+  productImage?: string;
+  description?: string;
+  price?: number;
+  shippingNote?: string;
+  preorderUntil?: string;
 };
 
 export type SiteSettings = {
@@ -93,4 +98,7 @@ export type SiteSettings = {
   instagramHandle: string;
   instagramUrl: string;
   metrics: Array<{ value: string; label: string }>;
+  /** Missing on existing documents: the launch defaults to the temporary shop. */
+  shopOnly?: boolean;
+  featuredMagazineId?: string;
 };
