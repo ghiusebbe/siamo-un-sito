@@ -27,23 +27,31 @@ export async function Shop({ settings, featuredOnly = false }: { settings: SiteS
         const checkout = offer.kind === "buy" && /^https:\/\//i.test(offer.url) ? offer.url : undefined;
         return (
           <article className="shop-product" key={magazine.id} aria-labelledby={`product-${index}`}>
-            <div className="shop-image">
-              {image ? <Image src={image} alt={`Copertina di ${magazine.title}, volume ${magazine.volume}`} width={1086} height={1536} sizes="(max-width: 760px) calc(100vw - 28px), 560px" priority={index === 0} />
+            <div className={`shop-image${magazine.productImage ? " shop-image-photo" : ""}`}>
+              {image ? <Image src={image} alt={`${magazine.productImage ? "Foto del cartaceo" : "Copertina"} di ${magazine.title}, volume ${magazine.volume}`} width={1086} height={1536} sizes="(max-width: 760px) calc(100vw - 28px), (max-width: 1220px) 46vw, 560px" priority={index === 0} />
                 : <p className="shop-image-empty">Immagine in arrivo.</p>}
             </div>
             <div className="shop-copy">
-              <span className="eyebrow">Il cartaceo · Vol. {magazine.volume}</span>
+              <span className={`eyebrow${checkout && purchase.preorder ? " shop-status" : ""}`}>
+                {checkout && purchase.preorder ? "Preordini aperti" : `Il cartaceo · Vol. ${magazine.volume}`}
+              </span>
               <h2 id={`product-${index}`}>SIAMO<br />VOL. {magazine.volume}</h2>
               {magazine.title && <p className="shop-product-title">{magazine.title}</p>}
               {magazine.description && <p className="shop-description">{magazine.description}</p>}
               {magazine.price !== undefined && <p className="shop-price">{new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" }).format(magazine.price)}</p>}
-              {checkout ? <>
-                {purchase.deadline && <p className="shop-deadline">Preordini aperti fino al {purchase.deadline}.</p>}
-                <a className="shop-buy" href={checkout} target="_blank" rel="noopener noreferrer">
-                  {purchase.label}<span aria-hidden="true">↗</span><NewTabNote />
-                </a>
-              </> : <p className="shop-availability" role="status">{offer.kind === "coming-soon" ? "Disponibile prossimamente." : "Acquisto disponibile a breve."}</p>}
-              {magazine.shippingNote && <p className="shop-shipping">{magazine.shippingNote}</p>}
+              <div className="shop-purchase">
+                {checkout ? <>
+                  {purchase.deadline && <p className="shop-deadline">Preordini fino al {purchase.deadline}.</p>}
+                  <a className="shop-buy" href={checkout} target="_blank" rel="noopener noreferrer">
+                    <span>{purchase.label}</span>
+                    <svg className="shop-buy-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
+                      <path d="M5 19 19 5M5 5h14v14" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    <NewTabNote />
+                  </a>
+                </> : <p className="shop-availability" role="status">{offer.kind === "coming-soon" ? "Disponibile prossimamente." : "Acquisto disponibile a breve."}</p>}
+                {magazine.shippingNote && <p className="shop-shipping">{magazine.shippingNote}</p>}
+              </div>
             </div>
           </article>
         );
