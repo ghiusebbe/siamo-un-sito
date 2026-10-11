@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+// Existing editorial behavior must still work when the temporary mode is off.
+process.env.SIAMO_DEFAULT_SITE_MODE = "editorial";
+
 const article = {
   id: "article-one", title: 'Musica & cultura <oggi> "🎶"', slug: "musica-oggi",
   publishedAt: "2026-01-01T12:00:00Z", author: "Redazione & amici",
@@ -19,7 +22,10 @@ async function requestFeed(result = [article], options = {}) {
   globalThis.fetch = async (input) => {
     const url = new URL(input instanceof Request ? input.url : input);
     assert.equal(url.hostname, "feedtest.apicdn.sanity.io");
-    assert.equal(url.searchParams.get("tag"), "siamo.rss");
+    const tag = url.searchParams.get("tag");
+    if (tag === "siamo.dataset-state") return Response.json({ result: 1 });
+    if (tag === "siamo.settings") return Response.json({ result: { title: "SIAMO", email: "test@example.com", shopOnly: false } });
+    assert.equal(tag, "siamo.rss");
     requests.push(url);
     if (options.error) return Response.json({ error: "Unauthorized" }, { status: 401 });
     return Response.json({ result });

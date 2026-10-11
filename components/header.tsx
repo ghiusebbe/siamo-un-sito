@@ -7,6 +7,7 @@ import Image from "@/components/site-image";
 import { NewTabNote } from "@/components/new-tab-note";
 
 const links = [
+  ["Shop", "/shop"],
   ["Articoli", "/articoli"],
   ["Eventi", "/eventi"],
   ["Timeline", "/timeline"],
@@ -18,12 +19,13 @@ function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function Header() {
+export function Header({ shopOnly = false }: { shopOnly?: boolean }) {
   const pathname = usePathname();
+  const visibleLinks = shopOnly ? links.filter(([, href]) => href === "/shop") : links;
   const headerRef = useRef<HTMLElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [compact, setCompact] = useState(false);
-  const headerClassName = ["site-header", compact && "is-compact", menuOpen && "menu-is-open"]
+  const headerClassName = ["site-header", shopOnly && "shop-header", compact && "is-compact", menuOpen && "menu-is-open"]
     .filter(Boolean)
     .join(" ");
 
@@ -75,13 +77,13 @@ export function Header() {
       <div className="header-inner">
         <Link className="brand-link" href="/" aria-label="SIAMO, homepage">
           <picture className="brand-art">
-            <source media="(max-width: 620px)" srcSet="/brand/siamo-symbol-black.png" />
+            {!shopOnly && <source media="(max-width: 620px)" srcSet="/brand/siamo-symbol-black.png" />}
             <Image
               src="/brand/siamo-wordmark-black.png"
               alt=""
               width={2200}
               height={546}
-              sizes="(max-width: 620px) 32px, 112px"
+              sizes={shopOnly ? "112px" : "(max-width: 620px) 32px, 112px"}
               priority
             />
           </picture>
@@ -89,14 +91,14 @@ export function Header() {
         </Link>
 
         <nav className="desktop-nav" aria-label="Navigazione principale">
-          {links.map(([label, href]) => (
-            <Link key={href} href={href} aria-current={isActive(pathname, href) ? "page" : undefined}>
+          {visibleLinks.map(([label, href]) => (
+            <Link key={href} href={href} aria-current={isActive(pathname, href) || (shopOnly && pathname === "/") ? "page" : undefined}>
               {label}
             </Link>
           ))}
-          <a className="desktop-social" href="https://www.instagram.com/siamounmagazine/" target="_blank" rel="noreferrer">
+          {!shopOnly && <a className="desktop-social" href="https://www.instagram.com/siamounmagazine/" target="_blank" rel="noreferrer">
             IG ↗<NewTabNote />
-          </a>
+          </a>}
         </nav>
 
         <button
@@ -113,7 +115,7 @@ export function Header() {
 
       <nav id="mobile-menu" className="mobile-nav" aria-label="Navigazione mobile" hidden={!menuOpen}>
         <div className="mobile-nav-inner">
-          {links.map(([label, href], index) => (
+          {visibleLinks.map(([label, href], index) => (
             <Link
               key={href}
               href={href}
@@ -125,9 +127,9 @@ export function Header() {
               <span aria-hidden="true">↗</span>
             </Link>
           ))}
-          <a className="mobile-instagram" href="https://www.instagram.com/siamounmagazine/" target="_blank" rel="noreferrer" onClick={() => setMenuOpen(false)}>
+          {!shopOnly && <a className="mobile-instagram" href="https://www.instagram.com/siamounmagazine/" target="_blank" rel="noreferrer" onClick={() => setMenuOpen(false)}>
             <span>IG</span><strong>Instagram<NewTabNote /></strong><span aria-hidden="true">↗</span>
-          </a>
+          </a>}
         </div>
       </nav>
 

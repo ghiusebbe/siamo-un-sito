@@ -17,8 +17,8 @@ const CACHE = {
   events: 300,
   services: 3600,
   archive: 3600,
-  magazines: 86400,
-  settings: 3600,
+  magazines: 300,
+  settings: 60,
 } as const;
 
 /**
@@ -74,6 +74,11 @@ const normalizeContent = {
     checkoutUrl: contentText(item.checkoutUrl),
     comingSoon: item.comingSoon === true,
     releaseAt: contentText(item.releaseAt),
+    productImage: sanityImage(item.productImage),
+    description: contentText(item.description),
+    shippingNote: contentText(item.shippingNote),
+    preorderUntil: contentText(item.preorderUntil),
+    price: typeof item.price === "number" && Number.isFinite(item.price) && item.price >= 0 ? item.price : undefined,
   }),
 };
 
@@ -202,18 +207,35 @@ export async function getTimeline(): Promise<TimelineItem[]> {
   return items.map(normalizeContent.timeline);
 }
 
+const magazineProjection = `{ "id": _id, volume, title, "cover": coverImage.asset->url,
+  "productImage": productImage.asset->url, description, price, shippingNote,
+  preorderUntil, checkoutUrl, comingSoon, releaseAt }`;
+
 export async function getMagazines(): Promise<Magazine[]> {
-  const items = await queryOrFallback(`*[_type == "magazine"] | order(volume asc) { "id": _id, volume, title, "cover": coverImage.asset->url, checkoutUrl, comingSoon, releaseAt }`, fallbackMagazines, {}, { revalidate: CACHE.magazines, requestTag: "magazines" });
+  const items = await queryOrFallback(`*[_type == "magazine"] | order(volume asc) ${magazineProjection}`, fallbackMagazines, {}, { revalidate: CACHE.magazines, requestTag: "magazines" });
+  return items.map(normalizeContent.magazine);
+}
+
+/** Shop media and checkout links always come from published CMS content. */
+export async function getShopMagazines(settings: SiteSettings, featuredOnly: boolean): Promise<Magazine[]> {
+  const items = await queryOrFallback<Magazine[]>(
+    `*[_type == "magazine" && ($featuredOnly == false || _id == $featuredId
+      || ($featuredId == "" && volume == 4))] | order(volume desc, _updatedAt desc) ${magazineProjection}`,
+    [], { featuredOnly, featuredId: settings.featuredMagazineId || "" },
+    { revalidate: CACHE.magazines, requestTag: "shop-magazines" },
+  );
   return items.map(normalizeContent.magazine);
 }
 
 export async function getSiteSettings(): Promise<SiteSettings> {
-  const settings = await queryOrFallback(`*[_type == "siteSettings"][0] { title, description, email, instagramHandle, instagramUrl, metrics }`, fallbackSettings, {}, { revalidate: CACHE.settings, requestTag: "settings" });
+  const settings = await queryOrFallback(`*[_type == "siteSettings"][0] { title, description, email, instagramHandle, instagramUrl, metrics, shopOnly, "featuredMagazineId": featuredMagazine._ref }`, fallbackSettings, {}, { revalidate: CACHE.settings, requestTag: "settings" });
   return {
     ...settings,
     description: contentText(settings.description),
     instagramHandle: contentText(settings.instagramHandle),
     instagramUrl: contentText(settings.instagramUrl),
     metrics: (settings.metrics ?? []).filter((metric) => hasText(metric?.value) && hasText(metric?.label)),
+    shopOnly: typeof settings.shopOnly === "boolean" ? settings.shopOnly : undefined,
+    featuredMagazineId: contentText(settings.featuredMagazineId),
   };
 }

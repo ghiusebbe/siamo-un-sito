@@ -1,13 +1,15 @@
 import type { MetadataRoute } from "next";
-import { getArticles, getEvents, getServices } from "@/lib/content";
+import { getArticles, getEvents, getServices, getSiteSettings } from "@/lib/content";
+import { isShopOnly } from "@/lib/shop";
 import { validDate } from "@/lib/seo";
 import { siteUrl } from "@/lib/site-url";
 
 export const revalidate = 300;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  if (isShopOnly(await getSiteSettings())) return ["", "/shop", "/privacy", "/condizioni-vendita"].map((path) => ({ url: `${siteUrl}${path}` }));
   const [articles, events, services] = await Promise.all([getArticles(), getEvents(), getServices()]);
-  const staticPages = ["", "/articoli", "/eventi", "/timeline", "/servizi", "/chi-siamo", "/privacy"];
+  const staticPages = ["", "/shop", "/articoli", "/eventi", "/timeline", "/servizi", "/chi-siamo", "/privacy", "/condizioni-vendita"];
   return [
     ...staticPages.map((path) => ({ url: `${siteUrl}${path}`, changeFrequency: "weekly" as const })),
     ...articles.map((item) => ({ url: `${siteUrl}/articoli/${item.slug}`, lastModified: validDate(item._updatedAt) || validDate(item.publishedAt) })),

@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+process.env.SIAMO_DEFAULT_SITE_MODE = "editorial";
+
 const workerUrl = new URL("../dist/server/index.js", import.meta.url);
 
 /** Ogni import valuta di nuovo i moduli, così ogni test può avere il suo process.env. */

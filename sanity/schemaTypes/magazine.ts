@@ -3,11 +3,16 @@ import { defineField, defineType } from "sanity";
 type MagazineDraft = { comingSoon?: boolean; releaseAt?: string };
 
 export default defineType({
-  name: "magazine", title: "Cartaceo digitale", type: "document",
+  name: "magazine", title: "Cartaceo / Shop", type: "document",
   fields: [
     defineField({ name: "title", title: "Titolo", type: "string", validation: (rule) => rule.required() }),
     defineField({ name: "volume", title: "Volume", type: "number", validation: (rule) => rule.required().integer() }),
     defineField({ name: "coverImage", title: "Copertina", type: "image", validation: (rule) => rule.required() }),
+    defineField({ name: "productImage", title: "Foto per lo shop", type: "image", description: "Facoltativa: foto del cartaceo o mockup. Se assente, lo shop usa la copertina intera, senza ritagliarla." }),
+    defineField({ name: "description", title: "Descrizione per lo shop", type: "text", rows: 3 }),
+    defineField({ name: "price", title: "Prezzo in euro", type: "number", validation: (rule) => rule.min(0).precision(2) }),
+    defineField({ name: "shippingNote", title: "Nota spedizione", type: "string", description: "Per esempio: Spedizione calcolata al pagamento. Mostrata accanto al pulsante." }),
+    defineField({ name: "preorderUntil", title: "Preordini fino al", type: "date", description: "Fino a questa data inclusa (ora italiana) il pulsante dice Preordina; dopo torna Acquista. Il termine non imposta una data di spedizione." }),
     defineField({
       name: "comingSoon", title: "Coming Soon", type: "boolean", initialValue: false,
       description: "Mostra «Coming soon» al posto del pulsante Acquista. Il link d’acquisto non viene pubblicato sul sito.",
@@ -21,6 +26,7 @@ export default defineType({
     defineField({
       name: "checkoutUrl", title: "Link acquisto", type: "url",
       validation: (rule) => [
+        rule.uri({ scheme: ["https"] }),
         rule.custom((value, { document }) => value || (document as MagazineDraft | undefined)?.comingSoon
           ? true
           : "Inserisci il link d’acquisto oppure attiva Coming Soon."),

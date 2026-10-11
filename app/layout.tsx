@@ -11,6 +11,8 @@ import { INTRO_SCRIPT } from "@/lib/intro";
 import { StructuredData } from "@/components/structured-data";
 import { homeTitle, siteDescription, siteStructuredData } from "@/lib/seo";
 import { siteUrl } from "@/lib/site-url";
+import { getSiteSettings } from "@/lib/content";
+import { isShopOnly } from "@/lib/shop";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -24,7 +26,9 @@ export const metadata: Metadata = {
 
 const fontPreloadOptions = { as: "font", type: "font/woff2", crossOrigin: "anonymous" } as const;
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const settings = await getSiteSettings();
+  const shopOnly = isShopOnly(settings);
   // Both cuts sit on the critical path of every heading: fetch them with the HTML.
   preload("/fonts/Helvetica-Regular.woff2", fontPreloadOptions);
   preload("/fonts/Helvetica-Bold.woff2", fontPreloadOptions);
@@ -41,18 +45,18 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             metadataBase, which shipped an absolute href pointing at another
             origin — localhost when SITE_URL was unset, the production domain on
             a preview build. Root-relative is right on whatever host serves it. */}
-        <link rel="alternate" type="application/rss+xml" title="SIAMO — articoli" href="/feed.xml" />
+        {!shopOnly && <link rel="alternate" type="application/rss+xml" title="SIAMO — articoli" href="/feed.xml" />}
         <link rel="icon" href="/icon.png?v=siamo-black-white-1" type="image/png" sizes="512x512" />
-        {adsense ? <AdsenseScript clientId={adsense.clientId} /> : null}
-        <script dangerouslySetInnerHTML={{ __html: INTRO_SCRIPT }} />
+        {adsense && !shopOnly ? <AdsenseScript clientId={adsense.clientId} /> : null}
+        {!shopOnly && <script dangerouslySetInnerHTML={{ __html: INTRO_SCRIPT }} />}
         <SiteChrome>
-          <SiteIntro />
+          {!shopOnly && <SiteIntro />}
           <a className="skip-link" href="#contenuto">Vai al contenuto</a>
-          <Header />
+          <Header shopOnly={shopOnly} />
         </SiteChrome>
         <main id="contenuto">{children}</main>
         <SiteChrome>
-          <Footer />
+          <Footer settings={settings} shopOnly={shopOnly} />
         </SiteChrome>
       </body>
     </html>
