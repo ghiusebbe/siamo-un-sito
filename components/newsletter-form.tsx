@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { track } from "@vercel/analytics";
 
 export function NewsletterForm() {
   const [state, setState] = useState<"idle" | "loading" | "success" | "error">("idle");
@@ -26,6 +27,8 @@ export function NewsletterForm() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || "Iscrizione non riuscita");
       setState("success");
+      // Only the outcome is sent, never the address.
+      track("Iscrizione newsletter", { conferma: data.pending ? "in attesa" : "completata" });
       setMessage(data.pending
         ? "Quasi fatto: conferma l’iscrizione dal link che ti abbiamo appena mandato via email."
         : "Sei dentro. Ci leggiamo presto.");
