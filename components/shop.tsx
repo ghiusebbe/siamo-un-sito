@@ -1,5 +1,6 @@
 import Image from "@/components/site-image";
 import { NewTabNote } from "@/components/new-tab-note";
+import { TrackedLink } from "@/components/tracked-link";
 import { getShopMagazines } from "@/lib/content";
 import { magazineOffer } from "@/lib/magazine";
 import { shopPurchase } from "@/lib/shop";
@@ -42,13 +43,13 @@ export async function Shop({ settings, featuredOnly = false }: { settings: SiteS
               <div className="shop-purchase">
                 {checkout ? <>
                   {purchase.deadline && <p className="shop-deadline">Preordini fino al {purchase.deadline}.</p>}
-                  <a className="shop-buy" href={checkout} target="_blank" rel="noopener noreferrer">
+                  <TrackedLink className="shop-buy" href={checkout} target="_blank" rel="noopener noreferrer" event="Acquista" properties={{ volume: magazine.volume, origine: "shop" }}>
                     <span>{purchase.label}</span>
                     <svg className="shop-buy-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
                       <path d="M5 19 19 5M5 5h14v14" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                     <NewTabNote />
-                  </a>
+                  </TrackedLink>
                 </> : <p className="shop-availability" role="status">{offer.kind === "coming-soon" ? "Disponibile prossimamente." : "Acquisto disponibile a breve."}</p>}
                 {magazine.shippingNote && <p className="shop-shipping">{magazine.shippingNote}</p>}
               </div>

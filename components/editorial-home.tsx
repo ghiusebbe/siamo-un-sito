@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "@/components/site-image";
 import { Wordmark } from "@/components/wordmark";
 import { DynamicTitle } from "@/components/dynamic-title";
+import { TrackedLink } from "@/components/tracked-link";
 import { MagazineCountdown } from "@/components/magazine-countdown";
 import { NewsletterForm } from "@/components/newsletter-form";
 import { NewTabNote } from "@/components/new-tab-note";
@@ -228,9 +229,9 @@ export async function EditorialHome() {
                     <span>Volume {magazine.volume}</span>
                     <h3>{magazine.title}</h3>
                     {offer.kind === "buy" ? (
-                      <a className="acid-button" href={offer.url} target="_blank" rel="noreferrer">
+                      <TrackedLink className="acid-button" href={offer.url} target="_blank" rel="noreferrer" event="Acquista" properties={{ volume: magazine.volume, origine: "home" }}>
                         Acquista ↗<span className="sr-only"> {magazine.title}</span><NewTabNote />
-                      </a>
+                      </TrackedLink>
                     ) : null}
                     {offer.kind === "coming-soon" ? (
                       <p className="magazine-status">
