@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { preload } from "react-dom";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { AdsenseScript } from "@/components/adsense-script";
 import { Footer } from "@/components/footer";
@@ -58,6 +59,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <SiteChrome>
           <Footer settings={settings} shopOnly={shopOnly} />
         </SiteChrome>
+        <Analytics />
       </body>
     </html>
   );
