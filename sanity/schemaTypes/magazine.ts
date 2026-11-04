@@ -12,7 +12,7 @@ export default defineType({
     defineField({ name: "description", title: "Descrizione per lo shop", type: "text", rows: 3 }),
     defineField({ name: "price", title: "Prezzo in euro", type: "number", validation: (rule) => rule.min(0).precision(2) }),
     defineField({ name: "shippingNote", title: "Nota spedizione", type: "string", description: "Per esempio: Spedizione calcolata al pagamento. Mostrata accanto al pulsante." }),
-    defineField({ name: "preorderUntil", title: "Preordini fino al", type: "date", description: "Fino a questa data inclusa (ora italiana) il pulsante dice Preordina; dopo torna Acquista. Il termine non imposta una data di spedizione." }),
+    defineField({ name: "preorderUntil", title: "Preordini fino al", type: "date", description: "Fino a questa data inclusa (ora italiana) il pulsante dice Preordina. Dal giorno successivo è disattivato e mostra «I preordini sono chiusi. Grazie a tuttə!». Lascia vuoto per la vendita ordinaria con il pulsante Acquista. Il termine non imposta una data di spedizione." }),
     defineField({
       name: "comingSoon", title: "Coming Soon", type: "boolean", initialValue: false,
       description: "Mostra «Coming soon» al posto del pulsante Acquista. Il link d’acquisto non viene pubblicato sul sito.",

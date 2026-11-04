@@ -18,8 +18,12 @@ export function shopPurchase(magazine: Magazine, now = Date.now()) {
     && parsed.toISOString().slice(0, 10) === date;
   const today = new Intl.DateTimeFormat("sv-SE", { timeZone: "Europe/Rome" }).format(new Date(now));
   const preorder = valid && today <= date;
+  const preorderClosed = valid && today > date;
   const deadline = preorder ? new Intl.DateTimeFormat("it-IT", {
     day: "numeric", month: "long", timeZone: "Europe/Rome",
   }).format(parsed) : undefined;
-  return { preorder, deadline, label: `${preorder ? "Preordina" : "Acquista"} il vol. ${magazine.volume}` };
+  return {
+    preorder, preorderClosed, deadline,
+    label: preorderClosed ? "I preordini sono chiusi. Grazie a tuttə!" : `${preorder ? "Preordina" : "Acquista"} il vol. ${magazine.volume}`,
+  };
 }

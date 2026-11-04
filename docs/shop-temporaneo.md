@@ -12,8 +12,11 @@ La home editoriale e tutte le pagine restano nel repository e in Sanity.
    nota spedizione e **Preordini fino al**. La foto sostituisce la copertina solo
    nello shop; entrambe vengono mostrate intere, senza ritaglio.
 3. Se i preordini terminano il 31 ottobre, imposta la data `2026-10-31`.
-   Fino a fine giornata, ora di Roma, il pulsante dice **Preordina**; poi
-   **Acquista**. Questa data non cambia la disponibilità né la spedizione.
+   Fino a fine giornata, ora di Roma, il pulsante dice **Preordina**. Dal giorno
+   successivo è disattivato e mostra **I preordini sono chiusi. Grazie a tuttə!**,
+   senza pubblicare il link al checkout. Vale per qualsiasi volume: sposta la data
+   nel futuro per riaprire i preordini, oppure svuota il campo per la vendita
+   ordinaria con **Acquista**. Questa data non imposta una data di spedizione.
 4. **Coming Soon** continua a nascondere il link d’acquisto anche nel codice HTML.
    L’eventuale data **Uscita** lo abilita al primo rendering successivo alla scadenza.
 5. Pubblica il cartaceo. In **Impostazioni sito**, attiva **Modalità temporanea:
