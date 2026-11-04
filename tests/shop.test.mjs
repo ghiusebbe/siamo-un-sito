@@ -70,17 +70,26 @@ test("launch defaults to shop, while published Sanity settings always win", () =
   for (const path of ["/shop", "/studio/desk", "/privacy", "/condizioni-vendita", "/brand/siamo-wordmark-black.png", "/articolista"]) assert.equal(isEditorialPath(path), false);
 });
 
-test("preorders include the last day in Rome, then change to purchase", () => {
+test("preorders include the last day in Rome, then close according to the CMS date", () => {
   const magazine = { ...product, preorderUntil: "2026-10-31" };
   assert.equal(shopPurchase(magazine, Date.parse("2026-10-31T22:59:59Z")).label, "Preordina il vol. 4");
-  assert.equal(shopPurchase(magazine, Date.parse("2026-10-31T23:00:00Z")).label, "Acquista il vol. 4");
+  assert.equal(shopPurchase(magazine, Date.parse("2026-10-31T22:59:59Z")).preorderClosed, false);
+  const closed = shopPurchase(magazine, Date.parse("2026-10-31T23:00:00Z"));
+  assert.equal(closed.preorderClosed, true);
+  assert.equal(closed.label, "I preordini sono chiusi. Grazie a tuttə!");
+  assert.equal(closed.deadline, undefined);
   assert.equal(shopPurchase(magazine, Date.parse("2026-10-01")).deadline, "31 ottobre");
-  for (const date of ["", "invalid", "2026-02-30", "2026-13-01"]) assert.equal(shopPurchase({ ...product, preorderUntil: date }).preorder, false);
+  for (const date of [undefined, "", "invalid", "2026-02-30", "2026-13-01"]) {
+    const purchase = shopPurchase({ ...product, preorderUntil: date });
+    assert.equal(purchase.preorder, false);
+    assert.equal(purchase.preorderClosed, false);
+    assert.equal(purchase.label, "Acquista il vol. 4");
+  }
 });
 
 test("home and permanent shop show the CMS volume with closed preorders and no checkout", async () => {
   for (const path of ["/", "/shop"]) {
-    const { response, html, queries } = await request(path, { magazines: [product, { ...product, id: "old", volume: 3, title: "Vecchio numero" }] });
+    const { response, html, queries } = await request(path, { magazines: [{ ...product, preorderUntil: "2000-01-01" }, { ...product, id: "old", volume: 3, title: "Vecchio numero" }] });
     assert.equal(response.status, 200);
     assert.match(html, /<h1[^>]*>SHOP\.<\/h1>/);
     assert.match(html, /src="\/brand\/siamo-wordmark-black.png"/);
@@ -92,6 +101,23 @@ test("home and permanent shop show the CMS volume with closed preorders and no c
     assert.match(html, /Spedizione al checkout/);
     assert.doesNotMatch(html, /Vecchio numero|class="home-feed"|class="site-intro"|href="\/(?:articoli|eventi|timeline|servizi|chi-siamo)"|href="\/feed.xml"/);
     assert.equal(queries.some((url) => editorialTags.includes(url.searchParams.get("tag"))), false);
+  }
+});
+
+test("the CMS preorder date controls any volume, including reopening and ordinary sales", async () => {
+  for (const volume of [4, 5]) {
+    for (const preorderUntil of ["2000-01-01", "2999-01-01", undefined]) {
+      const { html } = await request("/shop", { settings: { shopOnly: false }, magazines: [{ ...product, volume, preorderUntil }] });
+      if (preorderUntil === "2000-01-01") {
+        assert.match(html, /<button[^>]*class="shop-buy"[^>]*disabled[^>]*>/);
+        assert.match(html, /I preordini sono chiusi\. Grazie a tuttə!/);
+        assert.doesNotMatch(html, /checkout.example|Preordini aperti|Preordini fino al/);
+      } else {
+        assert.match(html, /href="https:\/\/checkout.example.com\/volume-four"/);
+        assert.match(html, new RegExp(`${preorderUntil ? "Preordina" : "Acquista"} il vol\\. ${volume}`));
+        assert.doesNotMatch(html, /I preordini sono chiusi|<button[^>]*class="shop-buy"/);
+      }
+    }
   }
 });
 

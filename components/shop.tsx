@@ -26,7 +26,7 @@ export async function Shop({ settings, featuredOnly = false }: { settings: SiteS
         const purchase = shopPurchase(magazine, now);
         // CMS validation is also enforced at render time for pre-existing documents.
         const checkout = offer.kind === "buy" && /^https:\/\//i.test(offer.url) ? offer.url : undefined;
-        const preorderClosed = magazine.volume === 4 && Boolean(checkout);
+        const preorderClosed = offer.kind !== "coming-soon" && purchase.preorderClosed;
         return (
           <article className="shop-product" key={magazine.id} aria-labelledby={`product-${index}`}>
             <div className={`shop-image${magazine.productImage ? " shop-image-photo" : ""}`}>
@@ -43,7 +43,7 @@ export async function Shop({ settings, featuredOnly = false }: { settings: SiteS
               {magazine.price !== undefined && <p className="shop-price">{new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" }).format(magazine.price)}</p>}
               <div className="shop-purchase">
                 {preorderClosed ? <button className="shop-buy" type="button" disabled>
-                  <span>I preordini sono chiusi. Grazie a tuttə!</span>
+                  <span>{purchase.label}</span>
                 </button> : checkout ? <>
                   {purchase.deadline && <p className="shop-deadline">Preordini fino al {purchase.deadline}.</p>}
                   <TrackedLink className="shop-buy" href={checkout} target="_blank" rel="noopener noreferrer" event="Acquista" properties={{ volume: magazine.volume, origine: "shop" }}>
