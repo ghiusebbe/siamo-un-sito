@@ -78,13 +78,15 @@ test("preorders include the last day in Rome, then change to purchase", () => {
   for (const date of ["", "invalid", "2026-02-30", "2026-13-01"]) assert.equal(shopPurchase({ ...product, preorderUntil: date }).preorder, false);
 });
 
-test("home and permanent shop show only the CMS volume, with original header logo and checkout", async () => {
+test("home and permanent shop show the CMS volume with closed preorders and no checkout", async () => {
   for (const path of ["/", "/shop"]) {
     const { response, html, queries } = await request(path, { magazines: [product, { ...product, id: "old", volume: 3, title: "Vecchio numero" }] });
     assert.equal(response.status, 200);
     assert.match(html, /<h1[^>]*>SHOP\.<\/h1>/);
     assert.match(html, /src="\/brand\/siamo-wordmark-black.png"/);
-    assert.match(html, /href="https:\/\/checkout.example.com\/volume-four"/);
+    assert.match(html, /<button[^>]*class="shop-buy"[^>]*disabled[^>]*>/);
+    assert.match(html, /I preordini sono chiusi\. Grazie a tuttə!/);
+    assert.doesNotMatch(html, /checkout.example.com\/volume-four|Preordini aperti|Preordini fino al/);
     assert.match(html, /photo-1086x1536/);
     assert.match(html, /15,00/);
     assert.match(html, /Spedizione al checkout/);
@@ -121,7 +123,7 @@ test("Coming Soon withholds checkout from the complete HTML, including React pay
     assert.match(html, /Disponibile prossimamente/);
     assert.doesNotMatch(html, /checkout.example|volume-four/);
   }
-  const available = await request("/", { magazines: [{ ...product, comingSoon: true, releaseAt: "2020-01-01T00:00:00Z" }] });
+  const available = await request("/shop", { settings: { shopOnly: false }, magazines: [{ ...product, volume: 5, comingSoon: true, releaseAt: "2020-01-01T00:00:00Z" }] });
   assert.match(available.html, /href="https:\/\/checkout.example/);
   const unsafe = await request("/", { magazines: [{ ...product, checkoutUrl: "javascript:alert(1)" }] });
   assert.doesNotMatch(unsafe.html, /javascript:alert|class="shop-buy"/);

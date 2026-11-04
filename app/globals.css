@@ -1538,10 +1538,11 @@ html[data-wordmark="fallback"] .wordmark[data-motion="loading"] .wordmark-loadin
 .shop-buy > span:first-child { min-width: 0; overflow-wrap: anywhere; }
 .shop-buy-arrow { width: 30px; height: 30px; flex: 0 0 auto; transition: transform .18s ease; }
 @media (hover: hover) and (pointer: fine) {
-  .shop-buy:hover { background: color-mix(in srgb, var(--acid) 84%, var(--white)); transform: translateY(-2px); }
-  .shop-buy:hover .shop-buy-arrow { transform: translate(2px, -2px); }
+  .shop-buy:not(:disabled):hover { background: color-mix(in srgb, var(--acid) 84%, var(--white)); transform: translateY(-2px); }
+  .shop-buy:not(:disabled):hover .shop-buy-arrow { transform: translate(2px, -2px); }
 }
-.shop-buy:active { transform: translateY(1px); }
+.shop-buy:not(:disabled):active { transform: translateY(1px); }
+.shop-buy:disabled { justify-content: center; background: var(--line); color: var(--white); cursor: not-allowed; text-align: center; }
 .shop-buy:focus-visible { outline: 3px solid var(--white); outline-offset: 5px; }
 .shop-shipping, .shop-availability { color: var(--muted); font-size: 14px; line-height: 1.5; white-space: pre-line; overflow-wrap: anywhere; }
 .shop-shipping { margin: 14px 0 0; }
